@@ -1,0 +1,26 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:15
+    container_name: lumini-db-test
+    environment:
+      POSTGRES_USER: sneakybuzz
+      POSTGRES_PASSWORD: sneakybuzz
+      POSTGRES_DB: lumini-test
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  chroma:
+    image: chromadb/chroma:latest
+    container_name: chroma-test
+    ports:
+      - "8000:8000"
+    volumes:
+      - chroma_data:/chroma/.chroma
+
+volumes:
+  postgres_data:
+  chroma_data:
