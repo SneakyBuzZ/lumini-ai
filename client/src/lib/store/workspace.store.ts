@@ -1,23 +1,25 @@
 import { create } from "zustand";
-import { Workspace } from "../data/types/workspace.type";
+import { WorkspaceWithMembers } from "@/lib/types/workspace.type";
 
 type State = {
-  workspace: Workspace | null;
+  workspaces: WorkspaceWithMembers[] | null;
 };
 
 type Actions = {
-  setUser: (workspace: Workspace) => void;
-  resetUser: () => void;
+  setWorkspaces: (workspace: WorkspaceWithMembers[]) => void;
+  reset: () => void;
 };
 
-const useWorkspaceStore = create<State & Actions>((set) => ({
-  workspace: null,
-  setUser: (workspace) =>
-    set((state) => ({ workspace: { ...state.workspace, ...workspace } })),
-  resetUser: () =>
+const useWorkspacesStore = create<State & Actions>((set) => ({
+  workspaces: null,
+  setWorkspaces: (workspaces: WorkspaceWithMembers[]) =>
     set(() => ({
-      workspace: null,
+      workspaces,
+    })),
+  reset: () =>
+    set(() => ({
+      workspaces: null,
     })),
 }));
 
-export default useWorkspaceStore;
+export default useWorkspacesStore;

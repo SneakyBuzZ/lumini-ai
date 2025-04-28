@@ -73,11 +73,15 @@ const register = async (req: Request, res: Response) => {
 };
 
 const login = async (req: Request, res: Response) => {
+  console.log("DETAILS: ", req.body);
+
   try {
     const [user] = await db
       .select()
       .from(usersTable)
       .where(eq(usersTable.email, req.body.email));
+
+    console.log("USER: ", user);
 
     if (!user || !user.password) {
       res.status(404).json(new ErrorResponse(404, "User not found"));

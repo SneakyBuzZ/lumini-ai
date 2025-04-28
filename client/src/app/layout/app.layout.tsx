@@ -1,13 +1,26 @@
 import NavbarBreadcrumb from "@/components/shared/breadcrumb";
 import AppSidebar from "@/components/sidebar/app.sidebar";
-import { Outlet } from "react-router-dom";
+import { useUserWithStore } from "@/lib/data/queries/user.query";
+import { useWorkspaceWithStore } from "@/lib/data/queries/workspace.query";
+import useAuthStore from "@/lib/store/auth.store";
+import { useEffect } from "react";
+import { Navigate, Outlet } from "react-router-dom";
+import { toast } from "sonner";
 
 const AppLayout = () => {
-  // const { authenticated } = useAuthStore();
+  const { authenticated } = useAuthStore();
+  const { data: user } = useUserWithStore();
+  useWorkspaceWithStore();
 
-  // if (!authenticated) {
-  //   return <Navigate to={"/"} />;
-  // }
+  useEffect(() => {
+    if (user) {
+      toast.success(`Welcome back, ${user.email}`);
+    }
+  }, [user]);
+
+  if (!authenticated) {
+    return <Navigate to={"/"} />;
+  }
 
   return (
     <>

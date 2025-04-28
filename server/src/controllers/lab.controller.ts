@@ -12,12 +12,14 @@ import {
   workspaceMembersTable,
   workspacesTable,
 } from "@/tables/workspace.table";
-import { and, count, eq, or } from "drizzle-orm";
+import { and, count, eq, or, sql } from "drizzle-orm";
 import { Request, Response } from "express";
 
 export const create = async (req: Request, res: Response) => {
   try {
     const { name, githubUrl, userId, workspaceId } = req.body;
+
+    console.log("LAB CREATION REQUEST", req.body);
 
     // 1. Check if user is Owner or Admin in the workspace
     const [membership] = await db
@@ -33,6 +35,8 @@ export const create = async (req: Request, res: Response) => {
           )
         )
       );
+
+    console.log("MEMBERSHIP", membership);
 
     if (!membership) {
       res
@@ -54,11 +58,15 @@ export const create = async (req: Request, res: Response) => {
 
     const maxLabs = workspace.labsLimit;
 
+    console.log("MAX LABS", maxLabs);
+
     // 3. Count existing labs in the workspace
     const [labCountResult] = await db
       .select({ count: count() })
       .from(labsTable)
       .where(eq(labsTable.workspaceId, workspaceId));
+
+    console.log("LAB COUNT", labCountResult.count);
 
     if (labCountResult.count >= maxLabs) {
       res
@@ -82,6 +90,8 @@ export const create = async (req: Request, res: Response) => {
         workspaceId,
       })
       .returning();
+
+    console.log("NEW LAB", newLab);
 
     const repoFiles = await loadGitHubRepo(githubUrl);
     const summarizeRepoFiles = await generateFilesSummary(repoFiles);
@@ -119,12 +129,27 @@ export const getAll = async (req: Request, res: Response) => {
       return;
     }
 
-    const labs = await db
-      .select()
-      .from(labsTable)
-      .where(eq(labsTable.creatorId, userId));
+    const labs = await db.execute(sql`
+      SELECT 
+        l.id,
+        l.name,
+        l."githubUrl",
+        l."createdAt",
+        json_build_object(
+          'name', u.name,
+          'image', u.image
+        ) AS creator,
+        json_build_object(
+          'id', w.id,
+          'name', w.name
+        ) AS workspace
+      FROM labs l
+      JOIN users u ON l."creatorId" = u.id
+      JOIN workspaces w ON l."workspaceId" = w.id
+      WHERE l."creatorId" = ${userId}
+    `);
 
-    res.status(200).json(new DataResponse(200, labs, "Labs fetched"));
+    res.status(200).json(new DataResponse(200, labs.rows, "Labs fetched"));
   } catch (error) {
     console.error("Lab Fetching Error:", error);
     res.status(500).json(new ErrorResponse(500, "Something went wrong"));
@@ -181,4 +206,4 @@ export const getAnswerToQuery = async (req: Request, res: Response) => {
   }
 };
 
-export default { create };
+export default { create, getAll, getById, getAnswerToQuery };

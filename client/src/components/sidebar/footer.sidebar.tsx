@@ -1,11 +1,12 @@
 import useUserStore from "@/lib/store/user.store";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { ChevronsUpDown } from "lucide-react";
 
 const FooterSidebar = () => {
   const { user } = useUserStore();
   return (
-    <div>
-      <div className="z-20 flex justify-start items-start w-full rounded-md bg-midnight-200 border border-neutral-900 gap-2 p-3">
+    <div className="z-20 flex justify-between items-center w-full rounded-md bg-midnight-200 border border-neutral-900 gap-2 p-3">
+      <div className="flex justify-start items-center gap-1">
         {user.image ? (
           <>
             <Avatar>
@@ -28,6 +29,7 @@ const FooterSidebar = () => {
           <span className="text-[10px] text-neutral-400">{user.email}</span>
         </div>
       </div>
+      <ChevronsUpDown className="h-4" color="#6a6a6a" />
     </div>
   );
 };

@@ -11,7 +11,12 @@ const NavbarBreadcrumb = () => {
   const { pathname } = useLocation();
   const paths = pathname.split("/");
 
-  const ignorePaths = ["handbook", "resource", "app"];
+  const ignorePaths = [
+    "handbook",
+    "resource",
+    "app",
+    "507b74a2-21b3-4d85-b676-a1cb0629b014",
+  ];
 
   const filteredPaths = paths.filter((path) => !ignorePaths.includes(path));
 

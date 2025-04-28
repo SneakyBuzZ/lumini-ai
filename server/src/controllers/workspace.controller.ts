@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { DataResponse } from "@/lib/responses/data.response";
 import { db } from "@/config/db.config";
 import {
@@ -104,10 +104,35 @@ export const getAll = async (req: Request, res: Response) => {
       return;
     }
 
-    const workspaces = await db
-      .select()
-      .from(workspacesTable)
-      .where(eq(workspacesTable.ownerId, userId));
+    type WorkspaceWithMembers = {
+      id: string;
+      name: string;
+      plan: string;
+      createdAt: string;
+      owner: { name: string; image: string | null };
+      members: { name: string; image: string | null }[];
+    };
+
+    const { rows: workspaces } = await db.execute<WorkspaceWithMembers>(sql`
+      SELECT 
+        w.id, 
+        w.name, 
+        w.plan, 
+        w."createdAt",
+        json_build_object('name', u.name, 'image', u.image) AS owner,
+        COALESCE(
+          json_agg(
+            json_build_object('name', mu.name, 'image', mu.image)
+          ) FILTER (WHERE mu.id IS NOT NULL),
+          '[]'
+        ) AS members
+      FROM workspaces w
+      JOIN users u ON u.id = w."ownerId"
+      LEFT JOIN workspace_members wm ON wm."workspaceId" = w.id
+      LEFT JOIN users mu ON mu.id = wm."memberId"
+      WHERE w."ownerId" = ${userId}
+      GROUP BY w.id, u.name, u.image
+    `);
 
     res.status(200).json(new DataResponse(200, workspaces, "Labs fetched"));
   } catch (error) {

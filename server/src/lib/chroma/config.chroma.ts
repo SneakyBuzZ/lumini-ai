@@ -31,6 +31,6 @@ class GeminiEmbeddings extends Embeddings {
 export const embeddings = new GeminiEmbeddings();
 
 export const chroma = new Chroma(embeddings, {
-  collectionName: "lumini-files",
-  url: "http://localhost:8002",
+  collectionName: "lumini-files-summary",
+  url: "http://localhost:8000",
 });

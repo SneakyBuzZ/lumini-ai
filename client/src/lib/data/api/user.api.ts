@@ -41,5 +41,10 @@ export const getUser = async (): Promise<User | void> => {
   }
 
   const response = await api.get("/user");
+
+  if (response.status !== 200) {
+    return;
+  }
+
   return response.data.payload;
 };

@@ -126,8 +126,5 @@ export const labFilesTable = pgTable(
     createdAt: timestamp().notNull().defaultNow(),
     updatedAt: timestamp().notNull().defaultNow(),
   },
-  (labTable) => [
-    uniqueIndex("lab_file_name_idx").on(labTable.name),
-    uniqueIndex("lab_file_labId_idx").on(labTable.labId),
-  ]
+  (labTable) => [uniqueIndex("lab_file_name_idx").on(labTable.name)]
 );

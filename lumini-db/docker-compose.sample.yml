@@ -3,11 +3,11 @@ version: "3.8"
 services:
   db:
     image: postgres:15
-    container_name: lumini-db-test
+    container_name: lumini-db
     environment:
-      POSTGRES_USER: sneakybuzz
-      POSTGRES_PASSWORD: sneakybuzz
-      POSTGRES_DB: lumini-test
+      POSTGRES_USER: abc
+      POSTGRES_PASSWORD: abc
+      POSTGRES_DB: abc
     ports:
       - "5432:5432"
     volumes:
@@ -15,11 +15,13 @@ services:
 
   chroma:
     image: chromadb/chroma:latest
-    container_name: chroma-test
+    container_name: chroma
     ports:
       - "8000:8000"
     volumes:
       - chroma_data:/chroma/.chroma
+    environment:
+      - IS_PERSISTENT=TRUE
 
 volumes:
   postgres_data:
