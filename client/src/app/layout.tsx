@@ -37,7 +37,7 @@ function App() {
         closeButton={false}
         position="top-right"
       />
-      <div className="container min-h-svh flex flex-col justify-start items-center p-0 m-0 dark:bg-midnight-300">
+      <div className="w-full min-h-svh flex flex-col justify-start items-center p-0 m-0 dark:bg-midnight-300">
         <Routes>
           <Route path="*" element={<NotFoundPage />} />
           <Route index element={<HomePage />} />
@@ -47,7 +47,7 @@ function App() {
             <Route path="/auth/login" element={<LoginPage />} />
           </Route>
           <Route path="/app" element={<AppLayout />}>
-            <Route index path="/app/labs" element={<LabsPage />} />
+            <Route path="/app/labs" element={<LabsPage />} />
             <Route path="/app/labs/:labId" element={<LabPage />} />
             <Route path="/app/labs/:labId/files" element={<LabPage />} />
             <Route

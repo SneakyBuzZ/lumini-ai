@@ -152,18 +152,6 @@
   }
 }
 
-
-
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-
-  body {
-    @apply bg-background text-foreground;
-  }
-}
-
 @keyframes move-border {
   0% {
     border-color: transparent;
@@ -191,15 +179,8 @@
   border-radius: 10px;
 }
 
-.tldraw__editor--dark {
-  --tldraw-background: #2e2e2e;
-  /* Dark background */
-  --tldraw-stroke: #ffffff;
-  /* Light stroke for shapes */
-  --tldraw-fill: #333333;
-  /* Dark fill color for shapes */
-  --tldraw-border: #444444;
-  /* Dark border for shapes */
-  --tldraw-text: #ffffff;
-  /* Light text color */
+
+canvas {
+  box-sizing: content-box;
+  display: block;
 }
