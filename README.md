@@ -1,4 +1,4 @@
-# Cosha: Your AI Ultimate Buddy⚡
+   # Lumini AI: Your AI Ultimate Buddy⚡
 
 #### Cosha is an _AI-powered GitHub_ companion designed to simplify and enhance your development experience, especially in the open-source space. Whether you are a seasoned developer or a beginner, Cosha helps you save time, boost productivity, and collaborate seamlessly with _intelligent AI tools_ and real-time insights.
 
