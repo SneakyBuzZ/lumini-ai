@@ -1,7 +1,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { WorkspaceWithMembers } from "@/lib/types/workspace.type";
 import { Checkbox } from "@/components/ui/checkbox";
-import useWorkspacesStore from "@/lib/store/workspace.store";
+import useWorkspacesStore from "@/lib/store/workspace-store";
 
 export const workspaceColumns: ColumnDef<WorkspaceWithMembers>[] = [
   {

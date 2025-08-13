@@ -1,5 +1,5 @@
-import useWorkspacesStore from "@/lib/store/workspace.store";
-import { useGetWorkspaceSettings } from "@/lib/data/queries/workspace.query";
+import useWorkspacesStore from "@/lib/store/workspace-store";
+import { useGetWorkspaceSettings } from "@/lib/data/queries/workspace-queries";
 import { SelectSeparator } from "@/components/ui/select";
 import HeaderSettings from "@/components/settings/header.settings";
 import BarSettings from "@/components/settings/bar.settings";

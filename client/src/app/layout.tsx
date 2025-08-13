@@ -1,20 +1,20 @@
 import { Route, Routes } from "react-router-dom";
-import NotFoundPage from "@/app/pages/not-found.page";
-import HomePage from "@/app/pages/home.page";
-import RegisterPage from "@/app/pages/register.page";
-import LoginPage from "@/app/pages/login.page";
+import NotFoundPage from "@/app/pages/auth/not-found-page";
+import HomePage from "@/app/pages/home-page";
+import RegisterPage from "@/app/pages/auth/register-page";
+import LoginPage from "@/app/pages/auth/login-page";
 import AppLayout from "@/app/layout/app.layout";
-import { useGetIsAuthenticated } from "@/lib/data/queries/user.query";
-import useAuthStore from "@/lib/store/auth.store";
+import { useGetIsAuthenticated } from "@/lib/data/queries/user-queries";
+import useAuthStore from "@/lib/store/auth-store";
 import { useEffect } from "react";
 import AuthLayout from "@/app/layout/auth.layout";
-import LabsPage from "@/app/pages/labs.page";
-import WorkspacePage from "@/app/pages/workspaces.page";
+import LabsPage from "@/app/pages/labs-page";
+import WorkspacePage from "@/app/pages/workspaces-page";
 import { Toaster } from "@/components/ui/sonner";
-import LabPage from "./pages/lab.page";
-import AskPage from "./pages/ask.page";
-import Whiteboard from "./pages/draw.page";
-import PlanComparison from "./pages/billing.page";
+import LabPage from "./pages/lab/lab-page";
+import AskPage from "./pages/lab/ask-page";
+import Whiteboard from "./pages/lab/draw-page";
+import PlanComparison from "./pages/workspace/billing-page";
 import SettingsPage from "./pages/workspace/settings";
 
 function App() {

@@ -6,7 +6,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import WorkspaceForm from "../forms/workspace.form";
+import WorkspaceForm from "../forms/workspace-form";
 
 interface CreateWorkspaceButtonProps {
   triggerLabel?: string;

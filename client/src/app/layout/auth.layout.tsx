@@ -1,11 +1,11 @@
-import useAuthStore from "@/lib/store/auth.store";
+import useAuthStore from "@/lib/store/auth-store";
 import { Navigate, Outlet } from "react-router-dom";
 
 const AuthLayout = () => {
   const { authenticated } = useAuthStore();
 
   if (authenticated) {
-    return <Navigate to={"/app/projects"} />;
+    return <Navigate to={"/app/workspaces"} />;
   } else {
     return (
       <>

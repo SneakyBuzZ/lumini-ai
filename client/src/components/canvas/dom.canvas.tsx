@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import useCanvasStore from "@/lib/store/canvas.store";
+import useCanvasStore from "@/lib/store/canvas-store";
 import { renderShapes } from "@/lib/canvas/drawing";
 import { initialiseCanvas } from "@/lib/canvas/utils";
 import UseCanvas from "@/hooks/use-canvas";
@@ -31,7 +31,7 @@ export function Canvas() {
     <div className="relative w-full flex-1 flex justify-start items-center">
       <canvas
         ref={canvasRef}
-        className="bg-midnight-300/60"
+        className="bg-midnight-300 canvas-bg"
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}

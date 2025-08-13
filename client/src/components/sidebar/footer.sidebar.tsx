@@ -1,4 +1,4 @@
-import useUserStore from "@/lib/store/user.store";
+import useUserStore from "@/lib/store/user-store";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { ChevronsUpDown } from "lucide-react";
 

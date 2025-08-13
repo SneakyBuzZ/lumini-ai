@@ -2,7 +2,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { LabWithMembers } from "@/lib/types/lab.type";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useNavigate } from "react-router-dom";
-import useLabStore from "@/lib/store/lab.store";
+import useLabStore from "@/lib/store/lab-store";
 
 interface ClickableLabNameCellProps {
   lab: LabWithMembers;
@@ -14,7 +14,7 @@ export function ClickableLabNameCell({ lab }: ClickableLabNameCellProps) {
 
   const handleClick = () => {
     setLab(lab);
-    navigate(`/app/labs/${lab.id}`);
+    navigate(`/app/labs/${lab.name.replace(/\s+/g, "-").toLowerCase()}`);
   };
 
   return (

@@ -184,6 +184,23 @@ canvas {
   display: block;
 }
 
+/* add background image to canvas before or after */
+
+canvas:after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("/assets/vectors/grid.svg");
+  background-size: cover;
+  opacity: 0.2;
+  z-index: -1;
+}
+
+
+
 .main {
   z-index: 2;
 }

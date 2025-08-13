@@ -6,7 +6,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import LabForm from "../forms/lab.form";
+import LabForm from "../forms/lab-form";
 
 interface CreateLabButtonProps {
   children: React.ReactNode;

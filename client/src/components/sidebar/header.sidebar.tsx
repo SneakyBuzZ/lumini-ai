@@ -1,5 +1,5 @@
 import Logo from "@/components/shared/logo";
-import useWorkspaceStore from "@/lib/store/workspace.store";
+import useWorkspaceStore from "@/lib/store/workspace-store";
 import {
   Select,
   SelectContent,

@@ -1,4 +1,4 @@
-import useWorkspacesStore from "@/lib/store/workspace.store";
+import useWorkspacesStore from "@/lib/store/workspace-store";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { SelectSeparator } from "../ui/select";

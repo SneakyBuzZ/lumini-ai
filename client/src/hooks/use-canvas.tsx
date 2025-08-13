@@ -1,5 +1,5 @@
 import { getCanvasCoords, isPointInsideShape } from "@/lib/canvas/utils";
-import useCanvasStore from "@/lib/store/canvas.store";
+import useCanvasStore from "@/lib/store/canvas-store";
 import { Shape } from "@/lib/types/canvas.type";
 import { nanoid } from "nanoid";
 import { useEffect, useRef, useState } from "react";

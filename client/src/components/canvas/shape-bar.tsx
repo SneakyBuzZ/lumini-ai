@@ -1,5 +1,5 @@
 // src/components/Toolbar.tsx
-import useCanvasStore from "@/lib/store/canvas.store";
+import useCanvasStore from "@/lib/store/canvas-store";
 import { Button } from "@/components/ui/button";
 import { ShapeType } from "@/lib/types/canvas.type";
 import { ALargeSmall, Circle, MoveUpRight, Slash, Square } from "lucide-react";

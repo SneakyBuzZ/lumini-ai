@@ -1,10 +1,13 @@
 import { LAB_SIDEBAR_LIST, SIDEBAR_LIST } from "@/lib/lists/sidebar.list";
-import useLabStore from "@/lib/store/lab.store";
+import useLabStore from "@/lib/store/lab-store";
 import { Link } from "react-router-dom";
 
 const ContentSidebar = () => {
   const { lab } = useLabStore();
-  const LIST = lab != null ? LAB_SIDEBAR_LIST(lab.id) : SIDEBAR_LIST;
+  const LIST =
+    lab != null
+      ? LAB_SIDEBAR_LIST(lab.name.replace(/\s+/g, "-").toLowerCase())
+      : SIDEBAR_LIST;
   return (
     <>
       <div className="z-20 w-full flex flex-1 flex-col justify-start items-start gap-6 px-2 py-4">

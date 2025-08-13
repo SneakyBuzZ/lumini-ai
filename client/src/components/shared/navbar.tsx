@@ -1,7 +1,7 @@
 import Logo from "@/components/shared/logo";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import useAuthStore from "@/lib/store/auth.store";
+import useAuthStore from "@/lib/store/auth-store";
 import { NAVBAR_LIST } from "@/lib/lists/navbar.list";
 
 const Navbar = () => {
