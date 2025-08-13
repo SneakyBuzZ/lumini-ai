@@ -14,6 +14,8 @@ import { Toaster } from "@/components/ui/sonner";
 import LabPage from "./pages/lab.page";
 import AskPage from "./pages/ask.page";
 import Whiteboard from "./pages/draw.page";
+import PlanComparison from "./pages/billing.page";
+import SettingsPage from "./pages/workspace/settings";
 
 function App() {
   const { setAuthenticated } = useAuthStore();
@@ -24,7 +26,7 @@ function App() {
   }, [isAuthenticated, setAuthenticated]);
 
   return (
-    <section className="w-full min-h-svh flex flex-col justify-start items-center p-0 m-0 dark:bg-midnight-300 font-spline tracking-tight">
+    <section className="w-full border h-full flex flex-col justify-start items-center p-0 m-0 dark:bg-black font-spline tracking-tight">
       <Toaster
         toastOptions={{
           className: "bg-midnight-300 text-white",
@@ -37,7 +39,7 @@ function App() {
         closeButton={false}
         position="top-right"
       />
-      <div className="w-full min-h-svh flex flex-col justify-start items-center p-0 m-0 dark:bg-midnight-300">
+      <div className="w-full min-h-svh flex flex-col justify-start items-center p-0 m-0">
         <Routes>
           <Route path="*" element={<NotFoundPage />} />
           <Route index element={<HomePage />} />
@@ -57,6 +59,8 @@ function App() {
             <Route path="/app/labs/:labId/settings" element={<LabPage />} />
             <Route path="/app/labs/:labId/ask" element={<AskPage />} />
             <Route path="/app/workspaces" element={<WorkspacePage />} />
+            <Route path="/app/billing" element={<PlanComparison />} />
+            <Route path="/app/settings" element={<SettingsPage />} />
           </Route>
         </Routes>
       </div>

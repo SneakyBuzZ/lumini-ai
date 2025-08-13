@@ -1,6 +1,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { WorkspaceWithMembers } from "@/lib/types/workspace.type";
 import { Checkbox } from "@/components/ui/checkbox";
+import useWorkspacesStore from "@/lib/store/workspace.store";
 
 export const workspaceColumns: ColumnDef<WorkspaceWithMembers>[] = [
   {
@@ -12,13 +13,24 @@ export const workspaceColumns: ColumnDef<WorkspaceWithMembers>[] = [
         aria-label="Select all"
       />
     ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
+    cell: ({ row }) => {
+      const { setCurrentWorkspace } = useWorkspacesStore.getState();
+      return (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => {
+            row.toggleSelected(!!value);
+            const workspace = row.original;
+            if (value) {
+              setCurrentWorkspace(workspace);
+            } else {
+              setCurrentWorkspace(null);
+            }
+          }}
+          aria-label="Select row"
+        />
+      );
+    },
     enableSorting: false,
     enableHiding: false,
   },

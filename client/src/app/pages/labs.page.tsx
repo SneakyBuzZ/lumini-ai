@@ -1,15 +1,22 @@
+import CreateLabButton from "@/components/cta-buttons/create-lab";
+import CreateWorkspaceButton from "@/components/cta-buttons/create-workspace";
 import { labColumns } from "@/components/table/lab-columns";
 import { WorkspaceTable } from "@/components/table/workspace.table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useGetAllLabs } from "@/lib/data/queries/lab.query";
+import { useGetLabsByWorkspaceId } from "@/lib/data/queries/lab.query";
+import useWorkspacesStore from "@/lib/store/workspace.store";
 import { LabWithMembers } from "@/lib/types/lab.type";
 import { CirclePlus, Search } from "lucide-react";
 
 const LabsPage = () => {
-  const { data: labs } = useGetAllLabs();
+  const { currentWorkspace } = useWorkspacesStore();
+  const { data: workspaceLabs } = useGetLabsByWorkspaceId(
+    currentWorkspace?.id ?? ""
+  );
+  console.log("Workspace Labs:", workspaceLabs);
   return (
-    <div className="flex flex-1 justify-center items-start bg-midnight-300">
+    <div className="flex flex-1 justify-center items-start bg-midnight-300 h-full py-16">
       <div className="space-y-5 w-11/12 py-10">
         <div className="space-y-1 w-full">
           <h3 className="text-3xl font-semibold font-space tracking-tight">
@@ -22,14 +29,19 @@ const LabsPage = () => {
         </div>
         <div className="flex justify-between items-center w-full">
           <div className="flex justify-start items-center gap-3">
-            <Button className="gap-1 flex items-center">
-              <CirclePlus />
-              Lab
-            </Button>
-            <Button variant={"secondary"} className="gap-1 flex items-center">
-              <CirclePlus />
-              Workspace
-            </Button>
+            <CreateLabButton>
+              <Button className="gap-1 flex items-center">
+                <CirclePlus />
+                Lab
+              </Button>
+            </CreateLabButton>
+
+            <CreateWorkspaceButton>
+              <Button variant={"secondary"} className="gap-1 flex items-center">
+                <CirclePlus />
+                Workspace
+              </Button>
+            </CreateWorkspaceButton>
           </div>
           <div className="flex justify-start items-center bg-midnight-200 border border-neutral-800 rounded-md px-2">
             <Search className="size-4" />
@@ -39,10 +51,10 @@ const LabsPage = () => {
             />
           </div>
         </div>
-        {(labs ?? []).length > 0 ? (
+        {workspaceLabs && workspaceLabs.length > 0 ? (
           <WorkspaceTable<LabWithMembers>
             columns={labColumns}
-            data={labs ?? []}
+            data={workspaceLabs}
           />
         ) : (
           <div className="flex flex-col justify-center items-center w-full border border-dashed border-neutral-800 gap-3 py-10 rounded-lg bg-midnight-100/30">

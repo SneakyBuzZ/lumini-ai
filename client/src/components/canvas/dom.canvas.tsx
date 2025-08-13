@@ -11,11 +11,12 @@ export function Canvas() {
     handleMouseDown,
     handleMouseMove,
     handleMouseUp,
+    handleWheel,
     editingText,
     setEditingText,
   } = UseCanvas();
 
-  const { shapes, addShape } = useCanvasStore();
+  const { shapes, addShape, scale, offsetX, offsetY } = useCanvasStore();
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -23,26 +24,28 @@ export function Canvas() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
     initialiseCanvas(ctx, canvas);
-    renderShapes(shapes, ctx);
-  }, [shapes, canvasRef]);
+    renderShapes(shapes, ctx, scale, offsetX, offsetY);
+  }, [shapes, canvasRef, scale, offsetX, offsetY]);
 
   return (
-    <div className="relative w-full flex-1 flex justify-center items-center">
+    <div className="relative w-full flex-1 flex justify-start items-center">
       <canvas
         ref={canvasRef}
-        className="bg-midnight-400 w-full h-full"
+        className="bg-midnight-300/60"
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onDoubleClick={handleDoubleClick}
+        onWheel={handleWheel}
+        style={{ width: "100%", height: "100%" }}
       />
       {editingText && (
         <textarea
           autoFocus
           style={{
             position: "absolute",
-            top: editingText.y,
-            left: editingText.x,
+            left: editingText.x + offsetX,
+            top: editingText.y + offsetY,
             fontSize: "16px",
             fontFamily: "sans-serif",
             zIndex: 10,

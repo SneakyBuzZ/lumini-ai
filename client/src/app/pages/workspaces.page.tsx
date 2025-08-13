@@ -6,12 +6,22 @@ import { WorkspaceWithMembers } from "@/lib/types/workspace.type";
 import { workspaceColumns } from "@/components/table/workspace-columns";
 import useWorkspacesStore from "@/lib/store/workspace.store";
 
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import WorkspaceForm from "@/components/forms/workspace.form";
+
 const WorkspacePage = () => {
   const { workspaces } = useWorkspacesStore();
   console.log("WORKSPACES KI MKC: ", workspaces);
 
   return (
-    <div className="flex flex-1 justify-center items-start bg-midnight-300">
+    <div className="flex flex-1 justify-center items-start bg-midnight-300 h-full py-16">
       <div className="space-y-5 w-11/12 py-10">
         {/* Header */}
         <div className="space-y-1 w-full">
@@ -27,10 +37,28 @@ const WorkspacePage = () => {
         {/* Controls */}
         <div className="flex justify-between items-center w-full">
           <div className="flex gap-3">
-            <Button className="gap-1">
-              <CirclePlus className="size-4" />
-              Workspace
-            </Button>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button className="gap-1">
+                  <CirclePlus className="size-4" />
+                  Create Workspace
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[525px] p-0">
+                <DialogHeader className="w-full">
+                  <DialogTitle className="text-xl border-b py-3 px-4">
+                    Create a new Workspace
+                  </DialogTitle>
+                  <DialogDescription className="px-4 pt-2 text-sm text-neutral-500">
+                    Workspaces are your personal space to create and experiment
+                    with your code. Each workspace has its own labs and
+                    settings.
+                  </DialogDescription>
+                </DialogHeader>
+                <WorkspaceForm />
+              </DialogContent>
+            </Dialog>
+
             <Button variant="secondary" className="gap-1">
               <CirclePlus className="size-4" />
               Lab

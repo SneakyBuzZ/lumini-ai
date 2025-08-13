@@ -21,7 +21,7 @@ const NavbarBreadcrumb = () => {
   const filteredPaths = paths.filter((path) => !ignorePaths.includes(path));
 
   return (
-    <Breadcrumb className="hidden md:flex items-center p-4 px-6">
+    <Breadcrumb className="hidden md:flex items-center p-4 px-6 absolute z-50 backdrop-blur-sm">
       <BreadcrumbList>
         <BreadcrumbItem>
           <BreadcrumbLink href="/">Home</BreadcrumbLink>

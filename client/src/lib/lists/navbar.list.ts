@@ -2,7 +2,7 @@ export const NAVBAR_LIST = [
   {
     id: 1,
     label: "Home",
-    href: "/home",
+    href: "/",
   },
   {
     id: 2,

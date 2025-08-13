@@ -9,4 +9,7 @@ export interface Shape {
   height: number;
   color: string;
   text?: string;
+  isSelected?: boolean;
+  isDragging?: boolean;
+  isHovered?: boolean;
 }

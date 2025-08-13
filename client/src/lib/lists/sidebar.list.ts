@@ -17,11 +17,6 @@ export const SIDEBAR_LIST = [
         icons: FlaskRound,
         href: "/app/labs",
       },
-      {
-        name: "Workspaces",
-        icons: Layout,
-        href: "/app/workspaces",
-      },
     ],
   },
   {
@@ -30,12 +25,12 @@ export const SIDEBAR_LIST = [
       {
         name: "Billing",
         icons: Wallet,
-        href: "/account/profile",
+        href: "/app/billing",
       },
       {
         name: "Settings",
         icons: Settings,
-        href: "/account/settings",
+        href: "/app/settings",
       },
     ],
   },

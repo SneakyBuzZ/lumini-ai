@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getAll } from "../api/lab.api";
+import { getAll, getLabsByWorkspaceId } from "../api/lab.api";
 
 export const useGetAllLabs = () => {
   return useQuery({
@@ -7,5 +7,14 @@ export const useGetAllLabs = () => {
     queryFn: getAll,
     retry: 1,
     staleTime: 1000 * 60 * 3,
+  });
+};
+
+export const useGetLabsByWorkspaceId = (workspaceId: string) => {
+  return useQuery({
+    queryKey: ["getLabsByWorkspaceId", workspaceId],
+    queryFn: ({ queryKey }) => getLabsByWorkspaceId(queryKey[1] as string),
+    retry: 1,
+    staleTime: 1000 * 60,
   });
 };

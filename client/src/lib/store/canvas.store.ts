@@ -10,6 +10,9 @@ type State = {
   selectedShapeId: string | null;
   currentShape: ShapeType;
   doubleClickLock: boolean;
+  scale: number;
+  offsetX: number;
+  offsetY: number;
 };
 
 type Actions = {
@@ -23,6 +26,8 @@ type Actions = {
   setShape: (shape: ShapeType) => void;
   setDoubleClickLock: (lock: boolean) => void;
   reset: () => void;
+  setScale: (scale: number) => void;
+  setOffset: (x: number, y: number) => void;
 };
 
 const initialState: State = {
@@ -34,6 +39,9 @@ const initialState: State = {
   selectedShapeId: null,
   currentShape: "rectangle",
   doubleClickLock: false,
+  scale: 1,
+  offsetX: 0,
+  offsetY: 0,
 };
 
 const useCanvasStore = create<State & Actions>((set) => ({
@@ -67,6 +75,8 @@ const useCanvasStore = create<State & Actions>((set) => ({
     })),
   finishDrawing: () => set({ drawingInProgress: false, tempShapeId: null }),
   setDoubleClickLock: (lock: boolean) => set({ doubleClickLock: lock }),
+  setScale: (scale) => set({ scale }),
+  setOffset: (x, y) => set({ offsetX: x, offsetY: y }),
 }));
 
 export default useCanvasStore;

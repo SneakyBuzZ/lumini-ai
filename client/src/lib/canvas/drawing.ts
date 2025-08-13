@@ -1,13 +1,42 @@
 import { Shape } from "@/lib/types/canvas.type";
-import { snapLine } from "./utils";
+import { drawHighlight, snapLine } from "./utils";
 
 export const renderShapes = (
   shapes: Shape[],
-  ctx: CanvasRenderingContext2D
+  ctx: CanvasRenderingContext2D,
+  scale: number,
+  offsetX: number,
+  offsetY: number
 ) => {
+  const canvas = ctx.canvas;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  ctx.save();
+
+  ctx.translate(offsetX, offsetY);
+  ctx.scale(scale, scale);
+
   shapes.forEach((shape) => {
     ctx.strokeStyle = shape.color;
     ctx.fillStyle = shape.color;
+    ctx.lineWidth = 2;
+
+    if (shape.isDragging || shape.isHovered) {
+      ctx.shadowColor = "rgba(0, 0, 0, 0.2)";
+      ctx.shadowBlur = 8;
+      ctx.shadowOffsetX = 2;
+      ctx.shadowOffsetY = 2;
+    } else {
+      ctx.shadowColor = "transparent"; // reset shadow
+    }
+
+    if (shape.isSelected) {
+      ctx.setLineDash([6, 4]); // dashed line
+      drawHighlight(shape, ctx, scale, offsetX, offsetY);
+    } else {
+      ctx.setLineDash([]); // solid line
+    }
 
     if (shape.type === "text") {
       ctx.font = "16px sans-serif";
@@ -25,16 +54,31 @@ export const renderShapes = (
         break;
 
       case "line":
-        ctx.lineWidth = 2;
         drawLine(ctx, shape);
         break;
 
-      case "arrow": {
+      case "arrow":
         drawArrow(ctx, shape);
         break;
-      }
+    }
+
+    // ✅ If selected, draw a bounding box or handle points (optional enhancement)
+    if (shape.isSelected) {
+      ctx.save();
+      ctx.strokeStyle = "#007AFF"; // highlight color
+      ctx.setLineDash([4, 2]);
+      ctx.lineWidth = 1;
+      ctx.strokeRect(
+        shape.x - 4,
+        shape.y - 4,
+        shape.width + 8,
+        shape.height + 8
+      );
+      ctx.restore();
     }
   });
+
+  ctx.restore(); // 🔁 Reset transform, shadow, dash
 };
 
 export const drawRoundedRect = (
