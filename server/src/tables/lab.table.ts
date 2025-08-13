@@ -37,10 +37,6 @@ export const labsTable = pgTable(
   (labsTable) => [
     uniqueIndex("lab_name_idx").on(labsTable.name),
     uniqueIndex("lab_githubUrl_idx").on(labsTable.githubUrl),
-    uniqueIndex("lab_creatorId_idx").on(labsTable.creatorId),
-    uniqueIndex("lab_workspaceId_idx").on(labsTable.workspaceId),
-    uniqueIndex("lab_isPublic_idx").on(labsTable.isPublic),
-    uniqueIndex("lab_isArchived_idx").on(labsTable.isArchived),
     uniqueIndex("lab_createdAt_idx").on(labsTable.createdAt),
     uniqueIndex("lab_updatedAt_idx").on(labsTable.updatedAt),
   ]
@@ -110,21 +106,17 @@ export const labMembersTable = pgTable("lab_members", {
   updatedAt: timestamp().notNull().defaultNow(),
 });
 
-export const labFilesTable = pgTable(
-  "lab_files",
-  {
-    id: uuid().defaultRandom().primaryKey(),
+export const labFilesTable = pgTable("lab_files", {
+  id: uuid().defaultRandom().primaryKey(),
 
-    labId: uuid()
-      .references(() => labsTable.id, { onDelete: "cascade" })
-      .notNull(),
+  labId: uuid()
+    .references(() => labsTable.id, { onDelete: "cascade" })
+    .notNull(),
 
-    name: varchar({ length: 255 }).notNull(),
-    content: text().notNull(),
-    summary: text().notNull(),
+  name: varchar({ length: 255 }).notNull(),
+  content: text().notNull(),
+  summary: text().notNull(),
 
-    createdAt: timestamp().notNull().defaultNow(),
-    updatedAt: timestamp().notNull().defaultNow(),
-  },
-  (labTable) => [uniqueIndex("lab_file_name_idx").on(labTable.name)]
-);
+  createdAt: timestamp().notNull().defaultNow(),
+  updatedAt: timestamp().notNull().defaultNow(),
+});

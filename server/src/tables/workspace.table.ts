@@ -28,8 +28,6 @@ export const workspacesTable = pgTable(
   },
   (workspacesTable) => [
     uniqueIndex("workspace_name_idx").on(workspacesTable.name),
-    uniqueIndex("workspace_ownerId_idx").on(workspacesTable.ownerId),
-    uniqueIndex("workspace_plan_idx").on(workspacesTable.plan),
     uniqueIndex("workspace_createdAt_idx").on(workspacesTable.createdAt),
   ]
 );

@@ -50,9 +50,14 @@ export async function askGeminiWithContext(
 ) {
   const queryEmbedding = await embeddings.embedQuery(question);
 
-  const results = (
-    await chroma.similaritySearchVectorWithScore(queryEmbedding, 10)
-  ).filter(([doc]) => doc.metadata.projectId === projectId);
+  let results = await chroma.similaritySearchVectorWithScore(queryEmbedding, 3);
+
+  console.log("Ye hai bhai", projectId);
+
+  results.map(([doc]) => {
+    console.log("Document metadata:", doc.metadata.projectId);
+    return doc;
+  });
 
   if (results.length === 0) {
     console.log("No relevant files found.");

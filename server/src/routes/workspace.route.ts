@@ -15,4 +15,10 @@ workspaceRouter.post(
 
 workspaceRouter.get("/", authenticateJwt(), workspaceController.getAll);
 
+workspaceRouter.get(
+  "/settings/:workspaceId",
+  authenticateJwt(),
+  workspaceController.getSettings
+);
+
 export default workspaceRouter;

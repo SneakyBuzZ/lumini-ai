@@ -8,6 +8,7 @@ import { loadGitHubRepo } from "@/lib/langchain/repo-loader";
 import { DataResponse } from "@/lib/responses/data.response";
 import { ErrorResponse } from "@/lib/responses/error.response";
 import { labFilesTable, labsTable } from "@/tables/lab.table";
+import { usersTable } from "@/tables/user.table";
 import {
   workspaceMembersTable,
   workspacesTable,
@@ -16,8 +17,16 @@ import { and, count, eq, or, sql } from "drizzle-orm";
 import { Request, Response } from "express";
 
 export const create = async (req: Request, res: Response) => {
+  console.log("LAB CREATION REQUEST RECEIVED");
   try {
-    const { name, githubUrl, userId, workspaceId } = req.body;
+    const { name, githubUrl, workspaceId } = req.body;
+    const userId = req.user?.id;
+
+    if (!userId) {
+      console.error("Unauthorized access attempt");
+      res.status(401).json(new ErrorResponse(401, "Unauthorized"));
+      return;
+    }
 
     console.log("LAB CREATION REQUEST", req.body);
 
@@ -35,8 +44,6 @@ export const create = async (req: Request, res: Response) => {
           )
         )
       );
-
-    console.log("MEMBERSHIP", membership);
 
     if (!membership) {
       res
@@ -58,8 +65,6 @@ export const create = async (req: Request, res: Response) => {
 
     const maxLabs = workspace.labsLimit;
 
-    console.log("MAX LABS", maxLabs);
-
     // 3. Count existing labs in the workspace
     const [labCountResult] = await db
       .select({ count: count() })
@@ -71,12 +76,7 @@ export const create = async (req: Request, res: Response) => {
     if (labCountResult.count >= maxLabs) {
       res
         .status(403)
-        .json(
-          new ErrorResponse(
-            403,
-            `Workspace has reached its lab limit (${maxLabs}).`
-          )
-        );
+        .json(new ErrorResponse(204, `Workspace has reached its lab limit.`));
       return;
     }
 
@@ -183,8 +183,64 @@ export const getById = async (req: Request, res: Response) => {
   }
 };
 
+export const getLabsByWorkspaceId = async (req: Request, res: Response) => {
+  const { workspaceId } = req.params;
+
+  console.log("Fetching labs for workspace ID:", workspaceId);
+
+  try {
+    const labs = await db
+      .select({
+        id: labsTable.id,
+        name: labsTable.name,
+        githubUrl: labsTable.githubUrl,
+        createdAt: labsTable.createdAt,
+        creatorName: usersTable.name,
+        creatorImage: usersTable.image,
+        workspaceId: workspacesTable.id,
+        workspaceName: workspacesTable.name,
+      })
+      .from(labsTable)
+      .where(eq(labsTable.workspaceId, workspaceId))
+      .leftJoin(usersTable, eq(labsTable.creatorId, usersTable.id))
+      .leftJoin(workspacesTable, eq(labsTable.workspaceId, workspacesTable.id));
+
+    if (!labs || labs.length === 0) {
+      res
+        .status(404)
+        .json(new ErrorResponse(404, "No labs found for this workspace"));
+
+      return;
+    }
+
+    // Map to desired shape
+    const result = labs.map((lab) => ({
+      id: lab.id,
+      name: lab.name,
+      githubUrl: lab.githubUrl,
+      createdAt: lab.createdAt,
+      creator: {
+        name: lab.creatorName,
+        image: lab.creatorImage,
+      },
+      workspace: {
+        id: lab.workspaceId,
+        name: lab.workspaceName,
+      },
+    }));
+
+    res
+      .status(200)
+      .json(new DataResponse(200, result, "Labs fetched successfully"));
+  } catch (error) {
+    console.error("Error fetching labs by workspace ID:", error);
+    res.status(500).json(new ErrorResponse(500, "Something went wrong"));
+  }
+};
+
 export const getAnswerToQuery = async (req: Request, res: Response) => {
-  const { labId, query } = req.body;
+  const { query } = req.body;
+  const { labId } = req.params;
 
   try {
     const lab = await db
@@ -202,8 +258,14 @@ export const getAnswerToQuery = async (req: Request, res: Response) => {
     res.status(200).json(new DataResponse(200, { answer, relatedFiles }));
   } catch (error) {
     console.error("Error fetching answer:", error);
-    res.status(500).json(new ErrorResponse(500, "Something went wrong"));
+    res.status(200).json(new ErrorResponse(200, "Something went wrong"));
   }
 };
 
-export default { create, getAll, getById, getAnswerToQuery };
+export default {
+  create,
+  getAll,
+  getById,
+  getAnswerToQuery,
+  getLabsByWorkspaceId,
+};

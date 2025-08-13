@@ -8,10 +8,17 @@ import {
   workspacesTable,
 } from "@/tables/workspace.table";
 import { ErrorResponse } from "@/lib/responses/error.response";
+import { usersTable } from "@/tables/user.table";
 
 export const create = async (req: Request, res: Response) => {
   try {
-    const { name, plan, userId } = req.body;
+    const { name, plan } = req.body;
+    const userId = req.user?.id;
+
+    if (!userId) {
+      res.status(403).json(new ErrorResponse(403, "Unauthorized"));
+      return;
+    }
 
     const userWorkspaces = await db
       .select()
@@ -22,8 +29,8 @@ export const create = async (req: Request, res: Response) => {
       const hasFree = userWorkspaces.some((w) => w.plan === "free");
       if (hasFree) {
         res
-          .status(403)
-          .json(new ErrorResponse(403, "Free plan workspace limit reached."));
+          .status(204)
+          .json(new ErrorResponse(204, "Free plan workspace limit reached."));
 
         return;
       }
@@ -31,8 +38,8 @@ export const create = async (req: Request, res: Response) => {
       const proCount = userWorkspaces.filter((w) => w.plan === "pro").length;
       if (proCount >= 1) {
         res
-          .status(403)
-          .json(new ErrorResponse(403, "Pro plan workspace limit reached."));
+          .status(204)
+          .json(new ErrorResponse(204, "Pro plan workspace limit reached."));
 
         return;
       }
@@ -141,4 +148,79 @@ export const getAll = async (req: Request, res: Response) => {
   }
 };
 
-export default { create, getAll };
+export const getSettings = async (req: Request, res: Response) => {
+  const workspaceId = req.params.workspaceId;
+  const userId = req.user?.id;
+
+  if (!userId) {
+    res.status(403).json(new ErrorResponse(403, "Forbidden"));
+    return;
+  }
+
+  if (!workspaceId) {
+    res.status(400).json(new ErrorResponse(400, "Workspace ID is required"));
+    return;
+  }
+
+  const workspaces = await db
+    .select({
+      info: {
+        name: workspacesTable.name,
+        plan: workspacesTable.plan,
+        ownerName: usersTable.name,
+        ownerImage: usersTable.image,
+        ownerEmail: usersTable.email,
+        ownerCreatedAt: usersTable.createdAt,
+        createdAt: workspacesTable.createdAt,
+      },
+      settings: {
+        maxLabs: workspaceSettingsTable.maxLabs,
+        maxWorkspaceUsers: workspaceSettingsTable.maxWorkspaceUsers,
+        allowWorkspaceInvites: workspaceSettingsTable.allowWorkspaceInvites,
+        visibility: workspaceSettingsTable.visibility,
+        allowGithubSync: workspaceSettingsTable.allowGithubSync,
+      },
+    })
+    .from(workspacesTable)
+    .where(eq(workspacesTable.id, workspaceId))
+    .leftJoin(usersTable, eq(workspacesTable.ownerId, usersTable.id))
+    .leftJoin(
+      workspaceSettingsTable,
+      eq(workspacesTable.id, workspaceSettingsTable.workspaceId)
+    )
+    .leftJoin(
+      workspaceMembersTable,
+      eq(workspacesTable.id, workspaceMembersTable.workspaceId)
+    )
+    .execute();
+
+  const members = await db
+    .select({
+      id: workspaceMembersTable.memberId,
+      name: usersTable.name,
+      image: usersTable.image,
+      email: usersTable.email,
+      joinedAt: workspaceMembersTable.joinedAt,
+      role: workspaceMembersTable.role,
+    })
+    .from(workspaceMembersTable)
+    .leftJoin(usersTable, eq(workspaceMembersTable.memberId, usersTable.id))
+    .where(eq(workspaceMembersTable.workspaceId, workspaceId))
+    .execute();
+
+  const payload = {
+    ...workspaces[0],
+    members,
+  };
+
+  res
+    .status(200)
+    .json(new DataResponse(200, payload, "Workspace settings fetched"));
+
+  if (!workspaces.length) {
+    res.status(404).json(new ErrorResponse(404, "Workspace not found"));
+    return;
+  }
+};
+
+export default { create, getAll, getSettings };
