@@ -12,6 +12,7 @@ import {
   authenticateWithLogin,
 } from "@/_user/user-helper";
 import { UserService } from "@/_user/services/user-service";
+import { AppError } from "@/utils/error";
 
 export class UserController {
   private userService: UserService;
@@ -20,103 +21,22 @@ export class UserController {
     this.userService = new UserService();
   }
 
-  public async register(req: Request, res: Response) {
+  register = async (req: Request, res: Response) => {
     await this.userService.register(req.body);
     res.status(201).json(new DataResponse(201, "User created successfully"));
-  }
-}
+  };
 
-const renewAccessToken = async (req: Request, res: Response) => {
-  const refreshToken = req.cookies?.refresh_token;
-
-  if (!refreshToken) {
-    return res.status(401).json(new ErrorResponse(401, "Unauthorized"));
-  }
-
-  try {
-    const decodedToken = jwt.verify(refreshToken, JWT_SECRET) as {
-      userId: string;
-    };
-
-    const [account] = await db
-      .select()
-      .from(accountsTable)
-      .where(eq(accountsTable.userId, decodedToken.userId));
-
-    if (!account || !account.refreshToken || !account.refreshTokenExpires) {
-      return res.status(401).json(new ErrorResponse(401, "Invalid token"));
+  getUser = async (req: Request, res: Response) => {
+    const id = req.user?.id;
+    if (!id) {
+      throw new AppError(401, "Unauthorized");
     }
-
-    const isValid = await compareHash(refreshToken, account.refreshToken);
-
-    if (!isValid) {
-      return res.status(401).json(new ErrorResponse(401, "Invalid token"));
-    }
-
-    if (new Date() > account.refreshTokenExpires) {
-      return res
-        .status(401)
-        .json(new ErrorResponse(401, "Refresh token expired"));
-    }
-
-    const accessToken = jwt.sign({ userId: account.userId }, JWT_SECRET, {
-      expiresIn: "1d",
-    });
-
-    res.cookie("accessToken", accessToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "strict",
-      maxAge: 60 * 60 * 1000 * 24 * 1,
-    });
-
-    return res
+    const user = await this.userService.findById(id);
+    res
       .status(200)
-      .json(new DataResponse(200, "Access token refreshed"));
-  } catch (err) {
-    console.log("ACCESS TOKEN REFRESH ERROR: ", err);
-    return res.status(500).json(new ErrorResponse(500, "Something went wrong"));
-  }
-};
-
-const logout = async (req: Request, res: Response) => {
-  const userId = req.user?.id;
-
-  if (!userId) {
-    res.status(401).json(new ErrorResponse(401, "Unauthorized"));
-    return;
-  }
-
-  try {
-    await db
-      .update(accountsTable)
-      .set({
-        refreshToken: null,
-        refreshTokenExpires: null,
-        updatedAt: new Date(),
-      })
-      .where(eq(accountsTable.userId, userId));
-
-    res.clearCookie("refreshToken", {
-      httpOnly: true,
-      secure: true,
-      sameSite: "strict",
-    });
-
-    res.clearCookie("accessToken", {
-      httpOnly: true,
-      secure: true,
-      sameSite: "strict",
-    });
-
-    res.status(200).json(new DataResponse(200, "Logged out successfully."));
-    return;
-  } catch (error) {
-    console.log("LOGOUT ERROR:", error);
-    res.status(500).json(new ErrorResponse(500, "Something went wrong"));
-    return;
-  }
-};
+      .json(new DataResponse(200, user, "User retrieved successfully"));
+  };
+}
 
 const loginWithGoogle = async (req: Request, res: Response) => {
   const { code } = req.query;
@@ -310,52 +230,13 @@ const loginWithGithub = async (req: Request, res: Response) => {
   }
 };
 
-const getUser = async (req: Request, res: Response) => {
-  const userId = req.user?.id;
-
-  console.log("userId", userId);
-
-  if (!userId) {
-    res.status(401).json(new ErrorResponse(401, "Unauthorized"));
-    return;
-  }
-
-  try {
-    const [user] = await db
-      .select({
-        name: usersTable.name,
-        email: usersTable.email,
-        image: usersTable.image,
-      })
-      .from(usersTable)
-      .where(eq(usersTable.id, userId));
-
-    if (!user) {
-      res.status(404).json(new ErrorResponse(404, "User not found"));
-      return;
-    }
-
-    res
-      .status(200)
-      .json(new DataResponse(200, user, "User fetched successfully"));
-    return;
-  } catch (error) {
-    console.log("GET USER ERROR: ", error);
-    res.status(500).json(new ErrorResponse(500, "Something went wrong"));
-    return;
-  }
-};
-
 const getIsAuthenticated = async (req: Request, res: Response) => {
   res.status(200).json(new DataResponse(200, "Authenticated"));
   return;
 };
 
 export default {
-  logout,
   loginWithGoogle,
   loginWithGithub,
-  getUser,
-  renewAccessToken,
   getIsAuthenticated,
 };

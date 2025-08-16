@@ -1,6 +1,6 @@
-import { getFileSummaryPrompt } from "@/lib/prompts/file-summary";
+import { getFileSummaryPrompt } from "@/lib/genai/prompt";
 import { RepoFileType, SummarizedRepoFileType } from "@/lib/types/github.type";
-import { flashModel } from "@/lib/gemini/config.gemini";
+import { flashModel } from "@/lib/genai/gemini/config.gemini";
 
 export const generateSummary = async (content: string) => {
   const prompt = getFileSummaryPrompt(content);

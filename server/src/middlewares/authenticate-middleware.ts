@@ -7,9 +7,7 @@ export const authenticateJwt = () => {
     const token = req.cookies?.accessToken;
 
     if (!token) {
-      return res
-        .status(401)
-        .json(new ErrorResponse(401, "Access token missing"));
+      return res.status(401).json(new ErrorResponse(401, "Unauthorized"));
     }
 
     try {

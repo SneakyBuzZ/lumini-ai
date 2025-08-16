@@ -1,10 +1,8 @@
-import { LoginUserDTOType, RegisterUserDTOType } from "@/_user/dto";
+import { RegisterUserDTOType } from "@/_user/dto";
 import { UserRepository } from "@/_user/repositories/user-repository";
-import { compareHash, generateHash } from "@/utils/bcrypt";
+import { generateHash } from "@/utils/bcrypt";
 import { AppError } from "@/utils/error";
 import { AccountRepository } from "@/_user/repositories/account-repository";
-import { generateAndSetTokens } from "@/utils/jwt";
-import { Response } from "express";
 
 export class UserService {
   private userRepository: UserRepository;
@@ -28,19 +26,11 @@ export class UserService {
     await this.accountRepository.saveAccount(email, id);
   }
 
-  async login(req: LoginUserDTOType, res: Response) {
-    const user = await this.userRepository.findByEmail(req.email);
-    if (!user || !user.password) {
-      throw new AppError(401, "Invalid email or password");
+  async findById(id: string) {
+    const user = await this.userRepository.findById(id);
+    if (!user) {
+      throw new AppError(404, "User not found");
     }
-
-    const isPasswordValid = await compareHash(req.password, user.password);
-    if (!isPasswordValid) {
-      throw new AppError(401, "Invalid email or password");
-    }
-
-    const hashedRefreshToken = await generateAndSetTokens(res, user.id);
-
-    await this.accountRepository.updateAccount(user.id, hashedRefreshToken);
+    return user;
   }
 }

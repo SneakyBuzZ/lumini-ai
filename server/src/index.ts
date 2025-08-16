@@ -8,6 +8,7 @@ import { CLIENT_URL, COOKIE_SECRET, PORT } from "@/utils/constants";
 import cors from "cors";
 import workspaceRouter from "./_workspace/workspace-route";
 import { errorMiddleware } from "./middlewares/error-middleware";
+import authRouter from "./_user/routes/auth-route";
 
 const app = express();
 
@@ -21,8 +22,9 @@ app.get("/", (_, res) => {
   res.send("Hello World!");
 });
 
-app.use("/api/lab", labRouter);
+app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
+app.use("/api/lab", labRouter);
 app.use("/api/workspace", workspaceRouter);
 
 app.use(errorMiddleware);

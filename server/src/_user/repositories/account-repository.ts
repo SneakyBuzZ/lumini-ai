@@ -25,4 +25,23 @@ export class AccountRepository {
         and(eq(accountsTable.userId, id), eq(accountsTable.provider, "email"))
       );
   }
+
+  async findByUserId(id: string) {
+    const [account] = await db
+      .select()
+      .from(accountsTable)
+      .where(eq(accountsTable.userId, id));
+    return account;
+  }
+
+  async resetToken(id: string) {
+    await db
+      .update(accountsTable)
+      .set({
+        refreshToken: null,
+        refreshTokenExpires: null,
+        updatedAt: new Date(),
+      })
+      .where(eq(accountsTable.userId, id));
+  }
 }
