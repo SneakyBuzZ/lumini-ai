@@ -1,6 +1,6 @@
 import { Chroma } from "@langchain/community/vectorstores/chroma";
 import { Embeddings } from "@langchain/core/embeddings";
-import { embeddingModel } from "@/lib/gemini/config.gemini.js";
+import { embeddingModel } from "@/lib/genai/gemini/config.gemini";
 
 class GeminiEmbeddings extends Embeddings {
   constructor(params?: object) {

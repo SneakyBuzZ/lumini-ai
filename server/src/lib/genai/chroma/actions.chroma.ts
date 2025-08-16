@@ -1,6 +1,6 @@
 import { Document } from "@langchain/core/documents";
 import { SummarizedRepoFileType } from "@/lib/types/github.type";
-import { chroma, embeddings } from "@/lib/chroma/config.chroma";
+import { chroma, embeddings } from "@/lib/genai/chroma/config.chroma";
 import { flashModel } from "@/lib/gemini/config.gemini.js";
 import { v4 as uuidv4 } from "uuid";
 import { getAskRepoPrompt } from "@/lib/prompts/ask-repo.js";

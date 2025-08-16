@@ -1,6 +1,5 @@
 import { db } from "@/lib/config/db-config";
-import { DataResponse } from "@/lib/dto/data.response";
-import { ErrorResponse } from "@/lib/responses/error.response";
+import { DataResponse, ErrorResponse } from "@/utils/dto";
 import { accountsTable } from "@/_user/account-table";
 import { usersTable } from "@/_user/user-table";
 import { Request, Response } from "express";

@@ -1,12 +1,12 @@
-import { db } from "@/config/db-config";
+import { db } from "@/lib/config/db-config";
 import {
   askGeminiWithContext,
   storeEmbeddings,
-} from "@/lib/chroma/actions.chroma";
-import { generateFilesSummary } from "@/lib/gemini/actions.gemini";
-import { loadGitHubRepo } from "@/lib/langchain/repo-loader";
-import { DataResponse } from "@/lib/responses/data.response";
-import { ErrorResponse } from "@/lib/responses/error.response";
+} from "@/lib/genai/chroma/actions.chroma";
+import { generateFilesSummary } from "@/lib/genai/gemini/actions.gemini";
+import { loadGitHubRepo } from "@/lib/genai/langchain/repo-loader";
+import { DataResponse } from "@/utils/dto";
+import { ErrorResponse } from "@/utils/dto";
 import { labFilesTable, labsTable } from "@/_lab/lab-table";
 import { usersTable } from "@/_user/user-table";
 import {

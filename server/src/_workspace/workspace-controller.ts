@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { eq, sql } from "drizzle-orm";
-import { DataResponse } from "@/lib/responses/data.response";
-import { db } from "@/config/db-config";
+import { DataResponse } from "@/lib/dto/data.response";
+import { db } from "@/lib/config/db-config";
 import {
   workspaceMembersTable,
   workspaceSettingsTable,
