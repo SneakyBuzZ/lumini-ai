@@ -36,35 +36,34 @@ export const SIDEBAR_LIST = [
   },
 ];
 
-// NEW sidebar list to show when inside a specific lab
-export const LAB_SIDEBAR_LIST = (labId: string) => [
+export const LAB_SIDEBAR_LIST = (labName: string) => [
   {
     name: "Lab",
     items: [
       {
         name: "Overview",
         icons: Layout,
-        href: `/app/labs/${labId}`,
+        href: `/app/labs/${labName}`,
       },
       {
         name: "Ask Your Repo",
         icons: Bot, // choose your AI icon
-        href: `/app/labs/${labId}/ask`,
+        href: `/app/labs/${labName}/ask`,
       },
       {
         name: "Files & Context",
         icons: FolderGit2, // or FileCode
-        href: `/app/labs/${labId}/files`,
+        href: `/app/labs/${labName}/files`,
       },
       {
         name: "Whiteboard",
         icons: Book,
-        href: `/app/labs/${labId}/whiteboard`,
+        href: `/app/labs/${labName}/whiteboard`,
       },
       {
         name: "Settings",
         icons: Settings,
-        href: `/app/labs/${labId}/settings`,
+        href: `/app/labs/${labName}/settings`,
       },
     ],
   },

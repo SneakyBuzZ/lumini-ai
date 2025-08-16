@@ -1,5 +1,3 @@
-import { space } from 'postcss/lib/list';
-
 /** @type {import('tailwindcss').Config} */
 export default {
 	darkMode: ["class"],
@@ -7,8 +5,8 @@ export default {
 	theme: {
 		extend: {
 			fontFamily: {
-				space: ["Space Grotesk", "sans-serif"],
 				spline: ["Spline Sans", "sans-serif"],
+				poppins: ["Poppins", "sans-serif"]
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
