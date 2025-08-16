@@ -1,4 +1,4 @@
-import { db } from "@/config/db.config";
+import { db } from "@/config/db-config";
 import {
   askGeminiWithContext,
   storeEmbeddings,
@@ -7,12 +7,12 @@ import { generateFilesSummary } from "@/lib/gemini/actions.gemini";
 import { loadGitHubRepo } from "@/lib/langchain/repo-loader";
 import { DataResponse } from "@/lib/responses/data.response";
 import { ErrorResponse } from "@/lib/responses/error.response";
-import { labFilesTable, labsTable } from "@/tables/lab.table";
-import { usersTable } from "@/tables/user.table";
+import { labFilesTable, labsTable } from "@/_lab/lab-table";
+import { usersTable } from "@/_user/user-table";
 import {
   workspaceMembersTable,
   workspacesTable,
-} from "@/tables/workspace.table";
+} from "@/_workspace/workspace-table";
 import { and, count, eq, or, sql } from "drizzle-orm";
 import { Request, Response } from "express";
 

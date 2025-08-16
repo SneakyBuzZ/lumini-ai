@@ -9,8 +9,8 @@ import {
   pgEnum,
   text,
 } from "drizzle-orm/pg-core";
-import { usersTable } from "@/tables/user.table";
-import { workspacesTable } from "@/tables/workspace.table";
+import { usersTable } from "@/_user/user-table";
+import { workspacesTable } from "@/_workspace/workspace-table";
 
 export const labsTable = pgTable(
   "labs",

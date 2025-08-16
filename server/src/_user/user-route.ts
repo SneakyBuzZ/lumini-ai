@@ -1,7 +1,7 @@
 import { Router } from "express";
-import userController from "@/controllers/user.controller";
+import userController from "@/user/user-controller";
 import { validateData } from "@/middlewares/validate.middleware";
-import { emailAuthSchema } from "@/tables/user.table";
+import { emailAuthSchema } from "@/_user/user-table";
 import { authenticateJwt } from "@/middlewares/authenticate.middleware";
 
 const userRouter = Router();

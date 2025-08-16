@@ -1,14 +1,14 @@
 import { Request, Response } from "express";
 import { eq, sql } from "drizzle-orm";
 import { DataResponse } from "@/lib/responses/data.response";
-import { db } from "@/config/db.config";
+import { db } from "@/config/db-config";
 import {
   workspaceMembersTable,
   workspaceSettingsTable,
   workspacesTable,
-} from "@/tables/workspace.table";
+} from "@/_workspace/workspace-table";
 import { ErrorResponse } from "@/lib/responses/error.response";
-import { usersTable } from "@/tables/user.table";
+import { usersTable } from "@/_user/user-table";
 
 export const create = async (req: Request, res: Response) => {
   try {

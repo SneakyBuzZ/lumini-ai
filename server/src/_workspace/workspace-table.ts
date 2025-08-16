@@ -8,7 +8,7 @@ import {
   boolean,
   pgEnum,
 } from "drizzle-orm/pg-core";
-import { usersTable } from "@/tables/user.table";
+import { usersTable } from "@/_user/user-table";
 
 export const workspacesTable = pgTable(
   "workspaces",

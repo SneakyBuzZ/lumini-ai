@@ -1,8 +1,8 @@
-import { db } from "@/config/db.config";
+import { db } from "@/config/db-config";
 import { DataResponse } from "@/lib/responses/data.response";
 import { ErrorResponse } from "@/lib/responses/error.response";
-import { accountsTable } from "@/tables/account.table";
-import { usersTable } from "@/tables/user.table";
+import { accountsTable } from "@/_user/account-table";
+import { usersTable } from "@/_user/user-table";
 import { Request, Response } from "express";
 import { compareHash, generateHash } from "@/utils/bcrypt";
 import { and, eq } from "drizzle-orm";
@@ -11,7 +11,7 @@ import { JWT_SECRET } from "@/utils/constants";
 import {
   authenticateWithGithub,
   authenticateWithLogin,
-} from "@/helpers/user.helper";
+} from "@/_user/user-helper";
 
 const register = async (req: Request, res: Response) => {
   try {

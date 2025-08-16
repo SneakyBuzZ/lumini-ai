@@ -2,11 +2,11 @@ import express from "express";
 import "dotenv/config";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
-import labRouter from "@/routes/lab.route";
-import userRouter from "@/routes/user.route";
+import labRouter from "@/_lab/lab-route";
+import userRouter from "@/_user/user-route";
 import { CLIENT_URL, COOKIE_SECRET, PORT } from "@/utils/constants";
 import cors from "cors";
-import workspaceRouter from "./routes/workspace.route";
+import workspaceRouter from "./_workspace/workspace-route";
 
 const app = express();
 
