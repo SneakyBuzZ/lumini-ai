@@ -1,16 +1,19 @@
-import { ErrorResponse } from "@/lib/responses/error.response";
+import { ErrorResponse } from "@/utils/dto";
+import { RequestHandler } from "express";
 import _ from "lodash";
 import { z, ZodError } from "zod";
 
-export const validateData = (schema: z.ZodObject<any, any>) => {
-  return async (req: any, res: any, next: any) => {
+export const validateData =
+  <T extends z.ZodObject<any>>(schema: T): RequestHandler =>
+  (req, res, next) => {
     try {
-      schema.parse(req.body);
-      req.body = _.pick(req.body, Object.keys(schema.shape));
+      const parsed = schema.parse(req.body);
+      req.body = _.pick(parsed, schema.keyof().options);
+
       next();
     } catch (error) {
       if (error instanceof ZodError) {
-        const errorMessages = error.errors.map((issue: any) => ({
+        const errorMessages = error.errors.map((issue) => ({
           message: `${issue.path.join(".")} is ${issue.message}`,
         }));
         res.status(400).json(new ErrorResponse(400, errorMessages));
@@ -19,4 +22,3 @@ export const validateData = (schema: z.ZodObject<any, any>) => {
       }
     }
   };
-};

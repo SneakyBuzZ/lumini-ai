@@ -1,8 +1,7 @@
 import { db } from "@/lib/config/db-config";
-import { DataResponse } from "@/lib/dto/data.response";
-import { ErrorResponse } from "@/lib/responses/error.response";
-import { accountsTable } from "@/_user/account-table";
-import { usersTable } from "@/_user/user-table";
+import { DataResponse, ErrorResponse } from "@/utils/dto";
+import { accountsTable } from "@/_user/models/account-model";
+import { usersTable } from "@/_user/models/user-model";
 import { Request, Response } from "express";
 import { compareHash, generateHash } from "@/utils/bcrypt";
 import { and, eq } from "drizzle-orm";
@@ -12,132 +11,20 @@ import {
   authenticateWithGithub,
   authenticateWithLogin,
 } from "@/_user/user-helper";
+import { UserService } from "@/_user/services/user-service";
 
-const register = async (req: Request, res: Response) => {
-  try {
-    const hashedPassword = await generateHash(req.body.password);
+export class UserController {
+  private userService: UserService;
 
-    const [user] = await db
-      .insert(usersTable)
-      .values({
-        email: req.body.email,
-        password: hashedPassword,
-      })
-      .returning();
-
-    if (!user) {
-      res.status(500).json(new ErrorResponse(500, "User not created"));
-      return;
-    }
-
-    const refreshToken = jwt.sign({ userId: user.id }, JWT_SECRET, {
-      expiresIn: "30d",
-    });
-    const hashedRefresh = await generateHash(refreshToken);
-
-    await db.insert(accountsTable).values({
-      userId: user.id,
-      provider: "email",
-      providerAccountId: user.email,
-      refreshToken: hashedRefresh,
-      refreshTokenExpires: new Date(Date.now() + 30 * 60 * 60 * 24 * 1000),
-    });
-
-    const accessToken = jwt.sign({ userId: user.id }, JWT_SECRET, {
-      expiresIn: "1d",
-    });
-
-    res.cookie("accessToken", accessToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "strict",
-      maxAge: 60 * 60 * 1000 * 24 * 1,
-    });
-
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "strict",
-      maxAge: 30 * 24 * 60 * 60 * 1000,
-    });
-
-    res
-      .status(201)
-      .json(new DataResponse(201, "Account created successfully."));
-    return;
-  } catch (error) {
-    console.log("REGISTER ERROR: ", error);
-    res.status(500).json(new ErrorResponse(500, "Something went wrong"));
-    return;
+  constructor() {
+    this.userService = new UserService();
   }
-};
 
-const login = async (req: Request, res: Response) => {
-  console.log("DETAILS: ", req.body);
-
-  try {
-    const [user] = await db
-      .select()
-      .from(usersTable)
-      .where(eq(usersTable.email, req.body.email));
-
-    console.log("USER: ", user);
-
-    if (!user || !user.password) {
-      res.status(404).json(new ErrorResponse(404, "User not found"));
-      return;
-    }
-
-    const passwordMatch = await compareHash(req.body.password, user.password);
-
-    if (!passwordMatch) {
-      res.status(401).json(new ErrorResponse(401, "Invalid credentials"));
-      return;
-    }
-
-    const refreshToken = jwt.sign({ userId: user.id }, JWT_SECRET, {
-      expiresIn: "30d",
-    });
-    const hashedRefresh = await generateHash(refreshToken);
-    const accessToken = jwt.sign({ userId: user.id }, JWT_SECRET, {
-      expiresIn: "1d",
-    });
-
-    await db
-      .update(accountsTable)
-      .set({
-        refreshToken: hashedRefresh,
-        refreshTokenExpires: new Date(Date.now() + 30 * 60 * 60 * 24 * 1000),
-        updatedAt: new Date(),
-      })
-      .where(
-        and(
-          eq(accountsTable.userId, user.id),
-          eq(accountsTable.provider, "email")
-        )
-      );
-
-    res.cookie("accessToken", accessToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "strict",
-      maxAge: 60 * 60 * 1000 * 24 * 1,
-    });
-
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "strict",
-      maxAge: 30 * 24 * 60 * 60 * 1000,
-    });
-
-    res.status(200).json(new DataResponse(200, "Login successful."));
-  } catch (error) {
-    console.log("LOGIN ERROR: ", error);
-    res.status(500).json(new ErrorResponse(500, "Something went wrong"));
-    return;
+  public async register(req: Request, res: Response) {
+    await this.userService.register(req.body);
+    res.status(201).json(new DataResponse(201, "User created successfully"));
   }
-};
+}
 
 const renewAccessToken = async (req: Request, res: Response) => {
   const refreshToken = req.cookies?.refresh_token;
@@ -465,8 +352,6 @@ const getIsAuthenticated = async (req: Request, res: Response) => {
 };
 
 export default {
-  register,
-  login,
   logout,
   loginWithGoogle,
   loginWithGithub,

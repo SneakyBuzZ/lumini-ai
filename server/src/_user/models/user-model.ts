@@ -5,7 +5,6 @@ import {
   timestamp,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
-import { z } from "zod";
 
 export const usersTable = pgTable(
   "users",
@@ -20,8 +19,3 @@ export const usersTable = pgTable(
   },
   (user) => [uniqueIndex("user_email_idx").on(user.email)]
 );
-
-export const emailAuthSchema = z.object({
-  email: z.string().email().min(1).max(255),
-  password: z.string().min(4).max(255),
-});

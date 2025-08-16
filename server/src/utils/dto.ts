@@ -21,5 +21,6 @@ export class ErrorResponse {
     this.statusCode = statusCode;
     this.messages = messages;
     this.success = statusCode < 400 ? "Success" : "Failure";
+    Object.setPrototypeOf(this, new.target.prototype);
   }
 }

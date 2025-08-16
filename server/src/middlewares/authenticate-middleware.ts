@@ -1,4 +1,4 @@
-import { ErrorResponse } from "@/lib/responses/error.response";
+import { ErrorResponse } from "@/utils/dto";
 import { JWT_SECRET } from "@/utils/constants";
 import jwt from "jsonwebtoken";
 

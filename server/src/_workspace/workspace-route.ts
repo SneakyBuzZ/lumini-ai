@@ -1,8 +1,8 @@
-import { validateData } from "@/middlewares/validate.middleware";
+import { validateData } from "@/middlewares/validate-middleware";
 import { createWorkspaceSchema } from "@/_workspace/workspace-schema";
 import { Router } from "express";
 import workspaceController from "@/_workspace/workspace-controller";
-import { authenticateJwt } from "@/middlewares/authenticate.middleware";
+import { authenticateJwt } from "@/middlewares/authenticate-middleware";
 
 const workspaceRouter = Router();
 

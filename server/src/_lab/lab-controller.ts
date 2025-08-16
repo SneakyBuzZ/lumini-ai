@@ -8,7 +8,7 @@ import { loadGitHubRepo } from "@/lib/genai/langchain/repo-loader";
 import { DataResponse } from "@/utils/dto";
 import { ErrorResponse } from "@/utils/dto";
 import { labFilesTable, labsTable } from "@/_lab/lab-table";
-import { usersTable } from "@/_user/user-table";
+import { usersTable } from "@/_user/models/user-model";
 import {
   workspaceMembersTable,
   workspacesTable,

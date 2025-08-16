@@ -1,4 +1,3 @@
-import { ErrorResponse } from "@/lib/responses/error.response";
 import {
   GITHUB_CLIENT_ID,
   GITHUB_CLIENT_SECRET,
@@ -10,6 +9,7 @@ import {
   GOOGLE_TOKEN_API,
   GOOGLE_USER_API,
 } from "@/utils/constants";
+import { ErrorResponse } from "@/utils/dto";
 import axios from "axios";
 import { Response } from "express";
 

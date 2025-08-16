@@ -1,7 +1,7 @@
 import { db } from "@/lib/config/db-config";
 import { DataResponse, ErrorResponse } from "@/utils/dto";
-import { accountsTable } from "@/_user/account-table";
-import { usersTable } from "@/_user/user-table";
+import { accountsTable } from "@/_user/models/account-model";
+import { usersTable } from "@/_user/models/user-model";
 import { Request, Response } from "express";
 import { compareHash, generateHash } from "@/utils/bcrypt";
 import { and, eq } from "drizzle-orm";
@@ -72,15 +72,11 @@ const register = async (req: Request, res: Response) => {
 };
 
 const login = async (req: Request, res: Response) => {
-  console.log("DETAILS: ", req.body);
-
   try {
     const [user] = await db
       .select()
       .from(usersTable)
       .where(eq(usersTable.email, req.body.email));
-
-    console.log("USER: ", user);
 
     if (!user || !user.password) {
       res.status(404).json(new ErrorResponse(404, "User not found"));
