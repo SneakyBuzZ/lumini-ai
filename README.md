@@ -1,7 +1,6 @@
 # Lumini.ai: Your AI-Powered Developer Hub 🚀
 
 <img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/177be56c-3d2e-4c39-ad52-b9e5d83d92bb" />
-is a **next-generation SaaS platform** designed to supercharge developer productivity, insight, and collaboration. Sign in with GitHub and enjoy a seamless blend of AI-driven features—from real-time code review rooms to collaborative whiteboarding—all in one intuitive workspace. Lumini.ai is built for teams, solo developers, and open source contributors who want their workflows to be efficient, enjoyable, and future-proof.
 
 ---
 
