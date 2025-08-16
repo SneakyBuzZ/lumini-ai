@@ -12,7 +12,7 @@ const Logo = ({ withText = false, imgClassName, className }: LogoProps) => {
       <div className={cn("flex justify-start items-center gap-1", className)}>
         <img
           src="/assets/vectors/logo.svg"
-          alt="LOGO"
+          alt="Logo Image"
           className={cn("h-3", imgClassName)}
         />
       </div>
@@ -24,10 +24,10 @@ const Logo = ({ withText = false, imgClassName, className }: LogoProps) => {
       <div className={cn("flex justify-start items-center gap-1", className)}>
         <img
           src="/assets/vectors/logo.svg"
-          alt="LOGO"
-          className={cn("size-6", imgClassName)}
+          alt="Logo Image"
+          className={cn("size-8", imgClassName)}
         />
-        <span className="tracking-tighter text-2xl font-space">Lumini</span>
+        <span className="tracking-tight text-2xl text-white">Lumini</span>
       </div>
     </div>
   );

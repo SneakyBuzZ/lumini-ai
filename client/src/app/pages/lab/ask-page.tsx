@@ -1,5 +1,5 @@
-import AskForm from "@/components/forms/ask-form";
 import useAnswerStore from "@/lib/store/asnwer-store";
+import AskForm from "@/components/layout/forms/ask-form";
 
 const AskPage = () => {
   const { answers } = useAnswerStore();

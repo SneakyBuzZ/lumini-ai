@@ -1,16 +1,29 @@
-import { createRoot } from "react-dom/client";
 import "@/styles/globals.css";
-import App from "@/app/layout";
-import { BrowserRouter } from "react-router-dom";
-import QueryProvider from "@/components/providers/query-provider";
-import { ThemeProvider } from "@/components/providers/theme-provider";
+import QueryProvider from "@/lib/providers/query-provider";
+import { ThemeProvider } from "@/lib/providers/theme-provider";
 
-createRoot(document.getElementById("root")!).render(
-  <ThemeProvider defaultTheme="dark" storageKey="lumini-theme">
-    <BrowserRouter>
+import ReactDOM from "react-dom/client";
+import { RouterProvider, createRouter } from "@tanstack/react-router";
+
+import { routeTree } from "./routeTree.gen";
+
+const router = createRouter({ routeTree });
+
+declare module "@tanstack/react-router" {
+  interface Register {
+    router: typeof router;
+  }
+}
+
+// Render the app
+const rootElement = document.getElementById("root")!;
+if (!rootElement.innerHTML) {
+  const root = ReactDOM.createRoot(rootElement);
+  root.render(
+    <ThemeProvider defaultTheme="dark" storageKey="lumini-theme">
       <QueryProvider>
-        <App />
+        <RouterProvider router={router} />
       </QueryProvider>
-    </BrowserRouter>
-  </ThemeProvider>
-);
+    </ThemeProvider>
+  );
+}

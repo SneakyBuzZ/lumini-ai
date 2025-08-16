@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CirclePlus, Search } from "lucide-react";
-import { WorkspaceTable } from "@/components/table/workspace.table";
+import { WorkspaceTable } from "@/components/layout/table/workspace.table";
 import { WorkspaceWithMembers } from "@/lib/types/workspace.type";
-import { workspaceColumns } from "@/components/table/workspace-columns";
+import { workspaceColumns } from "@/components/layout/table/workspace-columns";
 import useWorkspacesStore from "@/lib/store/workspace-store";
 
 import {

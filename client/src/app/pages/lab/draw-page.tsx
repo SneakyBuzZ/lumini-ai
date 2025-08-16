@@ -1,5 +1,5 @@
-import { Canvas } from "@/components/canvas/dom.canvas";
-import { Toolbar } from "@/components/canvas/shape-bar";
+import { Canvas } from "@/components/layout/canvas/dom.canvas";
+import { Toolbar } from "@/components/layout/canvas/shape-bar";
 
 export default function Whiteboard() {
   return (

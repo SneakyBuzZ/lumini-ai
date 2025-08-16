@@ -1,7 +1,7 @@
-import CreateLabButton from "@/components/cta-buttons/create-lab";
-import CreateWorkspaceButton from "@/components/cta-buttons/create-workspace";
-import { labColumns } from "@/components/table/lab-columns";
-import { WorkspaceTable } from "@/components/table/workspace.table";
+import CreateLabButton from "@/components/shared/cta-buttons/create-lab";
+import CreateWorkspaceButton from "@/components/shared/cta-buttons/create-workspace";
+import { labColumns } from "@/components/layout/table/lab-columns";
+import { WorkspaceTable } from "@/components/layout/table/workspace.table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useGetLabsByWorkspaceId } from "@/lib/data/queries/lab-queries";

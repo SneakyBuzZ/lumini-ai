@@ -148,7 +148,7 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-midnight-400 text-neutral-400;
   }
 }
 
@@ -166,6 +166,11 @@
   }
 }
 
+canvas {
+  box-sizing: content-box;
+  display: block;
+}
+
 ::-webkit-scrollbar {
   width: 5px;
 }
@@ -179,50 +184,6 @@
   border-radius: 10px;
 }
 
-canvas {
-  box-sizing: content-box;
-  display: block;
-}
-
-/* add background image to canvas before or after */
-
-canvas:after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: url("/assets/vectors/grid.svg");
-  background-size: cover;
-  opacity: 0.2;
-  z-index: -1;
-}
-
-
-
-.main {
-  z-index: 2;
-}
-
-.main:after {
-  content: "";
-  background-image: url("/assets/vectors/grid.svg");
-  z-index: 0;
-  position: absolute;
-  width: 100%;
-  height: 40rem;
-  top: 0;
-  opacity: 0.2;
-  filter: invert(0);
-}
-
-.main:before {
-  background: linear-gradient(to bottom left, rgba(104, 250, 255, 0.082) 0%, rgba(0, 0, 0, 0) 70%, #000000 100%);
-  position: absolute;
-  content: "";
-  z-index: 1;
-  height: 40rem;
-  width: 100%;
-  top: 0;
+img {
+  @apply pointer-events-none select-none
 }

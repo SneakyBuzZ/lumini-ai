@@ -5,7 +5,7 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { useLocation } from "react-router-dom";
+import { useLocation } from "@tanstack/react-router";
 
 const NavbarBreadcrumb = () => {
   const { pathname } = useLocation();

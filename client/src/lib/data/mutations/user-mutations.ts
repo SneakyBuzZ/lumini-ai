@@ -1,15 +1,14 @@
 import { useMutation } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "@tanstack/react-router";
 import { Login, Register } from "@/lib/data/types/user-types";
 import { login, register } from "@/lib/data/api/user-api";
 
 export const useRegister = () => {
   const navigate = useNavigate();
-
   return useMutation({
     mutationFn: (payload: Register) => register(payload),
     onSuccess: () => {
-      navigate("/app");
+      navigate({ to: "/" });
     },
     onError: (err) => {
       console.error("Register failed", err);
@@ -19,11 +18,10 @@ export const useRegister = () => {
 
 export const useLogin = () => {
   const navigate = useNavigate();
-
   return useMutation({
     mutationFn: (payload: Login) => login(payload),
     onSuccess: () => {
-      navigate("/app");
+      navigate({ to: "/" });
     },
     onError: (err) => {
       console.error("Login failed", err);
