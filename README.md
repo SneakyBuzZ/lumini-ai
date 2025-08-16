@@ -1,133 +1,122 @@
-# Cosha: Your AI Ultimate Buddy⚡
+# Lumini.ai: Your AI-Powered Developer Hub 🚀
 
-#### Cosha is an _AI-powered GitHub_ companion designed to simplify and enhance your development experience, especially in the open-source space. Whether you are a seasoned developer or a beginner, Cosha helps you save time, boost productivity, and collaborate seamlessly with _intelligent AI tools_ and real-time insights.
+![homepage image](./assets/lumini-homepageini.ai is a **next-generation SaaS platform** designed to supercharge developer productivity, insight, and collaboration. Sign in with GitHub and enjoy a seamless blend of AI-driven features—from real-time code review rooms to collaborative whiteboarding—all in one intuitive workspace. Lumini.ai is built for teams, solo developers, and open source contributors who want their workflows to be efficient, enjoyable, and future-proof.
 
-## Key Features✨
+---
 
-### 1. AI-Powered Real-Time Code Editor
+## ✨ Core Features
 
-- Leverage AI to provide context-aware code suggestions, error detection, and auto-completions while editing.
+### 1. Repo Whisperer: Conversational AI for Codebases
 
-- Write, edit, and save your code directly to GitHub repositories without switching platforms.
+_Bring your repositories to life!_
 
-- Streamline your workflow with an intuitive editor that supports collaborative coding enhanced by AI insights.
+- Chat with your GitHub repos using powerful AI retrieval.
+- Ask natural language questions, navigate code, generate explanations, and receive smart suggestions.
+- Indexed issues, PRs, and documentation included in every answer.
 
-### 2. Ask Your Repo (AI Query Engine)
+### 2. LiveCanvas Collab: Real-Time Developer Whiteboarding
 
-- Use AI to query your repositories and get instant explanations, suggestions, or insights about the codebase.
+_Architect, visualize, and brainstorm together—live._
 
-- Simplify navigation in complex projects by asking natural language questions like "What does this function do?" or "What files were changed in the last commit?"
+- Draw, diagram, and connect ideas with real-time multi-user whiteboarding.
+- Link shapes/flows to actual code, branches, or issues for living documentation.
+- Export diagrams to markdown/GitHub issues with a single click.
 
-- Receive AI-driven contextual answers and code references.
+### 3. InsightPulse Dashboard: GitHub Analytics at a Glance
 
-### 3. AI-Enhanced Real-Time Analytics
+_A bird’s-eye view of your productivity._
 
-- Monitor contributions, issues, pull requests, and project health in real-time, powered by AI insights.
+- Visualize contributions, PRs, code review patterns, and team progress.
+- Personal and team dashboards with actionable metrics.
+- Security, code quality, and bottleneck insights powered by AI.
 
-- Get actionable AI-driven recommendations to optimize collaboration and project efficiency.
+### 4. CodeSync Review Rooms: Live Interactive Code Reviews
 
-- Identify patterns and trends in your repositories to make informed decisions.
+_Reinvent the review experience._
 
-### 4. Open-Source Centric AI Design
+- Join real-time code review sessions with inline comments, live diffs, and chat/video.
+- Synchronized editing and instant GitHub PR updates.
+- Smart suggestions from your AI co-pilot during sessions.
 
-Built with a mission to make open-source development faster, smarter, and more enjoyable using AI.
+---
 
-- AI reduces friction in contributions and collaboration, enabling developers to focus on building great software while leaving repetitive tasks to Cosha.
+## 💡 Why Lumini.ai?
 
-## Core Problems Cosha Addresses💪🏻
+- Cut down context-switching with integrated chat, dashboard, and whiteboard features.
+- Understand complex codebases fast—ask and get instant AI-powered replies.
+- Collaborate dynamically: real-time code review, architecture drawing, and data insight together.
+- Automate routine tasks, never miss critical updates or review opportunities.
 
-### 1. Inefficient Workflows:
+---
 
-Cosha combines real-time code editing, repository management, and analytics into a single AI-powered platform to streamline tasks.
+## 🛠 Requirements
 
-### 2. Understanding Large Codebases:
+- Node.js (v14 or higher)
+- npm or Yarn
+- (Optional) WebSocket server for live features
 
-Cosha’s Ask Your Repo feature provides quick, AI-driven explanations and insights into complex codebases.
+---
 
-### 3. Limited Collaboration Insights:
+## 🚧 Installation & Running
 
-AI-enhanced analytics offers actionable insights into contributions, pull requests, and project health to improve collaboration.
+**Clone the repository:**
 
-### 4. Repetitive Tasks:
+```bash
+git clone [YOUR-REPO-URL]
+cd lumini-ai
+```
 
-Automates code suggestions, error detection, and optimizations, saving time for high-value work.
+**Install backend:**
 
-## Requirements
+```bash
+cd server
+npm install
+```
 
-- Node.js (version 14 or higher)
-- npm (or Yarn)
+**Install frontend:**
 
-## Installation
+```bash
+cd client
+npm install
+```
 
-1. Clone the repository:
+**Start the backend server:**
 
-   ```bash
-   git clone https://github.com/SneakyBuzZ/Cosha-Ultimate-Buddy
-   cd Cosha-Ultimate-Buddy
-   ```
+```bash
+cd server
+npm run start
+```
 
-2. Install backend dependencies:
+_Backend runs on http://localhost:8000 (or configured port)._
 
-   ```bash
-   cd server
-   npm install
-   ```
+**Start the frontend server:**
 
-3. Install frontend dependencies:
+```bash
+cd client
+npm run start
+```
 
-   ```bash
-   cd client
-   npm install
-   ```
+_Frontend runs on http://localhost:3000 (or configured port)._
 
-## Running the Server
+**Start the WebSocket server (if required):**
 
-1. Navigate to the server directory:
+```bash
+cd websocket
+npm run start
+```
 
-   ```bash
-   cd server
-   ```
+_WebSocket runs on http://localhost:8080 (or configured port)._
 
-2. Start the backend server:
+---
 
-   ```bash
-   npm run start
-   ```
+## ✨ Decorate Your Workspace
 
-   The backend should now be running on http://localhost:8000 (or the port you specified in your configuration).
+- Homepage features living glassmorphic cards with Lottie animations next to each core feature.
+- Repo Whisperer chat window with pulse/typing effects.
+- Whiteboard with multi-cursor colors and “save to repo” badges.
+- Metrics rings, gradient progress bars, and streak counters in the dashboard.
+- Review rooms open with sliding panel transitions, celebratory icons for completed reviews.
 
-## Running the Frontend
+---
 
-1. Open a new terminal window and navigate to the frontend directory:
-
-   ```bash
-   cd client
-   ```
-
-2. Start the frontend development server:
-
-   ```bash
-   npm run start
-   ```
-
-   The frontend should now be running on http://localhost:3000 (or the port you specified in your configuration).
-
-## Running the WebSocket
-
-1. Open a new terminal window and navigate to the websocket directory:
-
-   ```bash
-   cd websocket
-   ```
-
-2. Start the websocket development server:
-
-   ```bash
-   npm run start
-   ```
-
-   The websocket should now be running on http://localhost:8080 (or the port you specified in your configuration).
-
-   ##
-
-   Let Cosha redefine the way you work in the open-source space. Happy coding! 🚀
+Let Lumini.ai reshape your developer experience—blending creativity, analytics, and AI into one powerful platform. Happy coding! ✨
