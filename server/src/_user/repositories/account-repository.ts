@@ -3,7 +3,7 @@ import { accountsTable } from "../models/account-model";
 import { and, eq } from "drizzle-orm";
 
 export class AccountRepository {
-  async saveAccount(email: string, id: string) {
+  async save(email: string, id: string) {
     await db.insert(accountsTable).values({
       userId: id,
       provider: "email",
@@ -13,7 +13,7 @@ export class AccountRepository {
     });
   }
 
-  async updateAccount(id: string, hashedRefresh: string) {
+  async update(id: string, hashedRefresh: string) {
     await db
       .update(accountsTable)
       .set({

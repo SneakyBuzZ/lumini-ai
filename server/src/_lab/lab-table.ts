@@ -10,7 +10,7 @@ import {
   text,
 } from "drizzle-orm/pg-core";
 import { usersTable } from "@/_user/models/user-model";
-import { workspacesTable } from "@/_workspace/workspace-table";
+import { workspacesTable } from "@/_workspace/models/workspace-model";
 
 export const labsTable = pgTable(
   "labs",

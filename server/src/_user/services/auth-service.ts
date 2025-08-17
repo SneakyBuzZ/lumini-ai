@@ -35,7 +35,7 @@ export class AuthService {
 
     const hashedRefreshToken = await generateAndSetTokens(res, user.id);
 
-    await this.accountRepository.updateAccount(user.id, hashedRefreshToken);
+    await this.accountRepository.update(user.id, hashedRefreshToken);
   }
 
   async renewToken(req: Request, res: Response) {
