@@ -2,6 +2,7 @@
 import Logo from "@/components/shared/logo";
 import OrElement from "@/components/shared/or-element";
 import { Button } from "@/components/ui/button";
+import useAuthStore from "@/lib/store/auth-store";
 import {
   createFileRoute,
   Link,
@@ -76,10 +77,10 @@ function AuthComponent() {
 }
 
 function authBeforeLoad(pathname: string) {
-  // const { authenticated } = useAuthStore.getState();
-  // if (authenticated == false) {
-  //   throw redirect({ to: "/" });
-  // }
+  const { authenticated } = useAuthStore.getState();
+  if (authenticated == false) {
+    throw redirect({ to: "/" });
+  }
 
   if (pathname === "/auth" || pathname === "/auth/") {
     throw redirect({ to: "/auth/login" });

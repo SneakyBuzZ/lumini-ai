@@ -21,15 +21,15 @@ const NavbarBreadcrumb = () => {
   const filteredPaths = paths.filter((path) => !ignorePaths.includes(path));
 
   return (
-    <Breadcrumb className="hidden md:flex items-center p-4 px-6 absolute z-50 backdrop-blur-sm">
+    <Breadcrumb className="hidden md:flex items-center">
       <BreadcrumbList>
         <BreadcrumbItem>
-          <BreadcrumbLink href="/">Home</BreadcrumbLink>
+          <BreadcrumbLink href="/">App</BreadcrumbLink>
         </BreadcrumbItem>
         {filteredPaths.map((path, index) => (
           <BreadcrumbItem key={index}>
             <span>{path.charAt(0).toUpperCase() + path.slice(1)}</span>
-            <BreadcrumbSeparator />
+            {index < filteredPaths.length - 1 && <BreadcrumbSeparator />}
           </BreadcrumbItem>
         ))}
       </BreadcrumbList>

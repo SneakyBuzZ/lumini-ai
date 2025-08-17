@@ -30,9 +30,13 @@ export const login = async (data: LoginType) => {
 };
 
 export const getUser = async (): Promise<User | void> => {
-  const { authenticated } = useAuthStore.getState();
+  const { authenticated, user, setUser } = useAuthStore.getState();
 
   if (!authenticated) {
+    return;
+  }
+
+  if (user) {
     return;
   }
 
@@ -42,5 +46,5 @@ export const getUser = async (): Promise<User | void> => {
     return;
   }
 
-  return response.data.payload;
+  setUser(response.data.payload);
 };
