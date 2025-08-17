@@ -13,7 +13,20 @@ type Actions = {
 };
 
 const useWorkspacesStore = create<State & Actions>((set) => ({
-  workspaces: null,
+  workspaces: [
+    {
+      id: "234",
+      name: "Workspace 1",
+      members: [],
+      createdAt: "23456",
+      owner: {
+        id: "234",
+        name: "User 1",
+        image: "https://via.placeholder.com/150",
+      },
+      plan: "free",
+    },
+  ],
   currentWorkspace: null,
   setWorkspaces: (workspaces: WorkspaceWithMembers[]) =>
     set(() => ({

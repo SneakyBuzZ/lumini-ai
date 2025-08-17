@@ -1,14 +1,15 @@
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { Login, Register } from "@/lib/data/types/user-types";
+import { LoginType, RegisterType } from "@/lib/data/dtos/user-dtos";
 import { login, register } from "@/lib/data/api/user-api";
+import { AxiosError } from "axios";
 
 export const useRegister = () => {
   const navigate = useNavigate();
   return useMutation({
-    mutationFn: (payload: Register) => register(payload),
+    mutationFn: (payload: RegisterType) => register(payload),
     onSuccess: () => {
-      navigate({ to: "/" });
+      navigate({ to: "/auth/login" });
     },
     onError: (err) => {
       console.error("Register failed", err);
@@ -16,15 +17,18 @@ export const useRegister = () => {
   });
 };
 
-export const useLogin = () => {
+export const useLogin = (setError: (error: string | null) => void) => {
   const navigate = useNavigate();
   return useMutation({
-    mutationFn: (payload: Login) => login(payload),
+    mutationFn: (payload: LoginType) => login(payload),
     onSuccess: () => {
       navigate({ to: "/" });
     },
     onError: (err) => {
-      console.error("Login failed", err);
+      if (err instanceof AxiosError) {
+        console.log(err.response);
+        setError(err.response?.data?.messages || "Login failed");
+      }
     },
   });
 };

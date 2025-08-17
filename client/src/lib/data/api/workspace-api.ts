@@ -1,6 +1,6 @@
 import { api } from "@/lib/config/axios-config";
 import { WorkspaceWithMembers } from "@/lib/types/workspace.type";
-import { WorkspaceSettings } from "@/lib/data/types/workspace-types";
+import { WorkspaceSettings } from "@/lib/data/dtos/workspace-dtos";
 
 export const getAllWorkspaces = async (): Promise<
   WorkspaceWithMembers[] | void

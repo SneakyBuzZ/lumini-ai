@@ -1,6 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { LabWithMembers } from "@/lib/types/lab.type";
-import { Checkbox } from "@/components/ui/checkbox";
 import { useNavigate } from "@tanstack/react-router";
 import useLabStore from "@/lib/store/lab-store";
 
@@ -29,25 +28,6 @@ export function ClickableLabNameCell({ lab }: ClickableLabNameCellProps) {
 }
 
 export const labColumns: ColumnDef<LabWithMembers>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={table.getIsAllPageRowsSelected()}
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
   {
     accessorKey: "name",
     header: "Name",

@@ -4,12 +4,8 @@ import { eq } from "drizzle-orm";
 import { RegisterUserDTOType } from "../dto";
 
 export class UserRepository {
-  async saveUser(
-    data: RegisterUserDTOType
-  ): Promise<{ email: string; id: string }> {
-    const [user] = await db.insert(usersTable).values(data).returning();
-    const response = { email: user.email, id: user.id };
-    return response;
+  async save(data: RegisterUserDTOType) {
+    await db.insert(usersTable).values(data).returning();
   }
 
   async findByEmail(email: string) {

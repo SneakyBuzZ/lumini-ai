@@ -12,7 +12,7 @@ import { usersTable } from "@/_user/models/user-model";
 import {
   workspaceMembersTable,
   workspacesTable,
-} from "@/_workspace/workspace-table";
+} from "@/_workspace/models/workspace-model";
 import { and, count, eq, or, sql } from "drizzle-orm";
 import { Request, Response } from "express";
 

@@ -5,7 +5,6 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
 import { CirclePlus, Slash } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -26,7 +25,7 @@ const HeaderSidebar = () => {
             <Slash className="transform -rotate-[20deg] text-neutral-400 h-3" />
           </div>
           {/* Select: grows, but logo stays stable */}
-          <div className="flex items-center">
+          <div className="flex-1 flex items-center">
             <Select
               value={currentWorkspace?.id || ""}
               onValueChange={(value) => {
@@ -42,22 +41,29 @@ const HeaderSidebar = () => {
                 }
               }}
             >
-              <SelectTrigger className="border-0 bg-transparent w-full flex justify-start ml-auto p-0 py-0">
+              <SelectTrigger className="bg-transparent w-full flex justify-start ml-auto p-0 py-0 border-0">
                 <div className="text-lg w-full text-white flex justify-start items-center gap-2 px-2">
-                  <SelectValue placeholder="Select a workspace" />
-                  <Badge variant={currentWorkspace?.plan}>
-                    {currentWorkspace?.plan}
+                  {currentWorkspace && (
+                    <span className="text-[16px]">{currentWorkspace.name}</span>
+                  )}
+                  <Badge
+                    className="bg-midnight-400 border border-neutral-700 text-neutral-300 text-[10px] h-5 pointer-events-none"
+                    variant={currentWorkspace?.plan}
+                  >
+                    {currentWorkspace?.plan || "no plan"}
                   </Badge>
                 </div>
               </SelectTrigger>
-              <SelectContent className="w-[250px] overflow-auto">
+              <SelectContent className="w-[300px] overflow-auto">
                 <div className="flex flex-col items-start justify-center gap-1 p-2">
-                  <span className="text-sm text-neutral-400">Workspaces</span>
+                  <span className="text-sm text-neutral-400 mb-1">
+                    Workspaces
+                  </span>
                   {workspaces.map((workspace) => (
                     <SelectItem
                       key={workspace.id}
                       value={workspace.id}
-                      className="p-1 px-3"
+                      className="p-2 border"
                     >
                       <div className="flex items-center">{workspace.name}</div>
                     </SelectItem>

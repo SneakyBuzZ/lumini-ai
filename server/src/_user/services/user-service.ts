@@ -19,11 +19,11 @@ export class UserService {
       throw new AppError(409, "User already exists");
     }
     const hashedPassword = await generateHash(req.password);
-    const { email, id } = await this.userRepository.saveUser({
+    const { email, id } = await this.userRepository.save({
       ...req,
       password: hashedPassword,
     });
-    await this.accountRepository.saveAccount(email, id);
+    await this.accountRepository.save(email, id);
   }
 
   async findById(id: string) {

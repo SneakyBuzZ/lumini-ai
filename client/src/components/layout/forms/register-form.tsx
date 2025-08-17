@@ -1,10 +1,6 @@
-import { registerSchema } from "@/lib/schemas/register-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-
-import { SiGoogle, SiGithub } from "react-icons/si";
-
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -12,98 +8,107 @@ import {
   FormField,
   FormItem,
   FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import OrElement from "@/components/shared/or-element";
-import { useRegister } from "@/lib/data/mutations/user-mutations";
 import Spinner from "@/components/shared/spinner";
-import { Link } from "@tanstack/react-router";
+import { useRegister } from "@/lib/data/mutations/user-mutations";
 
 const RegisterForm = () => {
   const { mutateAsync: register, isPending } = useRegister();
 
-  const form = useForm<z.infer<typeof registerSchema>>({
+  const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
+      name: "",
       email: "",
       password: "",
     },
   });
 
-  async function onSubmit(values: z.infer<typeof registerSchema>) {
-    try {
-      await register(values);
-      console.log("Registration successful");
-    } catch (error) {
-      console.error("Registration failed", error);
-    }
+  async function onSubmit(values: RegisterFormValues) {
+    await register(values);
   }
 
   return (
-    <div className="w-[550px] flex flex-col justify-center items-center text-center gap-8 px-10 h-full">
-      <div className="relative w-[90%] flex flex-col justify-center items-center gap-6">
-        <Button type="submit" variant={"outline"} className="w-full ">
-          <SiGoogle />
-          Continue with Google
-        </Button>
-
-        <Button type="submit" className="w-full">
-          <SiGithub />
-          Continue with Github
-        </Button>
-      </div>
-      <OrElement />
-      <div className="flex w-[90%] flex-col justify-center items-center gap-6">
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-5 w-full"
-          >
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <>
-                  <FormItem className="flex flex-col">
-                    <FormLabel className="text-start">Email</FormLabel>
-                    <FormControl>
-                      <Input placeholder="you@example.com" {...field} />
-                    </FormControl>
-                  </FormItem>
-                </>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <>
-                  <FormItem className="flex flex-col">
-                    <FormLabel className="text-start">Password</FormLabel>
-                    <FormControl>
-                      <Input placeholder="**********" {...field} />
-                    </FormControl>
-                  </FormItem>
-                </>
-              )}
-            />
-            <Button disabled={isPending} type="submit" className="w-full">
-              {isPending ? (
-                <>
-                  <Spinner color="#ffff" />
-                  Loading
-                </>
-              ) : (
-                <>Register</>
-              )}
-            </Button>
-          </form>
-        </Form>
-      </div>
-      <Link to="/">Login</Link>
-      <Link to="/">Back</Link>
+    <div className="flex w-full flex-col justify-center items-center gap-6">
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-5 w-full"
+        >
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <>
+                <FormItem className="flex flex-col">
+                  <FormLabel className="text-start">Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="John Doe" {...field} />
+                  </FormControl>
+                </FormItem>
+              </>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <>
+                <FormItem className="flex flex-col">
+                  <FormLabel className="text-start">Email</FormLabel>
+                  <FormControl>
+                    <Input placeholder="you@example.com" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              </>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <>
+                <FormItem className="flex flex-col">
+                  <FormLabel className="text-start">Password</FormLabel>
+                  <FormControl>
+                    <Input placeholder="**********" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              </>
+            )}
+          />
+          <Button disabled={isPending} type="submit" className="w-full">
+            {isPending ? (
+              <>
+                <Spinner color="#ffff" />
+                Loading
+              </>
+            ) : (
+              <>Register</>
+            )}
+          </Button>
+        </form>
+      </Form>
     </div>
   );
 };
+
+const registerSchema = z.object({
+  name: z.string().min(2).max(100, {
+    message: "Name must be between 2 and 100 characters",
+  }),
+  email: z.string().email({
+    message: "Invalid email address",
+  }),
+  password: z.string().min(6, {
+    message: "Password must be at least 6 characters",
+  }),
+});
+
+type RegisterFormValues = z.infer<typeof registerSchema>;
 
 export default RegisterForm;

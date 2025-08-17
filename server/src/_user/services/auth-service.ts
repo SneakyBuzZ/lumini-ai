@@ -25,17 +25,17 @@ export class AuthService {
   async login(req: LoginUserDTOType, res: Response) {
     const user = await this.userRepository.findByEmail(req.email);
     if (!user || !user.password) {
-      throw new AppError(401, "Invalid email or password");
+      throw new AppError(400, "Invalid credentials, please try again.");
     }
 
     const isPasswordValid = await compareHash(req.password, user.password);
     if (!isPasswordValid) {
-      throw new AppError(401, "Invalid email or password");
+      throw new AppError(400, "Incorrect password was entered.");
     }
 
     const hashedRefreshToken = await generateAndSetTokens(res, user.id);
 
-    await this.accountRepository.updateAccount(user.id, hashedRefreshToken);
+    await this.accountRepository.update(user.id, hashedRefreshToken);
   }
 
   async renewToken(req: Request, res: Response) {

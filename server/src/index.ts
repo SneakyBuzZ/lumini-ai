@@ -6,7 +6,7 @@ import labRouter from "@/_lab/lab-route";
 import userRouter from "@/_user/routes/user-route";
 import { CLIENT_URL, COOKIE_SECRET, PORT } from "@/utils/constants";
 import cors from "cors";
-import workspaceRouter from "./_workspace/workspace-route";
+import workspaceRouter from "./_workspace/routes/workspace-route";
 import { errorMiddleware } from "./middlewares/error-middleware";
 import authRouter from "./_user/routes/auth-route";
 

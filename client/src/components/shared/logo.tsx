@@ -25,9 +25,9 @@ const Logo = ({ withText = false, imgClassName, className }: LogoProps) => {
         <img
           src="/assets/vectors/logo.svg"
           alt="Logo Image"
-          className={cn("size-8", imgClassName)}
+          className={cn("size-6", imgClassName)}
         />
-        <span className="tracking-tight text-2xl text-white">Lumini</span>
+        <span className="tracking-tight text-[23px] text-white">Lumini</span>
       </div>
     </div>
   );

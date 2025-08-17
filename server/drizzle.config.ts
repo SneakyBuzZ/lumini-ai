@@ -8,6 +8,7 @@ export default defineConfig({
   schema: [
     "./src/_user/models/account-model.ts",
     "./src/_user/models/user-model.ts",
+    "./src/_workspace/models/workspace-model.ts",
   ],
   dialect: "postgresql",
   dbCredentials: {

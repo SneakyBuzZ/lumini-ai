@@ -1,6 +1,6 @@
 import { api } from "@/lib/config/axios-config";
 import { LabWithMembers } from "@/lib/types/lab.type";
-import { CreateLab } from "../types/lab-types";
+import { CreateLab } from "../dtos/lab-dtos";
 import { Answer } from "@/lib/types/answer.type";
 
 export const create = async (data: CreateLab): Promise<number> => {
