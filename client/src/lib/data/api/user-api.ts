@@ -1,36 +1,32 @@
 import { api } from "@/lib/config/axios-config";
-import { AuthResponse, Register, User } from "@/lib/data/types/user-types";
+import { LoginType, RegisterType } from "@/lib/data/dtos/user-dtos";
 import useAuthStore from "@/lib/store/auth-store";
+import { User } from "@/lib/types/user-type";
 
 export const getIsAuthenticated = async () => {
   try {
-    const response = await api.get("/user/is-authenticated");
+    const { setAuthenticated } = useAuthStore.getState();
+    const response = await api.get("/auth/status");
+    setAuthenticated(response.status === 200);
     return response.status === 200;
   } catch {
     return false;
   }
 };
 
-export const register = async ({
-  email,
-  password,
-}: Register): Promise<AuthResponse> => {
-  const response = await api.post("/user/register", {
-    email,
-    password,
+export const register = async (data: RegisterType) => {
+  await api.post("/user", {
+    name: data.name,
+    email: data.email,
+    password: data.password,
   });
-  return response.data.payload;
 };
 
-export const login = async ({
-  email,
-  password,
-}: Register): Promise<AuthResponse> => {
-  const response = await api.post("/user/login", {
-    email,
-    password,
+export const login = async (data: LoginType) => {
+  await api.post("/auth/login", {
+    email: data.email,
+    password: data.password,
   });
-  return response.data.payload;
 };
 
 export const getUser = async (): Promise<User | void> => {

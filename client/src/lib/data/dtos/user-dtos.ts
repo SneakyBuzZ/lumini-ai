@@ -1,19 +1,14 @@
-export type Register = {
+export type RegisterType = {
+  name: string;
   email: string;
   password: string;
 };
 
-export type Login = {
+export type LoginType = {
   email: string;
   password: string;
 };
 
 export type AuthResponse = {
   accessToken: string;
-};
-
-export type User = {
-  name: string;
-  email: string;
-  image: string;
 };
