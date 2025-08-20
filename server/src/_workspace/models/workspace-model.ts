@@ -6,10 +6,12 @@ import {
   uniqueIndex,
   boolean,
   index,
+  pgEnum,
 } from "drizzle-orm/pg-core";
 import { usersTable } from "@/_user/models/user-model";
 import cuid from "cuid";
 import { relations } from "drizzle-orm";
+import { visibility } from "@/_lab/models/lab-table";
 
 export const workspacesTable = pgTable(
   "workspaces",
@@ -73,18 +75,84 @@ export const workspaceSettingsTable = pgTable(
   ]
 );
 
-export const workspaceRelations = relations(workspacesTable, ({ one }) => ({
-  settings: one(workspaceSettingsTable, {
-    fields: [workspacesTable.id],
-    references: [workspaceSettingsTable.workspaceId],
-  }),
-}));
+export const memberRoleEnum = pgEnum("member_role", [
+  "owner",
+  "administrator",
+  "developer",
+]);
 
-// const workspaceRoleEnum = pgEnum("workspace_role", [
-//   "Owner",
-//   "Admin",
-//   "Member",
-// ]);
+export const workspaceMembersTable = pgTable("workspace_members", {
+  id: varchar("id", { length: 36 })
+    .primaryKey()
+    .$defaultFn(() => cuid()),
+
+  workspaceId: varchar("workspace_id", { length: 36 })
+    .references(() => workspacesTable.id, { onDelete: "cascade" })
+    .notNull(),
+
+  memberId: varchar("member_id", { length: 36 })
+    .references(() => usersTable.id, { onDelete: "cascade" })
+    .notNull(),
+
+  role: memberRoleEnum("role").notNull().default("developer"),
+
+  joinedAt: timestamp("joined_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const workspaceRelations = relations(
+  workspacesTable,
+  ({ one, many }) => ({
+    settings: one(workspaceSettingsTable, {
+      fields: [workspacesTable.id],
+      references: [workspaceSettingsTable.workspaceId],
+    }),
+    members: many(workspaceMembersTable),
+    apis: many(workspaceApisTable),
+  })
+);
+
+export const workspaceMembersRelations = relations(
+  workspaceMembersTable,
+  ({ one }) => ({
+    workspace: one(workspacesTable, {
+      fields: [workspaceMembersTable.workspaceId],
+      references: [workspacesTable.id],
+    }),
+    member: one(usersTable, {
+      fields: [workspaceMembersTable.memberId],
+      references: [usersTable.id],
+    }),
+  })
+);
+
+export const workspaceApisTable = pgTable("workspace_apis", {
+  id: varchar("id", { length: 36 })
+    .primaryKey()
+    .$defaultFn(() => cuid()),
+
+  workspaceId: varchar("workspace_id", { length: 36 })
+    .references(() => workspacesTable.id, { onDelete: "cascade" })
+    .notNull(),
+
+  name: varchar("name", { length: 255 }).notNull(),
+  embeddingModel: varchar("embedding_model", { length: 255 }),
+  apiKey: varchar("api_key", { length: 255 }).unique(),
+  visibility: visibility("visibility").default("public"),
+
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const workspaceApisRelations = relations(
+  workspaceApisTable,
+  ({ one }) => ({
+    workspace: one(workspacesTable, {
+      fields: [workspaceApisTable.workspaceId],
+      references: [workspacesTable.id],
+    }),
+  })
+);
 
 // const workspaceInviteStatusEnum = pgEnum("workspace_invite_status", [
 //   "Pending",

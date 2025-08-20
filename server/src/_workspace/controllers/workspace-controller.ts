@@ -1,16 +1,7 @@
-// import { Request, Response } from "express";
-// import { eq, sql } from "drizzle-orm";
-// import { db } from "@/lib/config/db-config";
-// import {
-//   workspaceMembersTable,
-//   workspaceSettingsTable,
-//   workspacesTable,
-// } from "@/_workspace/models/workspace-model";
-// import { usersTable } from "@/_user/models/user-model";
-// import { DataResponse, ErrorResponse } from "@/utils/dto";
-
 import { WorkspaceService } from "@/_workspace/services/workspace-service";
-import { SaveWorkspaceDTOType } from "../dto";
+import { DataResponse } from "@/utils/dto";
+import { AppError } from "@/utils/error";
+import { Request, Response } from "express";
 
 export class WorkspaceController {
   private workspaceService: WorkspaceService;
@@ -18,12 +9,39 @@ export class WorkspaceController {
     this.workspaceService = new WorkspaceService();
   }
 
-  create = async (data: SaveWorkspaceDTOType) => {
-    await this.workspaceService.create(data);
+  create = async (req: Request, res: Response) => {
+    const userId = req.user?.id;
+    if (!userId) throw new AppError(403, "Unauthorized");
+    await this.workspaceService.create(req.body, userId);
+    res
+      .status(201)
+      .json(new DataResponse(201, "Workspace created successfully"));
   };
 
-  findUserWorkspaces = async (userId: string) => {
-    return await this.workspaceService.findUserWorkspaces(userId);
+  findUserWorkspaces = async (req: Request, res: Response) => {
+    const userId = req.user?.id;
+    if (!userId) throw new AppError(403, "Unauthorized");
+    const workspaces = await this.workspaceService.findUserWorkspaces(userId);
+    res
+      .status(200)
+      .json(
+        new DataResponse(200, workspaces, "Workspaces retrieved successfully")
+      );
+  };
+
+  findAllMembers = async (req: Request, res: Response) => {
+    const workspaceId = req.params.workspaceId;
+    if (!workspaceId) throw new AppError(400, "Workspace ID is required");
+    const members = await this.workspaceService.findAllMembers(workspaceId);
+    res
+      .status(200)
+      .json(
+        new DataResponse(
+          200,
+          members,
+          "Workspace members retrieved successfully"
+        )
+      );
   };
 }
 

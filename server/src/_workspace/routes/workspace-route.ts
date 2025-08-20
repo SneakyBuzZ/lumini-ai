@@ -1,21 +1,31 @@
+import { authenticateJwt } from "@/middlewares/authenticate-middleware";
+import { validateData } from "@/middlewares/validate-middleware";
 import { Router } from "express";
-// import workspaceController from "@/_workspace/controllers/workspace-controller";
+import { SaveWorkspaceDTO } from "@/_workspace/dto";
+import { WorkspaceController } from "@/_workspace/controllers/workspace-controller";
+import { catchAsync } from "@/utils/catch-async";
 
 const workspaceRouter = Router();
 
-// workspaceRouter.post(
-//   "/",
-//   authenticateJwt(),
-//   validateData(createWorkspaceSchema),
-//   workspaceController.create
-// );
+const workspaceController = new WorkspaceController();
 
-// workspaceRouter.get("/", authenticateJwt(), workspaceController.getAll);
+workspaceRouter.post(
+  "/",
+  authenticateJwt(),
+  validateData(SaveWorkspaceDTO),
+  catchAsync(workspaceController.create)
+);
 
-// workspaceRouter.get(
-//   "/settings/:workspaceId",
-//   authenticateJwt(),
-//   workspaceController.getSettings
-// );
+workspaceRouter.get(
+  "/",
+  authenticateJwt(),
+  workspaceController.findUserWorkspaces
+);
+
+workspaceRouter.get(
+  "/:workspaceId/members",
+  authenticateJwt(),
+  workspaceController.findAllMembers
+);
 
 export default workspaceRouter;
