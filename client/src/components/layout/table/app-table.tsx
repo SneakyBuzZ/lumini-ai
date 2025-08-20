@@ -21,10 +21,7 @@ export interface DataTableProps<TData> {
   data: TData[];
 }
 
-export function WorkspaceTable<TData>({
-  columns,
-  data,
-}: DataTableProps<TData>) {
+export function AppTable<TData>({ columns, data }: DataTableProps<TData>) {
   const table = useReactTable({
     data,
     columns,
@@ -76,7 +73,6 @@ export function WorkspaceTable<TData>({
                       "border-r": index < row.getVisibleCells().length - 1,
                     }
                   )}
-                  onClick={() => confirm("click bhai!")}
                 >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </TableCell>

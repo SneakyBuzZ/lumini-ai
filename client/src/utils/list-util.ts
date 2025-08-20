@@ -198,7 +198,7 @@ export const SIDEBAR_LIST = [
       {
         name: "Labs",
         icons: FlaskRound,
-        href: "/app/labs",
+        href: "/app",
       },
     ],
   },

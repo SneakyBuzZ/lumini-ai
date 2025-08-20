@@ -1,18 +1,15 @@
 import { api } from "@/lib/config/axios-config";
-import { LabWithMembers } from "@/lib/types/lab.type";
-import { CreateLab } from "../dtos/lab-dtos";
+import { Lab, LabWithMembers } from "@/lib/types/lab.type";
 import { Answer } from "@/lib/types/answer.type";
+import { CreateLab } from "@/lib/api/dto";
 
-export const create = async (data: CreateLab): Promise<number> => {
-  const response = await api.post("/lab/", data);
-
-  return response.status;
+export const create = async (data: CreateLab) => {
+  await api.post("/lab/", data);
 };
 
-export const getAll = async (): Promise<LabWithMembers[]> => {
-  const response = await api.get("/lab/");
-
-  return response.data.payload as LabWithMembers[];
+export const getAllLabs = async (workspaceId: string): Promise<Lab[]> => {
+  const response = await api.get(`/lab/${workspaceId}`);
+  return response.data.payload;
 };
 
 export const getLabsByWorkspaceId = async (

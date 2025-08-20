@@ -1,6 +1,5 @@
 import {
   Breadcrumb,
-  BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbSeparator,
@@ -23,14 +22,14 @@ const NavbarBreadcrumb = () => {
   return (
     <Breadcrumb className="hidden md:flex items-center">
       <BreadcrumbList>
-        <BreadcrumbItem>
-          <BreadcrumbLink href="/">App</BreadcrumbLink>
-        </BreadcrumbItem>
         {filteredPaths.map((path, index) => (
-          <BreadcrumbItem key={index}>
+          <BreadcrumbLink
+            className="cursor-pointer flex gap-2 items-center"
+            key={index}
+          >
             <span>{path.charAt(0).toUpperCase() + path.slice(1)}</span>
-            {index < filteredPaths.length - 1 && <BreadcrumbSeparator />}
-          </BreadcrumbItem>
+            {index != 0 && <BreadcrumbSeparator />}
+          </BreadcrumbLink>
         ))}
       </BreadcrumbList>
     </Breadcrumb>

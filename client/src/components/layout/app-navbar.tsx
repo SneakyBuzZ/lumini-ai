@@ -1,13 +1,13 @@
 import { Bell } from "lucide-react";
-import NavbarBreadcrumb from "../shared/breadcrumb";
+import NavbarBreadcrumb from "@/components/shared/breadcrumb";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import useAuthStore from "@/lib/store/auth-store";
 
 const AppNavbar = () => {
   const { user } = useAuthStore();
-  if (!user) return null;
+  if (!user) return <>NHI HAI</>;
   return (
-    <nav className="w-full h-[58px] flex justify-between items-center backdrop-blur-md px-7 border-b border-neutral-900">
+    <nav className="w-full h-[50px] flex justify-between items-center backdrop-blur-md px-7 border-b border-neutral-900">
       <NavbarBreadcrumb />
       <div className="flex justify-end items-center gap-4">
         <Bell className="size-5" />

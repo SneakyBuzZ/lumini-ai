@@ -11,9 +11,9 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useLogin } from "@/lib/data/mutations/user-mutations";
 import Spinner from "@/components/shared/spinner";
 import { useState } from "react";
+import { useLogin } from "@/api/mutations/user-mutations";
 
 const LoginForm = () => {
   const [error, setError] = useState<string | null>(null);

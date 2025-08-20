@@ -9,15 +9,14 @@ import { CirclePlus, Search, Slash } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import CreateWorkspaceButton from "@/components/shared/cta-buttons/create-workspace";
-import useProjectStore from "@/lib/store/project-store";
 import { Input } from "@/components/ui/input";
+import useAppStore from "@/lib/store/project-store";
 
 const HeaderSidebar = () => {
-  const { workspaces, currentWorkspace, setCurrentWorkspace } =
-    useProjectStore();
+  const { workspaces, currentWorkspace, setCurrentWorkspace } = useAppStore();
 
   return (
-    <div className="z-20 flex flex-col justify-center h-[52px] px-3">
+    <div className="z-20 flex flex-col justify-center h-[46px] px-3">
       {workspaces && workspaces.length > 0 ? (
         <div className="flex items-center h-full w-full px-2">
           <div className="flex items-center">
@@ -40,7 +39,7 @@ const HeaderSidebar = () => {
                 }
               }}
             >
-              <SelectTrigger className="bg-midnight-200 border border-midnight-100 hover:bg-midnight-200 w-full flex justify-start">
+              <SelectTrigger className="w-full flex justify-start border-none bg-transparent">
                 <div className="text-lg w-full text-white flex justify-start items-center gap-2 px-2">
                   {currentWorkspace && (
                     <span className="text-[14px]">{currentWorkspace.name}</span>

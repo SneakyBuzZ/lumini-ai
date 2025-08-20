@@ -1,19 +1,41 @@
 import LabCard from "@/components/_lab/lab-card";
 import { labColumns } from "@/components/layout/table/lab-columns";
-import { WorkspaceTable } from "@/components/layout/table/workspace.table";
+import { AppTable } from "@/components/layout/table/app-table";
 import CreateLabButton from "@/components/shared/cta-buttons/create-lab";
 import CreateWorkspaceButton from "@/components/shared/cta-buttons/create-workspace";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { LabWithMembers } from "@/lib/types/lab.type";
+import { Lab } from "@/lib/types/lab.type";
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { CirclePlus, Search } from "lucide-react";
+import { getAllWorkspaces } from "@/lib/api/workspace-api";
+import { getAllLabs } from "@/lib/api/lab-api";
+import Spinner from "@/components/shared/spinner";
+import useAppStore from "@/lib/store/project-store";
+import { useEffect } from "react";
+import { delay } from "@/utils/delay.util";
 
-export const Route = createFileRoute("/app/labs")({
+export const Route = createFileRoute("/dashboard/")({
+  loader: async () => {
+    await delay(1000);
+    const workspaces = await getAllWorkspaces();
+    const labs = await getAllLabs(workspaces[0].id);
+    return { workspaces, labs };
+  },
+  pendingComponent: PendingComponent,
   component: RouteComponent,
 });
 
 function RouteComponent() {
+  const { labs, workspaces } = Route.useLoaderData();
+  const { setLabs, setWorkspaces, setCurrentWorkspace } = useAppStore();
+
+  useEffect(() => {
+    setLabs(labs);
+    setWorkspaces(workspaces);
+    setCurrentWorkspace(workspaces[0]);
+  }, [labs, workspaces, setLabs, setWorkspaces, setCurrentWorkspace]);
+
   return (
     <main className="w-full flex flex-col justify-start items-center bg-midnight-300/70 h-full space-y-8 p-10 overflow-y-auto">
       <div className="space-y-5 w-full border-b pb-8">
@@ -78,11 +100,8 @@ function RouteComponent() {
             />
           </div>
         </div>
-        {workspaceLabs && workspaceLabs.length > 0 ? (
-          <WorkspaceTable<LabWithMembers>
-            columns={labColumns}
-            data={workspaceLabs}
-          />
+        {labs && labs.length > 0 ? (
+          <AppTable<Lab> columns={labColumns} data={labs} />
         ) : (
           <div className="flex flex-col justify-center items-center w-full border border-dashed border-neutral-800 gap-3 py-10 rounded-lg bg-midnight-100/30">
             <div className="flex flex-col justify-center items-center">
@@ -106,50 +125,11 @@ function RouteComponent() {
   );
 }
 
-const workspaceLabs: LabWithMembers[] = [
-  {
-    id: "1",
-    name: "Lab 1",
-    githubUrl: "https://github.com/user/lab1",
-    creator: {
-      name: "User 1",
-      image:
-        "https://i.pinimg.com/736x/2f/80/75/2f8075995dd1da536aa137d6645d7d02.jpg",
-    },
-    workspace: {
-      id: "workspace-1",
-      name: "Workspace 1",
-    },
-    createdAt: "2023-01-01",
-  },
-  {
-    id: "2",
-    name: "Lab 2",
-    githubUrl: "https://github.com/user/lab2",
-    creator: {
-      name: "User 2",
-      image:
-        "https://i.pinimg.com/736x/87/d2/39/87d239c65732f941a8f2d9cce9f245f9.jpg",
-    },
-    workspace: {
-      id: "workspace-2",
-      name: "Workspace 2",
-    },
-    createdAt: "2023-01-02",
-  },
-  {
-    id: "3",
-    name: "Lab 3",
-    githubUrl: "https://github.com/user/lab3",
-    creator: {
-      name: "User 3",
-      image:
-        "https://i.pinimg.com/736x/2f/80/75/2f8075995dd1da536aa137d6645d7d02.jpg",
-    },
-    workspace: {
-      id: "workspace-3",
-      name: "Workspace 3",
-    },
-    createdAt: "2023-01-03",
-  },
-];
+function PendingComponent() {
+  return (
+    <div className="absolute top-0 flex items-center justify-center h-screen w-full">
+      <Spinner />
+      <span className="text-neutral-500">Loading</span>
+    </div>
+  );
+}

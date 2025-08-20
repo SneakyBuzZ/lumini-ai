@@ -1,14 +1,14 @@
 import BgImages from "@/components/_home/bg-images";
 import HeroSection from "@/components/_home/hero-section";
 import Navbar from "@/components/layout/navbar";
-import { getIsAuthenticated } from "@/lib/data/api/user-api";
+import { getIsAuthenticated } from "@/lib/api/user-api";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/")({
   beforeLoad: async () => {
     const isAuthenticated = await getIsAuthenticated();
     if (isAuthenticated) {
-      throw redirect({ to: "/app" });
+      throw redirect({ to: "/dashboard" });
     }
   },
   component: HomeComponent,

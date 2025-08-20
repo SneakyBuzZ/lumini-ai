@@ -8,7 +8,7 @@ import { askSchema } from "@/lib/schemas/ask-schema";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { getAnswer } from "@/lib/data/api/lab-api";
+import { getAnswer } from "@/api/lab-api";
 import useLabStore from "@/lib/store/lab-store";
 import useAnswerStore from "@/lib/store/asnwer-store";
 

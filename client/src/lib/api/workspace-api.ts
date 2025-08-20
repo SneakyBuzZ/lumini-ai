@@ -1,12 +1,10 @@
 import { api } from "@/lib/config/axios-config";
-import { CreateWorkspace } from "@/lib/data/dtos/workspace-dtos";
-import useProjectStore from "@/lib/store/project-store";
+import { CreateWorkspace } from "@/lib/api/dto";
+import { Workspace } from "@/lib/types/workspace-type";
 
-export const getAllWorkspaces = async () => {
-  const { setWorkspaces, setCurrentWorkspace } = useProjectStore.getState();
+export const getAllWorkspaces = async (): Promise<Workspace[]> => {
   const response = await api.get("/workspace");
-  setWorkspaces(response.data.payload);
-  setCurrentWorkspace(response.data.payload[0]);
+  return response.data.payload;
 };
 
 export const createWorkspace = async (

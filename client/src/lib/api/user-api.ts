@@ -1,5 +1,5 @@
 import { api } from "@/lib/config/axios-config";
-import { LoginType, RegisterType } from "@/lib/data/dtos/user-dtos";
+import { LoginType, RegisterType } from "@/lib/api/dto";
 import useAuthStore from "@/lib/store/auth-store";
 import { User } from "@/lib/types/user-type";
 
@@ -29,22 +29,11 @@ export const login = async (data: LoginType) => {
   });
 };
 
-export const getUser = async (): Promise<User | void> => {
-  const { authenticated, user, setUser } = useAuthStore.getState();
-
-  if (!authenticated) {
-    return;
+export const getUser = async (): Promise<User | null> => {
+  try {
+    const response = await api.get("/user");
+    return response.data.payload as User;
+  } catch {
+    return null;
   }
-
-  if (user) {
-    return;
-  }
-
-  const response = await api.get("/user");
-
-  if (response.status !== 200) {
-    return;
-  }
-
-  setUser(response.data.payload);
 };

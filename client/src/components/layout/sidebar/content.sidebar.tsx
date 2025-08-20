@@ -1,5 +1,5 @@
-import { SIDEBAR_LIST } from "@/lib/lists/sidebar.list";
 import { cn } from "@/utils/cn.util";
+import { SIDEBAR_LIST } from "@/utils/list-util";
 import { Link, useLocation } from "@tanstack/react-router";
 
 const ContentSidebar = () => {

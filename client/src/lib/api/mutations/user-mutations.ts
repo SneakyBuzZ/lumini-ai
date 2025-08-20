@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { LoginType, RegisterType } from "@/lib/data/dtos/user-dtos";
-import { login, register } from "@/lib/data/api/user-api";
+import { LoginType, RegisterType } from "@/api/dto";
+import { login, register } from "@/api/user-api";
 import { AxiosError } from "axios";
 
 export const useRegister = () => {
