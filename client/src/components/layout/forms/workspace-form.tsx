@@ -25,11 +25,13 @@ import {
 } from "@/components/ui/select";
 import { CircleCheck } from "lucide-react";
 import { useCreateWorksace } from "@/lib/data/mutations/workspace-mutations";
-import { toast } from "sonner";
 import Spinner from "@/components/shared/spinner";
+import { useRef, useState } from "react";
 
 const WorkspaceForm = () => {
-  const { mutateAsync: createWorkspace, isPending } = useCreateWorksace();
+  const [error, setError] = useState<string | null>(null);
+  const { mutateAsync: createWorkspace, isPending } =
+    useCreateWorksace(setError);
   const form = useForm<z.infer<typeof workspaceSchema>>({
     resolver: zodResolver(workspaceSchema),
     defaultValues: {
@@ -38,13 +40,12 @@ const WorkspaceForm = () => {
     },
   });
 
+  const closeRef = useRef<HTMLButtonElement>(null);
+
   async function onSubmit(values: z.infer<typeof workspaceSchema>) {
-    const status = await createWorkspace(values);
+    await createWorkspace(values);
     form.reset();
-    if (status === 204) {
-      toast.error("You have reached the limit for this plan");
-      return;
-    }
+    closeRef.current?.click();
   }
   return (
     <Form {...form}>
@@ -101,14 +102,17 @@ const WorkspaceForm = () => {
                   <FormDescription className="px-2">
                     This is the plan for your workspace.
                   </FormDescription>
-                  <FormMessage className="px-2" />
+                  <FormMessage>{error}</FormMessage>
                 </div>
               </FormItem>
             )}
           />
         </div>
         <div className="flex w-full px-4 p-3 justify-between items-center gap-4 border-t">
-          <DialogClose className="p-3 h-8 bg-neutral-900 text-sm flex justify-center items-center rounded-md border border-neutral-800 text-neutral-400 hover:bg-neutral-800 transition-colors">
+          <DialogClose
+            ref={closeRef}
+            className="p-3 h-8 bg-neutral-900 text-sm flex justify-center items-center rounded-md border border-neutral-800 text-neutral-400 hover:bg-neutral-800 transition-colors"
+          >
             Cancel
           </DialogClose>
           <div className="flex flex-1 items-center justify-end gap-2">
@@ -121,7 +125,7 @@ const WorkspaceForm = () => {
                   <Spinner />
                 </>
               ) : (
-                "Submit"
+                "Create Workspace"
               )}
             </Button>
           </div>

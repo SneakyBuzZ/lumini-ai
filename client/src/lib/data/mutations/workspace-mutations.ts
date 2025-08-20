@@ -1,11 +1,17 @@
 import { useMutation } from "@tanstack/react-query";
-import { createWorkspace } from "../api/workspace-api";
+import { createWorkspace } from "@/lib/data/api/workspace-api";
+import { AxiosError } from "axios";
 
-export const useCreateWorksace = () => {
+export const useCreateWorksace = (setError: (error: string) => void) => {
   return useMutation({
     mutationFn: (payload: {
       name: string;
       plan: "free" | "pro" | "enterprise";
-    }) => createWorkspace(payload.name, payload.plan),
+    }) => createWorkspace(payload),
+    onError: (error) => {
+      if (error instanceof AxiosError) {
+        setError(error.response?.data.messages);
+      }
+    },
   });
 };

@@ -1,31 +1,25 @@
 import { api } from "@/lib/config/axios-config";
-import { WorkspaceWithMembers } from "@/lib/types/workspace.type";
-import { WorkspaceSettings } from "@/lib/data/dtos/workspace-dtos";
+import { CreateWorkspace } from "@/lib/data/dtos/workspace-dtos";
+import useProjectStore from "@/lib/store/project-store";
 
-export const getAllWorkspaces = async (): Promise<
-  WorkspaceWithMembers[] | void
-> => {
+export const getAllWorkspaces = async () => {
+  const { setWorkspaces, setCurrentWorkspace } = useProjectStore.getState();
   const response = await api.get("/workspace");
-
-  return response.data.payload;
+  setWorkspaces(response.data.payload);
+  setCurrentWorkspace(response.data.payload[0]);
 };
 
 export const createWorkspace = async (
-  name: string,
-  plan: "free" | "pro" | "enterprise"
-): Promise<number | void> => {
-  const response = await api.post("/workspace", {
-    name,
-    plan,
-  });
-
+  data: CreateWorkspace
+): Promise<number> => {
+  const response = await api.post("/workspace", data);
   return response.status;
 };
 
-export const getWorkspaceSettings = async (
-  workspaceId: string
-): Promise<WorkspaceSettings | null> => {
-  const response = await api.get(`/workspace/settings/${workspaceId}`);
+// export const getWorkspaceSettings = async (
+//   workspaceId: string
+// ): Promise<WorkspaceSettings | null> => {
+//   const response = await api.get(`/workspace/settings/${workspaceId}`);
 
-  return response.data.payload;
-};
+//   return response.data.payload;
+// };

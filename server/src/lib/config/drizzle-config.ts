@@ -9,10 +9,12 @@ export default defineConfig({
     "./src/_user/models/account-model.ts",
     "./src/_user/models/user-model.ts",
     "./src/_workspace/models/workspace-model.ts",
+    "./src/_lab/models/lab-table.ts",
   ],
   dialect: "postgresql",
   dbCredentials: {
     url: DATABASE_URL,
   },
   strict: true,
+  verbose: true,
 });

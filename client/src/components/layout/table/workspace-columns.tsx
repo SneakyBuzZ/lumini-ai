@@ -1,5 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { WorkspaceWithMembers } from "@/lib/types/workspace.type";
+import { WorkspaceWithMembers } from "@/lib/types/workspace-type";
 
 export const workspaceColumns: ColumnDef<WorkspaceWithMembers>[] = [
   {

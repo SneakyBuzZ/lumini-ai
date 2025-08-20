@@ -2,6 +2,7 @@ import AppNavbar from "@/components/layout/app-navbar";
 import AppSidebar from "@/components/layout/sidebar/app.sidebar";
 import Spinner from "@/components/shared/spinner";
 import { getUser } from "@/lib/data/api/user-api";
+import { getAllWorkspaces } from "@/lib/data/api/workspace-api";
 import useAuthStore from "@/lib/store/auth-store";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 
@@ -18,6 +19,7 @@ export const Route = createFileRoute("/app")({
   },
   loader: async () => {
     await getUser();
+    await getAllWorkspaces();
   },
   pendingComponent: () => <PendingComponent />,
   component: RouteComponent,

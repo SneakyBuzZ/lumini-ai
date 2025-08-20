@@ -3,6 +3,18 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import pkg from "pg";
 const { Pool } = pkg;
 
+import * as accountModels from "@/_user/models/account-model";
+import * as userModels from "@/_user/models/user-model";
+import * as workspaceModels from "@/_workspace/models/workspace-model";
+import * as labModels from "@/_lab/models/lab-table";
+
+const schema = {
+  ...accountModels,
+  ...userModels,
+  ...workspaceModels,
+  ...labModels,
+};
+
 const pool = new Pool({
   connectionString: DATABASE_URL,
 });
@@ -19,4 +31,4 @@ const pool = new Pool({
   }
 })();
 
-export const db = drizzle({ client: pool });
+export const db = drizzle(pool, { schema });

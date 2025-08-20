@@ -5,11 +5,11 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "node --import=tsx src/index.ts",
+    "dev": "bun --watch ./src/index.ts",
     "build": "tsc -b",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio"
+    "db:generate": "drizzle-kit generate --config src/lib/config/drizzle-config.ts",
+    "db:migrate": "drizzle-kit migrate --config src/lib/config/drizzle-config.ts",
+    "db:studio": "drizzle-kit studio --config src/lib/config/drizzle-config.ts"
   },
   "author": "Kaushik Katikala",
   "license": "ISC",
@@ -47,10 +47,12 @@
     "@types/morgan": "^1.9.9",
     "@types/node": "^22.13.10",
     "@types/pg": "^8.11.11",
-    "drizzle-kit": "^0.30.6",
-    "nodemon": "^3.1.10",
+    "drizzle-kit": "^0.31.4",
     "ts-node": "^10.9.2",
     "tsx": "^4.19.3",
     "typescript": "^5.8.2"
+  },
+  "overrides": {
+    "esbuild": "^0.24.2"
   }
 }

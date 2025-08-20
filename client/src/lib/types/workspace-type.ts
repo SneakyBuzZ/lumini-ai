@@ -14,3 +14,11 @@ export type WorkspaceWithMembers = {
     image: string | null;
   }[];
 };
+
+export type Workspace = {
+  id: string;
+  name: string;
+  plan: "free" | "pro" | "enterprise";
+  slug: string;
+  createdAt: string;
+};

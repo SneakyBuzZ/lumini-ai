@@ -19,6 +19,6 @@
     },
     "types": ["node"]
   },
-  "include": ["src/**/*.ts", "drizzle.config.ts"],
+  "include": ["src/**/*.ts", "src/lib/config/drizzle.config.ts"],
   "exclude": ["node_modules"]
 }
