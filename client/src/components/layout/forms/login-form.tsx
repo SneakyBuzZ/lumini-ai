@@ -62,7 +62,7 @@ const LoginForm = () => {
                   <FormControl>
                     <Input placeholder="**********" {...field} />
                   </FormControl>
-                  {error && <FormMessage>{error}</FormMessage>}
+                  <FormMessage>{error}</FormMessage>
                 </FormItem>
               </>
             )}

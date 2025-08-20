@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { WorkspaceWithMembers } from "@/lib/types/workspace.type";
+import { WorkspaceWithMembers } from "@/lib/types/workspace-type";
 
 type State = {
   workspaces: WorkspaceWithMembers[] | null;

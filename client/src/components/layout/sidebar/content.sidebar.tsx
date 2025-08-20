@@ -1,39 +1,39 @@
-import { LAB_SIDEBAR_LIST, SIDEBAR_LIST } from "@/lib/lists/sidebar.list";
-import useLabStore from "@/lib/store/lab-store";
-import { Link } from "@tanstack/react-router";
+import { SIDEBAR_LIST } from "@/lib/lists/sidebar.list";
+import { cn } from "@/utils/cn.util";
+import { Link, useLocation } from "@tanstack/react-router";
 
 const ContentSidebar = () => {
-  const { lab } = useLabStore();
-  const LIST =
-    lab != null
-      ? LAB_SIDEBAR_LIST(lab.name.replace(/\s+/g, "-").toLowerCase())
-      : SIDEBAR_LIST;
+  const { pathname } = useLocation();
   return (
     <>
-      <div className="z-20 w-full flex flex-1 flex-col justify-start items-start gap-6 px-2 py-4">
-        {LIST.map((section) => (
-          <div
+      <ul className="z-20 w-full flex flex-1 flex-col justify-start items-start gap-6 px-6 py-8">
+        {SIDEBAR_LIST.map((section) => (
+          <li
             key={section.name}
             className="w-full flex flex-col justify-center items-start gap-2"
           >
-            <div className="h-[1px] w-full bg-neutral-900 mb-3" />
             <span className="text-sm text-neutral-500">{section.name}</span>
             <div className="flex flex-col justify-center items-start gap-2 w-full">
               {section.items.map((item) => (
                 <Link
                   key={item.name}
                   to={item.href}
-                  className="w-full flex justify-start items-center gap-2 text-md text-neutral-400 p-1 rounded-md"
+                  className={cn(
+                    "w-full flex  items-center gap-3 text-md text-neutral-400 p-1 px-3 rounded-md border border-midnight-400 transition-all duration-300",
+                    {
+                      "bg-midnight-200/70 border-midnight-200":
+                        pathname === item.href,
+                    }
+                  )}
                 >
                   <item.icons className="w-4 h-4" />
                   <span>{item.name}</span>
                 </Link>
               ))}
             </div>
-          </div>
+          </li>
         ))}
-        <div className="h-[1px] w-full bg-neutral-900 mb-3" />
-      </div>
+      </ul>
     </>
   );
 };

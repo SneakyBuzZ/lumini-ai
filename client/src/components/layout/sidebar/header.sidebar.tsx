@@ -1,30 +1,29 @@
 import Logo from "@/components/shared/logo";
-import useWorkspaceStore from "@/lib/store/workspace-store";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
 } from "@/components/ui/select";
-import { CirclePlus, Slash } from "lucide-react";
+import { CirclePlus, Search, Slash } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import CreateWorkspaceButton from "@/components/shared/cta-buttons/create-workspace";
+import useProjectStore from "@/lib/store/project-store";
+import { Input } from "@/components/ui/input";
 
 const HeaderSidebar = () => {
   const { workspaces, currentWorkspace, setCurrentWorkspace } =
-    useWorkspaceStore();
+    useProjectStore();
 
   return (
-    <div className="z-20 flex flex-col justify-center h-[50px]">
+    <div className="z-20 flex flex-col justify-center h-[52px] px-3">
       {workspaces && workspaces.length > 0 ? (
         <div className="flex items-center h-full w-full px-2">
-          {/* Logo and Slash: fixed, never moves */}
           <div className="flex items-center">
             <Logo imgClassName="h-5" />
             <Slash className="transform -rotate-[20deg] text-neutral-400 h-3" />
           </div>
-          {/* Select: grows, but logo stays stable */}
           <div className="flex-1 flex items-center">
             <Select
               value={currentWorkspace?.id || ""}
@@ -41,45 +40,49 @@ const HeaderSidebar = () => {
                 }
               }}
             >
-              <SelectTrigger className="bg-transparent w-full flex justify-start ml-auto p-0 py-0 border-0">
+              <SelectTrigger className="bg-midnight-200 border border-midnight-100 hover:bg-midnight-200 w-full flex justify-start">
                 <div className="text-lg w-full text-white flex justify-start items-center gap-2 px-2">
                   {currentWorkspace && (
-                    <span className="text-[16px]">{currentWorkspace.name}</span>
+                    <span className="text-[14px]">{currentWorkspace.name}</span>
                   )}
                   <Badge
-                    className="bg-midnight-400 border border-neutral-700 text-neutral-300 text-[10px] h-5 pointer-events-none"
+                    className="bg-midnight-100 border border-neutral-800 rounded-ful text-neutral-300 text-[10px] h-5 pointer-events-none"
                     variant={currentWorkspace?.plan}
                   >
                     {currentWorkspace?.plan || "no plan"}
                   </Badge>
                 </div>
               </SelectTrigger>
-              <SelectContent className="w-[300px] overflow-auto">
-                <div className="flex flex-col items-start justify-center gap-1 p-2">
-                  <span className="text-sm text-neutral-400 mb-1">
-                    Workspaces
-                  </span>
+              <SelectContent
+                align="start"
+                className="w-[300px] flex flex-col justify-start items-start gap-4 bg-midnight-200/80 backdrop-blur-md shadow-xl shadow-black"
+              >
+                <div className="flex items-center justify-between w-full px-2 h-10">
+                  <Search className="h-4 w-4" />
+                  <Input
+                    className="flex-1 border-none bg-none"
+                    placeholder="Search workspaces..."
+                  />
+                </div>
+                <ul className="flex flex-col items-start justify-center gap-1 border-y py-2">
                   {workspaces.map((workspace) => (
                     <SelectItem
                       key={workspace.id}
                       value={workspace.id}
-                      className="p-2 border"
+                      className="bg-none text-neutral-400 focus:text-white"
                     >
-                      <div className="flex items-center">{workspace.name}</div>
+                      {workspace.name}
                     </SelectItem>
                   ))}
-                </div>
-                <div className="flex flex-col items-start justify-center gap-2 p-2">
-                  <span className="text-sm text-neutral-400">
-                    Create workspace
-                  </span>
+                </ul>
+                <div className="p-1">
                   <CreateWorkspaceButton>
                     <Button
-                      className="h-9 w-full flex justify-start items-center"
                       variant={"outline"}
+                      className="h-8 w-full flex justify-start items-center bg-midnight-100"
                     >
-                      <CirclePlus />
-                      Workspace
+                      <CirclePlus className="h-4" />
+                      Create Workspace
                     </Button>
                   </CreateWorkspaceButton>
                 </div>
