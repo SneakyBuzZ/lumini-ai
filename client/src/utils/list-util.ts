@@ -226,27 +226,27 @@ export const LAB_SIDEBAR_LIST = (labId: string) => [
       {
         name: "Overview",
         icons: Layout,
-        href: `/app/labs/${labId}`,
+        href: `/dashboard/lab/${labId}`,
       },
       {
         name: "Ask Your Repo",
         icons: Bot, // choose your AI icon
-        href: `/app/labs/${labId}/ask`,
+        href: `/dashboard/lab/${labId}/ask`,
       },
       {
         name: "Files & Context",
         icons: FolderGit2, // or FileCode
-        href: `/app/labs/${labId}/files`,
+        href: `/dashboard/lab/${labId}/files`,
       },
       {
-        name: "Whiteboard",
+        name: "Canvas",
         icons: Book,
-        href: `/app/labs/${labId}/whiteboard`,
+        href: `/dashboard/lab/${labId}/canvas`,
       },
       {
         name: "Settings",
         icons: Settings,
-        href: `/app/labs/${labId}/settings`,
+        href: `/dashboard/lab/${labId}/settings`,
       },
     ],
   },

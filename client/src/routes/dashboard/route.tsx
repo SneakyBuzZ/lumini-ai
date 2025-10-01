@@ -19,9 +19,9 @@ function RouteComponent() {
   useGetUser();
   useGetWorkspaces();
   return (
-    <section className="w-full h-screen overflow-clip flex">
+    <section className="w-full h-screen flex">
       <AppSidebar />
-      <div className="flex-1 flex flex-col items-center justify-start">
+      <div className="flex-1 flex flex-col items-center justify-start h-full min-h-0 min-w-0 relative bg-midnight-300">
         <AppNavbar />
         <Outlet />
       </div>

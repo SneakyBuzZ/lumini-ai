@@ -7,7 +7,7 @@ const AppNavbar = () => {
   const { user } = useAuthStore();
   if (!user) return <>NHI HAI</>;
   return (
-    <nav className="w-full h-[50px] flex justify-between items-center backdrop-blur-md px-7 border-b border-neutral-900">
+    <nav className="w-full h-[50px] flex justify-between items-center backdrop-blur-md px-7 border-b border-neutral-900 shrink-0">
       <NavbarBreadcrumb />
       <div className="flex justify-end items-center gap-4">
         <Bell className="size-5" />

@@ -78,7 +78,7 @@ function AuthComponent() {
 
 function authBeforeLoad(pathname: string) {
   const { authenticated } = useAuthStore.getState();
-  if (authenticated == false) {
+  if (authenticated == true) {
     throw redirect({ to: "/" });
   }
 

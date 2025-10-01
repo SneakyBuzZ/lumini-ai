@@ -13,7 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import Spinner from "@/components/shared/spinner";
 import { useState } from "react";
-import { useLogin } from "@/api/mutations/user-mutations";
+import { useLogin } from "@/lib/api/mutations/user-mutations";
 
 const LoginForm = () => {
   const [error, setError] = useState<string | null>(null);
