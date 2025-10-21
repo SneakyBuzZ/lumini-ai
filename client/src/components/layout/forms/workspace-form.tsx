@@ -1,4 +1,3 @@
-import { workspaceSchema } from "@/lib/schemas/workspace-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -24,9 +23,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { CircleCheck } from "lucide-react";
-import { useCreateWorksace } from "@/lib/data/mutations/workspace-mutations";
 import Spinner from "@/components/shared/spinner";
 import { useRef, useState } from "react";
+import { useCreateWorksace } from "@/lib/api/mutations/app-mutations";
+
+const workspaceSchema = z.object({
+  name: z.string().min(2).max(100),
+  plan: z.enum(["free", "pro", "enterprise"]),
+});
 
 const WorkspaceForm = () => {
   const [error, setError] = useState<string | null>(null);

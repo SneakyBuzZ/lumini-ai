@@ -1,10 +1,11 @@
 import { ErrorResponse } from "@/utils/dto";
 import { JWT_SECRET } from "@/utils/constants";
 import jwt from "jsonwebtoken";
+import { Response, Request, NextFunction } from "express";
 
 export const authenticateJwt = () => {
-  return async (req: any, res: any, next: any) => {
-    const token = req.cookies?.accessToken;
+  return async (req: Request, res: Response, next: NextFunction) => {
+    const token = req.signedCookies?.accessToken;
 
     if (!token) {
       return res.status(401).json(new ErrorResponse(401, "Unauthorized"));

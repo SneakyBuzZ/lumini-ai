@@ -1,5 +1,8 @@
-import { Shape } from "@/lib/types/canvas.type";
+import { Shape } from "@/lib/types/canvas-type";
 
+/**
+ * Initialize canvas with proper device pixel ratio scaling
+ */
 export const initialiseCanvas = (
   ctx: CanvasRenderingContext2D,
   canvas: HTMLCanvasElement
@@ -18,6 +21,9 @@ export const initialiseCanvas = (
   return ctx;
 };
 
+/**
+ * Get mouse position relative to canvas (unscaled)
+ */
 export const getLocation = (e: React.MouseEvent, canvas: HTMLCanvasElement) => {
   const rect = canvas.getBoundingClientRect();
   const x = e.clientX - rect.left;
@@ -26,19 +32,25 @@ export const getLocation = (e: React.MouseEvent, canvas: HTMLCanvasElement) => {
   return { x, y };
 };
 
+/**
+ * Get canvas coordinates considering scale and offset
+ */
 export const getCanvasCoords = (
-  e: React.MouseEvent,
   canvas: HTMLCanvasElement,
+  e: MouseEvent | React.MouseEvent,
   scale: number,
   offsetX: number,
   offsetY: number
 ) => {
   const rect = canvas.getBoundingClientRect();
-  const x = (e.clientX - rect.left - offsetX) / scale;
-  const y = (e.clientY - rect.top - offsetY) / scale;
-  return { x, y };
+  const x = ("clientX" in e ? e.clientX : 0) - rect.left - offsetX;
+  const y = ("clientY" in e ? e.clientY : 0) - rect.top - offsetY;
+  return { x: x / scale, y: y / scale };
 };
 
+/**
+ * Snap a line to nearest multiple of 0°, 45°, 90°, etc.
+ */
 export function snapLine(
   x1: number,
   y1: number,
@@ -48,10 +60,9 @@ export function snapLine(
 ) {
   const dx = x2 - x1;
   const dy = y2 - y1;
-  const angle = Math.atan2(dy, dx); // radians
+  const angle = Math.atan2(dy, dx);
   const deg = (angle * 180) / Math.PI;
 
-  // Snap angles: 0°, 45°, 90°, 135°, 180°, etc.
   const snapAngles = [0, 45, 90, 135, 180, -45, -90, -135, -180];
 
   for (const snap of snapAngles) {
@@ -64,17 +75,19 @@ export function snapLine(
       };
     }
   }
-  // No snap, return original
+
   return { x2, y2 };
 }
 
+/**
+ * Check if a point (px, py) is inside a shape
+ */
 export function isPointInsideShape(
   shape: Shape,
   px: number,
   py: number
 ): boolean {
   const { x, y, width, height, type } = shape;
-
   const left = Math.min(x, x + width);
   const right = Math.max(x, x + width);
   const top = Math.min(y, y + height);
@@ -85,7 +98,6 @@ export function isPointInsideShape(
   }
 
   if (type === "line" || type === "arrow") {
-    // Simple distance-to-line formula
     const x1 = x;
     const y1 = y;
     const x2 = x + width;
@@ -116,12 +128,15 @@ export function isPointInsideShape(
     const dy = py - closestY;
     const distance = Math.sqrt(dx * dx + dy * dy);
 
-    return distance <= 6; // click radius
+    return distance <= 6; // hit radius
   }
 
   return false;
 }
 
+/**
+ * Draw highlight rectangle for selected shape
+ */
 export function drawHighlight(
   shape: Shape,
   ctx: CanvasRenderingContext2D,

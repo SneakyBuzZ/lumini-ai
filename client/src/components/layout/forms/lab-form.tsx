@@ -1,4 +1,3 @@
-import { labSchema } from "@/lib/schemas/lab-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -22,14 +21,27 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import useWorkspacesStore from "@/lib/store/workspace-store";
-import { useCreateLab } from "@/lib/data/mutations/lab-mutations";
-import { toast } from "sonner";
 import Spinner from "@/components/shared/spinner";
+import useAppStore from "@/lib/store/project-store";
+import { useState } from "react";
+import { useCreateLab } from "@/lib/api/mutations/app-mutations";
+
+const labSchema = z.object({
+  name: z.string().min(2).max(100, {
+    message: "Name must be between 2 and 100 characters",
+  }),
+  githubUrl: z.string().url({
+    message: "Invalid GitHub URL",
+  }),
+  workspaceId: z.string().cuid({
+    message: "Invalid workspace ID",
+  }),
+});
 
 const LabForm = () => {
-  const { workspaces, currentWorkspace } = useWorkspacesStore();
-  const { mutateAsync: createLab, isPending } = useCreateLab();
+  const [error, setError] = useState<string | null>(null);
+  const { workspaces, currentWorkspace } = useAppStore();
+  const { mutateAsync: createLab, isPending } = useCreateLab(setError);
   const form = useForm<z.infer<typeof labSchema>>({
     resolver: zodResolver(labSchema),
     defaultValues: {
@@ -40,15 +52,15 @@ const LabForm = () => {
   });
 
   async function onSubmit(values: z.infer<typeof labSchema>) {
-    const status = await createLab(values);
-    form.reset();
-    if (status === 200) {
-      toast.success("Lab created successfully");
-    } else if (status === 204) {
-      toast.error("Limit reached, please upgrade your plan");
-    } else {
-      toast.error("An unexpected error occurred");
+    if (!currentWorkspace) {
+      setError("No workspace selected");
+      return;
     }
+    await createLab({
+      ...values,
+      plan: currentWorkspace.plan,
+    });
+    form.reset();
   }
 
   return (
@@ -123,7 +135,7 @@ const LabForm = () => {
                   <FormDescription className="px-2">
                     This is the URL of your GitHub repository.
                   </FormDescription>
-                  <FormMessage className="px-2" />
+                  <FormMessage className="px-2"> {error}</FormMessage>
                 </div>
               </FormItem>
             )}

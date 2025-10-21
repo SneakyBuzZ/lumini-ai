@@ -1,20 +1,19 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { LabWithMembers } from "@/lib/types/lab.type";
+import { Lab } from "@/lib/types/lab-type";
 import { useNavigate } from "@tanstack/react-router";
-import useLabStore from "@/lib/store/lab-store";
+import useAppStore from "@/lib/store/project-store";
 
 interface ClickableLabNameCellProps {
-  lab: LabWithMembers;
+  lab: Lab;
 }
 
-export function ClickableLabNameCell({ lab }: ClickableLabNameCellProps) {
+function ClickableLabNameCell({ lab }: ClickableLabNameCellProps) {
   const navigate = useNavigate();
-  const setLab = useLabStore((state) => state.setLab);
+  const setLab = useAppStore((state) => state.setCurrentLab);
 
   const handleClick = () => {
     setLab(lab);
-    // navigate(`/app/labs/${lab.name.replace(/\s+/g, "-").toLowerCase()}`);
-    navigate({ to: "/" });
+    navigate({ to: "/dashboard/lab/$id", params: { id: lab.id } });
   };
 
   return (
@@ -27,7 +26,7 @@ export function ClickableLabNameCell({ lab }: ClickableLabNameCellProps) {
   );
 }
 
-export const labColumns: ColumnDef<LabWithMembers>[] = [
+export const labColumns: ColumnDef<Lab>[] = [
   {
     accessorKey: "name",
     header: "Name",
@@ -68,13 +67,6 @@ export const labColumns: ColumnDef<LabWithMembers>[] = [
           <span>{creator.name}</span>
         </div>
       );
-    },
-  },
-  {
-    accessorKey: "workspace",
-    header: "Workspace",
-    cell: ({ row }) => {
-      return <span>{row.original.workspace.name}</span>;
     },
   },
   {

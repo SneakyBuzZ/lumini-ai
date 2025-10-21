@@ -15,6 +15,7 @@ export class UserService {
 
   async register(req: RegisterUserDTOType) {
     const userExists = await this.userRepository.findByEmail(req.email);
+
     if (userExists) {
       throw new AppError(409, "User already exists");
     }

@@ -12,8 +12,10 @@ export class LabController {
   create = async (req: Request, res: Response) => {
     const userId = req.user?.id;
     if (!userId) throw new AppError(403, "Unauthorized");
-    await this.labService.create(req.body, userId);
-    res.status(201).json(new DataResponse(201, "Lab created successfully."));
+    const labId = await this.labService.create(req.body, userId);
+    res
+      .status(201)
+      .json(new DataResponse(201, { labId }, "Lab created successfully."));
   };
 
   getAll = async (req: Request, res: Response) => {
@@ -27,6 +29,8 @@ export class LabController {
       .json(new DataResponse(200, labs, "Labs retrieved successfully."));
   };
 }
+
+// ROUTE -> CONTROLLER CLASS -> SERVICE CLASS -> REPOSITORY CLASS -> DB
 
 // export const create = async (req: Request, res: Response) => {
 //   console.log("LAB CREATION REQUEST RECEIVED");

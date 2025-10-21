@@ -1,48 +1,39 @@
-import { Shape } from "@/lib/types/canvas.type";
-import { drawHighlight, snapLine } from "./utils";
+import { DrawOptions, Shape } from "@/lib/types/canvas-type";
+import { snapLine } from "@/lib/canvas/utils";
 
 export const renderShapes = (
-  shapes: Shape[],
+  shapes: Record<string, Shape>,
   ctx: CanvasRenderingContext2D,
-  scale: number,
-  offsetX: number,
-  offsetY: number
+  options: DrawOptions
 ) => {
+  const { scale, offsetX, offsetY } = options;
   const canvas = ctx.canvas;
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-
   ctx.save();
-
   ctx.translate(offsetX, offsetY);
   ctx.scale(scale, scale);
 
-  shapes.forEach((shape) => {
-    ctx.strokeStyle = shape.color;
-    ctx.fillStyle = shape.color;
-    ctx.lineWidth = 2;
+  // iterate over the record values and hightlight selected shapes
+  Object.values(shapes).forEach((shape) => {
+    const strokeColor = shape.strokeColor ?? "#3d3d3d";
+    const fillColor = shape.fillColor ?? "transparent";
+    const strokeWidth: number = Number(shape.strokeWidth ?? 2);
+    const safeScale: number = Number(scale);
+
+    ctx.lineWidth = (strokeWidth / safeScale) * 2;
 
     if (shape.isDragging || shape.isHovered) {
-      ctx.shadowColor = "rgba(0, 0, 0, 0.2)";
+      ctx.shadowColor = "rgba(0,0,0,0.2)";
       ctx.shadowBlur = 8;
       ctx.shadowOffsetX = 2;
       ctx.shadowOffsetY = 2;
     } else {
-      ctx.shadowColor = "transparent"; // reset shadow
+      ctx.shadowColor = "transparent";
     }
 
-    if (shape.isSelected) {
-      ctx.setLineDash([6, 4]); // dashed line
-      drawHighlight(shape, ctx, scale, offsetX, offsetY);
-    } else {
-      ctx.setLineDash([]); // solid line
-    }
-
-    if (shape.type === "text") {
-      ctx.font = "16px sans-serif";
-      ctx.fillText(shape.text ?? "", shape.x, shape.y + 16);
-      return;
-    }
+    ctx.strokeStyle = strokeColor;
+    ctx.fillStyle = fillColor;
 
     switch (shape.type) {
       case "rectangle":
@@ -60,26 +51,32 @@ export const renderShapes = (
       case "arrow":
         drawArrow(ctx, shape);
         break;
+
+      case "text":
+        drawText(ctx, shape);
+        break;
     }
 
-    // ✅ If selected, draw a bounding box or handle points (optional enhancement)
-    if (shape.isSelected) {
+    // draw selection outline (not for text)
+    if (shape.isSelected && shape.type !== "text") {
       ctx.save();
-      ctx.strokeStyle = "#007AFF"; // highlight color
+      ctx.strokeStyle = "rgba(0, 120, 215, 0.5)";
       ctx.setLineDash([4, 2]);
       ctx.lineWidth = 1;
       ctx.strokeRect(
-        shape.x - 4,
-        shape.y - 4,
-        shape.width + 8,
-        shape.height + 8
+        shape.x - 10,
+        shape.y - 10,
+        shape.width + 20,
+        shape.height + 20
       );
       ctx.restore();
     }
   });
 
-  ctx.restore(); // 🔁 Reset transform, shadow, dash
+  ctx.restore();
 };
+
+// ---------- Individual draw functions ----------
 
 export const drawRoundedRect = (
   ctx: CanvasRenderingContext2D,
@@ -92,7 +89,6 @@ export const drawRoundedRect = (
   const w = Math.abs(width);
   const h = Math.abs(height);
   const r = Math.min(Math.abs(radius), w / 2, h / 2);
-
   const left = width < 0 ? x + width : x;
   const top = height < 0 ? y + height : y;
 
@@ -107,6 +103,7 @@ export const drawRoundedRect = (
   ctx.lineTo(left, top + r);
   ctx.quadraticCurveTo(left, top, left + r, top);
   ctx.closePath();
+  ctx.fill();
   ctx.stroke();
 };
 
@@ -121,6 +118,7 @@ export const drawEllipse = (ctx: CanvasRenderingContext2D, shape: Shape) => {
     0,
     Math.PI * 2
   );
+  ctx.fill();
   ctx.stroke();
 };
 
@@ -163,7 +161,6 @@ export const drawArrow = (
     height = y2 - y;
   }
 
-  // Dynamic arrowhead as before
   const lineLength = Math.sqrt(width * width + height * height);
   const headlen = Math.max(6, Math.min(lineLength * 0.22, 16));
   const angle = Math.atan2(height, width);
@@ -185,4 +182,10 @@ export const drawArrow = (
   );
   ctx.closePath();
   ctx.fill();
+};
+
+export const drawText = (ctx: CanvasRenderingContext2D, shape: Shape) => {
+  ctx.fillStyle = shape.fillColor ?? "#000";
+  ctx.font = `${shape.fontSize ?? 16}px ${shape.fontFamily ?? "sans-serif"}`;
+  ctx.fillText(shape.text ?? "", shape.x, shape.y + (shape.fontSize ?? 16));
 };
