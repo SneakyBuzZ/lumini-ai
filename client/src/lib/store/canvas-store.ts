@@ -53,6 +53,7 @@ export type Actions = {
   selection: {
     select: (ids: string[]) => void;
     addId: (id: string) => void;
+    removeId: (id: string) => void;
     clear: () => void;
     move: (id: string, dx: number, dy: number) => void;
     resize: (id: string, newWidth: number, newHeight: number) => void;
@@ -155,7 +156,6 @@ const useCanvasStore = create<State & Actions>((set, get) => ({
       set((state) => {
         const shape = state.shapes[id];
         if (shape) {
-          console.log("ADDING ID INSIDE", id.slice(0, 6));
           state.shapes[id] = {
             ...shape,
             isSelected: true,
@@ -172,9 +172,26 @@ const useCanvasStore = create<State & Actions>((set, get) => ({
           selectedShapeIds: newSelected,
         };
       }),
+    removeId: (id) =>
+      set((state) => {
+        const shape = state.shapes[id];
+        if (shape) {
+          state.shapes[id] = {
+            ...shape,
+            isSelected: false,
+            strokeColor: "#3d3d3d",
+          };
+        }
+        const newSelected = state.selectedShapeIds.filter(
+          (selectedId) => selectedId !== id
+        );
+        return {
+          shapes: { ...state.shapes },
+          selectedShapeIds: newSelected,
+        };
+      }),
     clear: () =>
       set((state) => {
-        console.log("STATE KA SELECTED: ", state.selectedShapeIds);
         state.selectedShapeIds.forEach((id) => {
           const shape = state.shapes[id];
           if (shape) shape.isSelected = false;

@@ -1,14 +1,17 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import useCanvasStore from "@/lib/store/canvas-store";
 import { getCanvasCoords, isPointInsideShape } from "@/lib/canvas/utils";
 
 export const useSelect = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
   const store = useCanvasStore();
 
-  const [dragOffset, setDragOffset] = useState<{ x: number; y: number } | null>(
-    null
-  );
-  const [, setResizing] = useState<boolean>(false);
+  // --- Refs for drag logic (fast, no re-render) ---
+  const dragStartRef = useRef<{ x: number; y: number } | null>(null);
+  const initialShapePositionsRef = useRef<
+    Record<string, { x: number; y: number }>
+  >({});
+
+  // --- UI state (safe to re-render) ---
   const [selectionBoxStart, setSelectionBoxStart] = useState<{
     x: number;
     y: number;
@@ -20,7 +23,7 @@ export const useSelect = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
 
   // --- Mouse down ---
   const onMouseDown = (e: React.MouseEvent) => {
-    if (!canvasRef.current || store === null || store.mode !== "select") return;
+    if (!canvasRef.current || store.mode !== "select") return;
 
     const { x, y } = getCanvasCoords(
       canvasRef.current,
@@ -30,35 +33,91 @@ export const useSelect = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
       store.offsetY
     );
 
-    // Check if we clicked on a shape
-    const shape = Object.values(store.shapes)
+    const allShapes = Object.values(store.shapes);
+    const shape = allShapes
       .slice()
       .reverse()
       .find((s) => isPointInsideShape(s, x, y));
 
-    if (shape !== undefined) {
-      // Single-click selection
-      store.selection.select([shape.id]);
-      store.shapesActions.update({
-        ...shape,
-        isSelected: true,
-        strokeColor: "#a8a8a8ff",
-      });
-      setDragOffset({ x: x - shape.x, y: y - shape.y });
+    const selectedShapes = allShapes.filter((s) => s.isSelected);
 
-      // Reset other shapes
-      Object.values(store.shapes).forEach((s) => {
-        if (s.id !== shape.id) {
-          s.isSelected = false;
-          s.strokeColor = "#3d3d3d";
+    // Helper → compute bounding box for selected shapes
+    const getGroupBoundingBox = () => {
+      if (selectedShapes.length === 0) return null;
+      const minX = Math.min(...selectedShapes.map((s) => s.x));
+      const minY = Math.min(...selectedShapes.map((s) => s.y));
+      const maxX = Math.max(...selectedShapes.map((s) => s.x + s.width));
+      const maxY = Math.max(...selectedShapes.map((s) => s.y + s.height));
+      return { x: minX, y: minY, width: maxX - minX, height: maxY - minY };
+    };
+
+    const groupBox = getGroupBoundingBox();
+
+    const isInsideGroupBox =
+      groupBox &&
+      x >= groupBox.x &&
+      x <= groupBox.x + groupBox.width &&
+      y >= groupBox.y &&
+      y <= groupBox.y + groupBox.height;
+
+    if (shape) {
+      // --- Clicked on a shape ---
+      const isAlreadySelected = store.selectedShapeIds.includes(shape.id);
+
+      if (!isAlreadySelected && !e.shiftKey) {
+        // Clear old and select this
+        store.selection.clear();
+        allShapes.forEach((s) =>
+          store.shapesActions.update({
+            ...s,
+            isSelected: s.id === shape.id,
+            strokeColor: s.id === shape.id ? "#a8a8a8ff" : "#3d3d3d",
+          })
+        );
+        store.selection.addId(shape.id);
+      } else if (e.shiftKey) {
+        // Toggle selection on shift-click
+        if (isAlreadySelected) {
+          store.selection.removeId(shape.id);
+          store.shapesActions.update({
+            ...shape,
+            isSelected: false,
+            strokeColor: "#3d3d3d",
+          });
+        } else {
+          store.selection.addId(shape.id);
+          store.shapesActions.update({
+            ...shape,
+            isSelected: true,
+            strokeColor: "#a8a8a8ff",
+          });
         }
+      }
+
+      // prepare for dragging (single or multiple)
+      dragStartRef.current = { x, y };
+      initialShapePositionsRef.current = {};
+      store.selectedShapeIds.forEach((id) => {
+        const s = store.shapes[id];
+        if (s) initialShapePositionsRef.current[id] = { x: s.x, y: s.y };
       });
-      store.selectionBox.finish();
+    } else if (isInsideGroupBox) {
+      // --- Clicked inside group bounding box (no shape directly clicked) ---
+      dragStartRef.current = { x, y };
+      initialShapePositionsRef.current = {};
+      store.selectedShapeIds.forEach((id) => {
+        const s = store.shapes[id];
+        if (s) initialShapePositionsRef.current[id] = { x: s.x, y: s.y };
+      });
     } else {
-      // Object.values(store.shapes).forEach((s) => {
-      //   s.isSelected = false;
-      //   s.strokeColor = "#3d3d3d";
-      // });
+      // --- Clicked empty space: start selection box ---
+      allShapes.forEach((s) =>
+        store.shapesActions.update({
+          ...s,
+          isSelected: false,
+          strokeColor: "#3d3d3d",
+        })
+      );
       store.selection.clear();
 
       setSelectionBoxStart({ x, y });
@@ -79,21 +138,27 @@ export const useSelect = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
         store.offsetY
       );
 
-      // Move selected shape
-      if (dragOffset && store.selectedShapeIds?.length) {
+      // --- DRAGGING SELECTED SHAPES ---
+      if (dragStartRef.current && store.selectedShapeIds?.length) {
+        const dx = x - dragStartRef.current.x;
+        const dy = y - dragStartRef.current.y;
+
         store.selectedShapeIds.forEach((id) => {
           const shape = store.shapes[id];
-          if (!shape) return;
+          const initial = initialShapePositionsRef.current[id];
+          if (!shape || !initial) return;
+
           store.shapesActions.update({
             ...shape,
-            x: x - dragOffset.x,
-            y: y - dragOffset.y,
+            x: initial.x + dx,
+            y: initial.y + dy,
           });
         });
+
         return;
       }
 
-      // Update selection box
+      // --- SELECTION BOX LOGIC ---
       if (selectionBoxStart) {
         setSelectionBoxEnd({ x, y });
 
@@ -110,7 +175,7 @@ export const useSelect = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
           const ex = s.x + s.width;
           const ey = s.y + s.height;
 
-          // intersection area with selection box
+          // Intersection area with selection box
           const ix = Math.max(0, Math.min(ex, x2) - Math.max(sx, x1));
           const iy = Math.max(0, Math.min(ey, y2) - Math.max(sy, y1));
           const intersectionArea = ix * iy;
@@ -118,8 +183,6 @@ export const useSelect = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
 
           if (intersectionArea / shapeArea >= 0.8) {
             selectedIds.push(s.id);
-
-            // visually mark shape as selected
             store.shapesActions.update({
               ...s,
               isSelected: true,
@@ -137,16 +200,16 @@ export const useSelect = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
         store.selection.select(selectedIds);
       }
     },
-    [canvasRef, dragOffset, selectionBoxStart, store]
+    [canvasRef, selectionBoxStart, store]
   );
 
   // --- Mouse up ---
-  const onMouseUp = () => {
-    setDragOffset(null);
-    setResizing(false);
+  const onMouseUp = useCallback(() => {
+    dragStartRef.current = null;
+    initialShapePositionsRef.current = {};
     setSelectionBoxStart(null);
     setSelectionBoxEnd(null);
-  };
+  }, []);
 
   // --- Draw selection box ---
   const drawSelectionBox = (ctx: CanvasRenderingContext2D) => {
@@ -167,7 +230,7 @@ export const useSelect = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
     ctx.setLineDash([]);
   };
 
-  // --- Register mousemove and mouseup ---
+  // --- Register global listeners ---
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -179,7 +242,7 @@ export const useSelect = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
       canvas.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("mouseup", onMouseUp);
     };
-  }, [onMouseMove, canvasRef]);
+  }, [onMouseMove, onMouseUp, canvasRef]);
 
   return { onMouseDown, drawSelectionBox };
 };

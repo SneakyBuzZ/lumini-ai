@@ -9,20 +9,27 @@ export const renderShapes = (
   const { scale, offsetX, offsetY } = options;
   const canvas = ctx.canvas;
 
+  // clear canvas
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.save();
   ctx.translate(offsetX, offsetY);
   ctx.scale(scale, scale);
 
-  // iterate over the record values and hightlight selected shapes
-  Object.values(shapes).forEach((shape) => {
+  // --- get selected shapes ---
+  const allShapes = Object.values(shapes);
+  const selectedShapes = allShapes.filter((s) => s.isSelected);
+  const multipleSelected = selectedShapes.length > 1;
+
+  // --- draw shapes ---
+  allShapes.forEach((shape) => {
     const strokeColor = shape.strokeColor ?? "#3d3d3d";
     const fillColor = shape.fillColor ?? "transparent";
-    const strokeWidth: number = Number(shape.strokeWidth ?? 2);
-    const safeScale: number = Number(scale);
+    const strokeWidth = Number(shape.strokeWidth ?? 2);
+    const safeScale = Number(scale);
 
     ctx.lineWidth = (strokeWidth / safeScale) * 2;
 
+    // shadow for hover/drag
     if (shape.isDragging || shape.isHovered) {
       ctx.shadowColor = "rgba(0,0,0,0.2)";
       ctx.shadowBlur = 8;
@@ -39,44 +46,63 @@ export const renderShapes = (
       case "rectangle":
         drawRoundedRect(ctx, shape.x, shape.y, shape.width, shape.height, 12);
         break;
-
       case "ellipse":
         drawEllipse(ctx, shape);
         break;
-
       case "line":
         drawLine(ctx, shape);
         break;
-
       case "arrow":
         drawArrow(ctx, shape);
         break;
-
       case "text":
         drawText(ctx, shape);
         break;
     }
 
-    // draw selection outline (not for text)
+    // --- draw selection outlines ---
     if (shape.isSelected && shape.type !== "text") {
-      ctx.save();
-      ctx.strokeStyle = "rgba(0, 120, 215, 0.5)";
-      ctx.setLineDash([4, 2]);
-      ctx.lineWidth = 1;
-      ctx.strokeRect(
-        shape.x - 10,
-        shape.y - 10,
-        shape.width + 20,
-        shape.height + 20
-      );
-      ctx.restore();
+      if (!multipleSelected) {
+        // single selection → show main blue box
+        ctx.save();
+        ctx.strokeStyle = "rgba(0, 120, 215, 0.5)";
+        ctx.setLineDash([4, 2]);
+        ctx.lineWidth = 1;
+        ctx.strokeRect(
+          shape.x - 6,
+          shape.y - 6,
+          shape.width + 12,
+          shape.height + 12
+        );
+        ctx.restore();
+      } else {
+        // multi selection → faint gray outline
+        ctx.save();
+        ctx.strokeStyle = "rgba(0,0,0,0.15)";
+        ctx.lineWidth = 1;
+        ctx.strokeRect(shape.x, shape.y, shape.width, shape.height);
+        ctx.restore();
+      }
     }
   });
 
+  // --- draw group selection box if multiple shapes selected ---
+  if (multipleSelected) {
+    const minX = Math.min(...selectedShapes.map((s) => s.x));
+    const minY = Math.min(...selectedShapes.map((s) => s.y));
+    const maxX = Math.max(...selectedShapes.map((s) => s.x + s.width));
+    const maxY = Math.max(...selectedShapes.map((s) => s.y + s.height));
+
+    ctx.save();
+    ctx.strokeStyle = "rgba(0, 120, 215, 0.5)";
+    ctx.setLineDash([4, 2]);
+    ctx.lineWidth = 1;
+    ctx.strokeRect(minX - 8, minY - 8, maxX - minX + 16, maxY - minY + 16);
+    ctx.restore();
+  }
+
   ctx.restore();
 };
-
-// ---------- Individual draw functions ----------
 
 export const drawRoundedRect = (
   ctx: CanvasRenderingContext2D,
