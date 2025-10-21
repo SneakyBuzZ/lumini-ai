@@ -11,12 +11,14 @@ export class LabRepository {
     const [lab] = await db
       .insert(labsTable)
       .values({ ...data, creatorId, slug })
-      .returning({ labId: labsTable.id });
+      .returning({ id: labsTable.id });
 
     await db.insert(labSettingsTable).values({
-      labId: lab.labId,
+      labId: lab.id,
       ...this.labConfig[data.plan],
     });
+
+    return lab.id;
   }
 
   async countLabs(workspaceId: string) {

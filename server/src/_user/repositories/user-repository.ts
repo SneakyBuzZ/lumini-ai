@@ -5,7 +5,8 @@ import { RegisterUserDTOType } from "../dto";
 
 export class UserRepository {
   async save(data: RegisterUserDTOType) {
-    await db.insert(usersTable).values(data).returning();
+    const [user] = await db.insert(usersTable).values(data).returning();
+    return user;
   }
 
   async findByEmail(email: string) {

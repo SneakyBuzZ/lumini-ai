@@ -12,6 +12,7 @@ import { JWT_SECRET } from "@/utils/constants";
 import { LoginUserDTOType } from "@/_user/dto";
 import { AppError } from "@/utils/error";
 import { compareHash } from "@/utils/bcrypt";
+import { db } from "@/lib/config/db-config";
 
 export class AuthService {
   private userRepository: UserRepository;
@@ -24,6 +25,7 @@ export class AuthService {
 
   async login(req: LoginUserDTOType, res: Response) {
     const user = await this.userRepository.findByEmail(req.email);
+
     if (!user || !user.password) {
       throw new AppError(400, "Invalid credentials, please try again.");
     }
