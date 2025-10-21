@@ -5,7 +5,7 @@ import CreateLabButton from "@/components/shared/cta-buttons/create-lab";
 import CreateWorkspaceButton from "@/components/shared/cta-buttons/create-workspace";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Lab } from "@/lib/types/lab.type";
+import { Lab } from "@/lib/types/lab-type";
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { CirclePlus, Search } from "lucide-react";
 import { getAllWorkspaces } from "@/lib/api/workspace-api";
@@ -19,6 +19,9 @@ export const Route = createFileRoute("/dashboard/")({
   loader: async () => {
     await delay(1000);
     const workspaces = await getAllWorkspaces();
+    if (workspaces.length === 0) {
+      return { workspaces: [], labs: [] };
+    }
     const labs = await getAllLabs(workspaces[0].id);
     return { workspaces, labs };
   },

@@ -1,5 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { Lab } from "@/lib/types/lab.type";
+import { Lab } from "@/lib/types/lab-type";
 import { useNavigate } from "@tanstack/react-router";
 import useAppStore from "@/lib/store/project-store";
 

@@ -23,7 +23,9 @@ function RouteComponent() {
       <AppSidebar />
       <div className="flex-1 flex flex-col items-center justify-start h-full min-h-0 min-w-0 relative bg-midnight-300">
         <AppNavbar />
-        <Outlet />
+        <div className="flex-1 w-full flex flex-col items-center justify-start min-h-0 min-w-0">
+          <Outlet />
+        </div>
       </div>
     </section>
   );

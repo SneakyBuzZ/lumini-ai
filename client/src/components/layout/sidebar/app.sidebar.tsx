@@ -8,7 +8,7 @@ const AppSidebar = () => {
       <div className="z-10 absolute h-20 w-20 bg-neutral-600 blur-[100px]" />
       <HeaderSidebar />
       <ContentSidebar />
-      <FooterSidebar />
+      {/* <FooterSidebar /> */}
     </div>
   );
 };

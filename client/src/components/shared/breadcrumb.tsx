@@ -15,6 +15,7 @@ const NavbarBreadcrumb = () => {
     "resource",
     "app",
     "507b74a2-21b3-4d85-b676-a1cb0629b014",
+    "cmgwqmdcu0000xsl7cy5e15s2",
   ];
 
   const filteredPaths = paths.filter((path) => !ignorePaths.includes(path));

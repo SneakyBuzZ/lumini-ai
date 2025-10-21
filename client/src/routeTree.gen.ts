@@ -18,6 +18,7 @@ import { Route as AuthLoginIndexRouteImport } from './routes/auth/login/index'
 import { Route as DashboardLabIdRouteRouteImport } from './routes/dashboard/lab/$id/route'
 import { Route as DashboardLabIdIndexRouteImport } from './routes/dashboard/lab/$id/index'
 import { Route as DashboardLabIdCanvasIndexRouteImport } from './routes/dashboard/lab/$id/canvas/index'
+import { Route as DashboardLabIdAskIndexRouteImport } from './routes/dashboard/lab/$id/ask/index'
 
 const DashboardRouteRoute = DashboardRouteRouteImport.update({
   id: '/dashboard',
@@ -65,6 +66,11 @@ const DashboardLabIdCanvasIndexRoute =
     path: '/canvas/',
     getParentRoute: () => DashboardLabIdRouteRoute,
   } as any)
+const DashboardLabIdAskIndexRoute = DashboardLabIdAskIndexRouteImport.update({
+  id: '/ask/',
+  path: '/ask/',
+  getParentRoute: () => DashboardLabIdRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -75,6 +81,7 @@ export interface FileRoutesByFullPath {
   '/auth/login': typeof AuthLoginIndexRoute
   '/auth/register': typeof AuthRegisterIndexRoute
   '/dashboard/lab/$id/': typeof DashboardLabIdIndexRoute
+  '/dashboard/lab/$id/ask': typeof DashboardLabIdAskIndexRoute
   '/dashboard/lab/$id/canvas': typeof DashboardLabIdCanvasIndexRoute
 }
 export interface FileRoutesByTo {
@@ -84,6 +91,7 @@ export interface FileRoutesByTo {
   '/auth/login': typeof AuthLoginIndexRoute
   '/auth/register': typeof AuthRegisterIndexRoute
   '/dashboard/lab/$id': typeof DashboardLabIdIndexRoute
+  '/dashboard/lab/$id/ask': typeof DashboardLabIdAskIndexRoute
   '/dashboard/lab/$id/canvas': typeof DashboardLabIdCanvasIndexRoute
 }
 export interface FileRoutesById {
@@ -96,6 +104,7 @@ export interface FileRoutesById {
   '/auth/login/': typeof AuthLoginIndexRoute
   '/auth/register/': typeof AuthRegisterIndexRoute
   '/dashboard/lab/$id/': typeof DashboardLabIdIndexRoute
+  '/dashboard/lab/$id/ask/': typeof DashboardLabIdAskIndexRoute
   '/dashboard/lab/$id/canvas/': typeof DashboardLabIdCanvasIndexRoute
 }
 export interface FileRouteTypes {
@@ -109,6 +118,7 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/register'
     | '/dashboard/lab/$id/'
+    | '/dashboard/lab/$id/ask'
     | '/dashboard/lab/$id/canvas'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -118,6 +128,7 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/register'
     | '/dashboard/lab/$id'
+    | '/dashboard/lab/$id/ask'
     | '/dashboard/lab/$id/canvas'
   id:
     | '__root__'
@@ -129,6 +140,7 @@ export interface FileRouteTypes {
     | '/auth/login/'
     | '/auth/register/'
     | '/dashboard/lab/$id/'
+    | '/dashboard/lab/$id/ask/'
     | '/dashboard/lab/$id/canvas/'
   fileRoutesById: FileRoutesById
 }
@@ -203,6 +215,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardLabIdCanvasIndexRouteImport
       parentRoute: typeof DashboardLabIdRouteRoute
     }
+    '/dashboard/lab/$id/ask/': {
+      id: '/dashboard/lab/$id/ask/'
+      path: '/ask'
+      fullPath: '/dashboard/lab/$id/ask'
+      preLoaderRoute: typeof DashboardLabIdAskIndexRouteImport
+      parentRoute: typeof DashboardLabIdRouteRoute
+    }
   }
 }
 
@@ -222,11 +241,13 @@ const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
 
 interface DashboardLabIdRouteRouteChildren {
   DashboardLabIdIndexRoute: typeof DashboardLabIdIndexRoute
+  DashboardLabIdAskIndexRoute: typeof DashboardLabIdAskIndexRoute
   DashboardLabIdCanvasIndexRoute: typeof DashboardLabIdCanvasIndexRoute
 }
 
 const DashboardLabIdRouteRouteChildren: DashboardLabIdRouteRouteChildren = {
   DashboardLabIdIndexRoute: DashboardLabIdIndexRoute,
+  DashboardLabIdAskIndexRoute: DashboardLabIdAskIndexRoute,
   DashboardLabIdCanvasIndexRoute: DashboardLabIdCanvasIndexRoute,
 }
 

@@ -16,9 +16,9 @@ const HeaderSidebar = () => {
   const { workspaces, currentWorkspace, setCurrentWorkspace } = useAppStore();
 
   return (
-    <div className="z-20 flex flex-col justify-center h-[46px] px-3">
+    <div className="z-20 flex flex-col justify-center h-[50px] px-3">
       {workspaces && workspaces.length > 0 ? (
-        <div className="flex items-center h-full w-full px-2">
+        <div className="flex items-center h-full w-full p-2">
           <div className="flex items-center">
             <Logo imgClassName="h-5" />
             <Slash className="transform -rotate-[20deg] text-neutral-400 h-3" />
@@ -39,7 +39,7 @@ const HeaderSidebar = () => {
                 }
               }}
             >
-              <SelectTrigger className="w-full flex justify-start border-none bg-transparent">
+              <SelectTrigger className="w-full flex border-none justify-start bg-transparent">
                 <div className="text-lg w-full text-white flex justify-start items-center gap-2 px-2">
                   {currentWorkspace && (
                     <span className="text-[14px]">{currentWorkspace.name}</span>

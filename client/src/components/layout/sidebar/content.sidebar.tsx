@@ -8,7 +8,7 @@ const ContentSidebar = () => {
   const LIST = labId ? LAB_SIDEBAR_LIST(labId) : SIDEBAR_LIST;
   return (
     <>
-      <ul className="z-20 w-full flex flex-1 flex-col justify-start items-start gap-6 px-6 py-8">
+      <ul className="z-20 w-full flex flex-1 flex-col justify-start items-start gap-6 px-6 py-6">
         {LIST.map((section) => (
           <li
             key={section.name}
@@ -21,7 +21,7 @@ const ContentSidebar = () => {
                   key={item.name}
                   to={item.href}
                   className={cn(
-                    "w-full flex  items-center gap-3 text-md text-neutral-400 p-1 px-3 rounded-md border border-midnight-400 transition-all duration-300",
+                    "w-full flex  items-center gap-3 text-sm text-neutral-400 p-1 px-3 rounded-md border border-midnight-400 transition-all duration-300",
                     {
                       "bg-midnight-200 border-midnight-100 text-white":
                         pathname === item.href,

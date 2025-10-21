@@ -41,3 +41,13 @@ export type LabTable = {
   };
   createdAt: string;
 };
+
+export type LabChat = {
+  id: string;
+  userId: string | null;
+  sessionId: string;
+  role: "user" | "assistant" | "system";
+  content: string;
+  createdAt: string;
+  updatedAt: string;
+};

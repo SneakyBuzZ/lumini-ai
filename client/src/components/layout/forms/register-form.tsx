@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import Spinner from "@/components/shared/spinner";
-import { useRegister } from "@/api/mutations/user-mutations";
+import { useRegister } from "@/lib/api/mutations/user-mutations";
 
 const RegisterForm = () => {
   const { mutateAsync: register, isPending } = useRegister();

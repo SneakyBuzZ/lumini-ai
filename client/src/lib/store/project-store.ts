@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { Lab } from "@/lib/types/lab.type";
+import { Lab } from "@/lib/types/lab-type";
 import { Workspace } from "@/lib/types/workspace-type";
 
 type State = {
