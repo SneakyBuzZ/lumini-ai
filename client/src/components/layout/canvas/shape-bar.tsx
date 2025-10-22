@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { useCanvas } from "@/hooks/use-canvas";
 import { cn } from "@/utils/cn.util";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 
 const tools = [
   {
@@ -37,14 +37,36 @@ export function Toolbar() {
   const { store } = useCanvas();
   const [currentMode, setCurrentMode] = useState(store.mode);
 
+  // Sync state when store.mode changes
   useEffect(() => {
     setCurrentMode(store.mode);
   }, [store.mode]);
 
-  const handleSelectTool = (type: ShapeType, mode: CanvasMode) => {
-    store.selection.setMode(mode);
-    store.setShapeType(type);
-  };
+  // Handle tool selection
+  const handleSelectTool = useCallback(
+    (type: ShapeType | null, mode: CanvasMode) => {
+      store.selection.setMode(mode);
+      store.setShapeType(type);
+      setCurrentMode(mode);
+    },
+    [store]
+  );
+
+  // Keyboard shortcut support
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const key = e.key.toUpperCase();
+      const tool = tools.find((t) => t.key === key);
+      if (tool) {
+        handleSelectTool(
+          tool.type as ShapeType | null,
+          tool.mode as CanvasMode
+        );
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleSelectTool]);
 
   return (
     <div className="flex gap-1 p-1 bg-midnight-200/50 z-50 absolute bottom-3 backdrop-blur-sm rounded-md border border-neutral-800/60">
@@ -52,18 +74,24 @@ export function Toolbar() {
         <Button
           key={tool.key}
           className={cn(
-            "bg-transparent hover:bg-midnight-100 border w-10 h-10",
+            "w-10 h-10 flex items-center justify-center border hover:bg-midnight-100",
             {
               "bg-teal/30 border-teal/70 hover:bg-teal/50":
                 store.shapeType === tool.type && currentMode === tool.mode,
-              "bg-transparent border-0": store.shapeType !== tool.type,
+              "bg-transparent border-0": !(
+                store.shapeType === tool.type && currentMode === tool.mode
+              ),
             }
           )}
           onClick={() =>
-            handleSelectTool(tool.type as ShapeType, tool.mode as CanvasMode)
+            handleSelectTool(
+              tool.type as ShapeType | null,
+              tool.mode as CanvasMode
+            )
           }
+          title={`${tool.name} (${tool.key})`} // show tooltip with key
         >
-          <tool.icon className="w-14 h-14" />
+          <tool.icon className="w-6 h-6" />
         </Button>
       ))}
     </div>

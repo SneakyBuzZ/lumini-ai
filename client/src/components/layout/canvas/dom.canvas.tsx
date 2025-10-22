@@ -14,9 +14,10 @@ export function Canvas() {
     editingText,
     setEditingText,
     drawSelectionBox,
+    drawResizeHandles,
   } = useCanvas();
 
-  const { shapes, scale, offsetX, offsetY, mode, panIsActive } = store;
+  const { shapes, scale, offsetX, offsetY, mode } = store;
 
   // --- redraw with proper cursor ---
   const redraw = useCallback(() => {
@@ -33,23 +34,12 @@ export function Canvas() {
 
     // draw selection box
     if (mode === "select") drawSelectionBox(ctx, scale, offsetX, offsetY);
+    drawResizeHandles(ctx, scale, offsetX, offsetY);
 
-    // update cursor
-    switch (mode) {
-      case "draw":
-        canvas.style.cursor = "crosshair";
-        break;
-      case "text":
-        canvas.style.cursor = "text";
-        break;
-      case "select":
-        canvas.style.cursor = "default";
-        break;
-      case "pan":
-        canvas.style.cursor = panIsActive ? "grabbing" : "grab";
-        break;
-      default:
-        canvas.style.cursor = "default";
+    if (store.mode === "draw") {
+      canvas.style.cursor = "crosshair";
+    } else if (store.mode === "select") {
+      canvas.style.cursor = store.cursor || "default";
     }
   }, [
     canvasRef,
@@ -59,7 +49,9 @@ export function Canvas() {
     offsetY,
     mode,
     drawSelectionBox,
-    panIsActive,
+    drawResizeHandles,
+    store.cursor,
+    store.mode,
   ]);
 
   // --- resize canvas ---

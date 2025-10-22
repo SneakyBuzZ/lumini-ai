@@ -45,3 +45,15 @@ export type DrawOptions = {
 };
 
 export type CanvasMode = "draw" | "select" | "pan" | "text";
+
+export type CanvasCusor =
+  | "default"
+  | "grab"
+  | "grabbing"
+  | "crosshair"
+  | "pointer"
+  | "nwse-resize"
+  | "nesw-resize"
+  | "ns-resize"
+  | "ew-resize"
+  | "text";

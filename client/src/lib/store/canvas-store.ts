@@ -1,5 +1,10 @@
 import { create } from "zustand";
-import { CanvasMode, Shape, ShapeType } from "@/lib/types/canvas-type";
+import {
+  CanvasCusor,
+  CanvasMode,
+  Shape,
+  ShapeType,
+} from "@/lib/types/canvas-type";
 
 export type State = {
   // --- Shapes ---
@@ -16,6 +21,7 @@ export type State = {
   // --- Selection ---
   selectedShapeIds: string[];
   mode: CanvasMode;
+  cursor: CanvasCusor;
 
   // --- Canvas View ---
   scale: number;
@@ -51,6 +57,7 @@ export type Actions = {
     add: (shape: Shape) => void;
     update: (shape: Shape) => void;
     delete: (id: string) => void;
+    batchUpdate: (shapes: Record<string, Partial<Shape>>) => void;
   };
 
   // --- Selection ---
@@ -69,6 +76,7 @@ export type Actions = {
     setScale: (scale: number) => void;
     setOffset: (x: number, y: number) => void;
     setDoubleClickLock: (lock: boolean) => void;
+    setCursor: (cursor: CanvasCusor) => void;
   };
 
   // --- Pan Actions ---
@@ -103,6 +111,7 @@ const initialState: State = {
   startY: 0,
   selectedShapeIds: [],
   mode: "select",
+  cursor: "default",
   scale: 1,
   offsetX: 0,
   offsetY: 0,
@@ -157,6 +166,15 @@ const useCanvasStore = create<State & Actions>((set, get) => ({
         ),
         shapeOrder: state.shapeOrder.filter((sid) => sid !== id),
       })),
+    batchUpdate: (updates: Record<string, Partial<Shape>>) => {
+      set((state) => {
+        const newShapes = { ...state.shapes };
+        for (const [id, changes] of Object.entries(updates)) {
+          newShapes[id] = { ...newShapes[id], ...changes };
+        }
+        return { shapes: newShapes };
+      });
+    },
   },
 
   // --- Selection ---
@@ -224,6 +242,7 @@ const useCanvasStore = create<State & Actions>((set, get) => ({
     setScale: (scale) => set({ scale }),
     setOffset: (x, y) => set({ offsetX: x, offsetY: y }),
     setDoubleClickLock: (lock) => set({ doubleClickLock: lock }),
+    setCursor: (cursor) => set({ cursor }),
   },
 
   // --- Pan ---

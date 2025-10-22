@@ -8,50 +8,34 @@ export const usePanZoom = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
 
   // --- PAN ---
   const onMouseDown = (e: React.MouseEvent) => {
-    // Only middle mouse button or pan mode
     if (e.button !== 1 && store.mode !== "pan") return;
-    e.preventDefault(); // prevent auto-scroll
+    e.preventDefault();
 
     isDragging.current = true;
     lastPos.current = { x: e.clientX, y: e.clientY };
-
-    const canvas = canvasRef.current;
-    if (canvas) canvas.style.cursor = "grabbing";
   };
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+  const onMouseMove = (e: MouseEvent | React.MouseEvent) => {
+    if (!isDragging.current || !lastPos.current) return;
 
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!isDragging.current || !lastPos.current) return;
+    const dx = e.clientX - lastPos.current.x;
+    const dy = e.clientY - lastPos.current.y;
 
-      const dx = e.clientX - lastPos.current.x;
-      const dy = e.clientY - lastPos.current.y;
+    store.view.setOffset(store.offsetX + dx, store.offsetY + dy);
+    lastPos.current = { x: e.clientX, y: e.clientY };
 
-      store.view.setOffset(store.offsetX + dx, store.offsetY + dy);
-      lastPos.current = { x: e.clientX, y: e.clientY };
+    store.view.setCursor("grabbing");
+  };
 
-      if (canvas) canvas.style.cursor = "grabbing";
-    };
+  const onMouseUp = () => {
+    if (!isDragging.current) return;
+    isDragging.current = false;
+    lastPos.current = null;
 
-    const handleMouseUp = () => {
-      if (isDragging.current) {
-        isDragging.current = false;
-        lastPos.current = null;
-        const canvas = canvasRef.current;
-        if (canvas) canvas.style.cursor = "grab";
-      }
-    };
+    store.view.setCursor("default");
+  };
 
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("mouseup", handleMouseUp);
-    return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("mouseup", handleMouseUp);
-    };
-  }, [store, canvasRef]);
-
+  // --- ZOOM: use native wheel listener to support preventDefault ---
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -61,7 +45,7 @@ export const usePanZoom = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
       const isCtrlPressed = isMac ? e.metaKey : e.ctrlKey;
       if (!isCtrlPressed) return;
 
-      e.preventDefault(); // this now works because passive: false
+      e.preventDefault(); // works because passive: false
       e.stopPropagation();
 
       const { scale, offsetX, offsetY, view } = store;
@@ -84,30 +68,8 @@ export const usePanZoom = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
     };
 
     canvas.addEventListener("wheel", handleWheel, { passive: false });
-
     return () => canvas.removeEventListener("wheel", handleWheel);
   }, [canvasRef, store]);
 
-  // --- ZOOM ---
-  const onWheel = (e: React.WheelEvent, canvas: HTMLCanvasElement | null) => {
-    if (!canvas) return;
-    e.preventDefault();
-
-    const zoomIntensity = 0.001;
-    const delta = -e.deltaY * zoomIntensity;
-    const newScale = Math.min(Math.max(store.scale + delta, 0.2), 5);
-
-    // Zoom around mouse pointer
-    const rect = canvas.getBoundingClientRect();
-    const mouseX = (e.clientX - rect.left - store.offsetX) / store.scale;
-    const mouseY = (e.clientY - rect.top - store.offsetY) / store.scale;
-
-    const newOffsetX = e.clientX - rect.left - mouseX * newScale;
-    const newOffsetY = e.clientY - rect.top - mouseY * newScale;
-
-    store.view.setScale(newScale);
-    store.view.setOffset(newOffsetX, newOffsetY);
-  };
-
-  return { onMouseDown, onWheel };
+  return { onMouseDown, onMouseMove, onMouseUp };
 };
