@@ -1,15 +1,7 @@
 import { useEffect, useCallback } from "react";
 import { renderShapes } from "@/lib/canvas/drawing";
 import { initialiseCanvas } from "@/lib/canvas/utils";
-import { DrawOptions } from "@/lib/types/canvas-type";
 import { useCanvas } from "@/hooks/use-canvas";
-
-const cursorMap: Record<string, string> = {
-  draw: "crosshair",
-  select: "default",
-  pan: "grab",
-  text: "text",
-};
 
 export function Canvas() {
   const {
@@ -18,32 +10,46 @@ export function Canvas() {
     onMouseMove,
     onMouseUp,
     onDoubleClick,
-    onWheel,
     store,
     editingText,
     setEditingText,
     drawSelectionBox,
   } = useCanvas();
 
-  const { shapes, scale, offsetX, offsetY } = store;
+  const { shapes, scale, offsetX, offsetY, mode, panIsActive } = store;
 
+  // --- redraw with proper cursor ---
   const redraw = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
-    const cursor = cursorMap[store.mode] ?? "default";
-    canvas.style.cursor = cursor;
 
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
     initialiseCanvas(ctx, canvas);
 
-    const drawingOptions: DrawOptions = { scale, offsetX, offsetY };
-    renderShapes(shapes, ctx, drawingOptions);
+    // draw shapes
+    renderShapes(shapes, ctx, { scale, offsetX, offsetY });
 
-    if (store.mode === "select") {
-      drawSelectionBox(ctx);
+    // draw selection box
+    if (mode === "select") drawSelectionBox(ctx, scale, offsetX, offsetY);
+
+    // update cursor
+    switch (mode) {
+      case "draw":
+        canvas.style.cursor = "crosshair";
+        break;
+      case "text":
+        canvas.style.cursor = "text";
+        break;
+      case "select":
+        canvas.style.cursor = "default";
+        break;
+      case "pan":
+        canvas.style.cursor = panIsActive ? "grabbing" : "grab";
+        break;
+      default:
+        canvas.style.cursor = "default";
     }
   }, [
     canvasRef,
@@ -51,22 +57,26 @@ export function Canvas() {
     scale,
     offsetX,
     offsetY,
+    mode,
     drawSelectionBox,
-    store.mode,
+    panIsActive,
   ]);
 
+  // --- resize canvas ---
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const parent = canvas.parentElement;
     if (!parent) return;
     const dpr = window.devicePixelRatio || 1;
+
     const resizeCanvas = () => {
       const rect = parent.getBoundingClientRect();
       canvas.width = rect.width * dpr;
       canvas.height = rect.height * dpr;
       canvas.style.width = `${rect.width}px`;
       canvas.style.height = `${rect.height}px`;
+
       const ctx = canvas.getContext("2d");
       if (ctx) {
         ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -74,23 +84,24 @@ export function Canvas() {
       }
       redraw();
     };
+
     const observer = new ResizeObserver(resizeCanvas);
     observer.observe(parent);
     resizeCanvas();
 
     return () => observer.disconnect();
-  }, [redraw, canvasRef]);
+  }, [canvasRef, redraw]);
 
   return (
     <>
       <canvas
         ref={canvasRef}
-        className="w-full h-full bg-midnight-300 block"
+        tabIndex={0}
+        className="w-full h-full"
         onMouseDown={onMouseDown}
         onMouseMove={onMouseMove}
         onMouseUp={onMouseUp}
         onDoubleClick={onDoubleClick}
-        onWheel={(e) => onWheel(e, canvasRef.current)}
       />
       {editingText && (
         <textarea

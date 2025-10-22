@@ -6,9 +6,9 @@ export const Route = createFileRoute("/dashboard/lab/$id/canvas/")({
   component: CanvasPage,
 });
 
-export default function CanvasPage() {
+function CanvasPage() {
   return (
-    <div className="w-full flex flex-col justify-start items-center relative">
+    <div className="h-full w-full relative bg-canvas bg-midnight-300/70 flex flex-col justify-start items-center overflow-hidden">
       <Toolbar />
       <Canvas />
     </div>

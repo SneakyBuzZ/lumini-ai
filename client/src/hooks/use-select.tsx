@@ -5,13 +5,13 @@ import { getCanvasCoords, isPointInsideShape } from "@/lib/canvas/utils";
 export const useSelect = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
   const store = useCanvasStore();
 
-  // --- Refs for drag logic (fast, no re-render) ---
+  // --- Fast refs ---
   const dragStartRef = useRef<{ x: number; y: number } | null>(null);
   const initialShapePositionsRef = useRef<
     Record<string, { x: number; y: number }>
   >({});
 
-  // --- UI state (safe to re-render) ---
+  // --- UI state ---
   const [selectionBoxStart, setSelectionBoxStart] = useState<{
     x: number;
     y: number;
@@ -23,6 +23,7 @@ export const useSelect = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
 
   // --- Mouse down ---
   const onMouseDown = (e: React.MouseEvent) => {
+    if (e.button === 1) return;
     if (!canvasRef.current || store.mode !== "select") return;
 
     const { x, y } = getCanvasCoords(
@@ -38,10 +39,9 @@ export const useSelect = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
       .slice()
       .reverse()
       .find((s) => isPointInsideShape(s, x, y));
-
     const selectedShapes = allShapes.filter((s) => s.isSelected);
+    let draggingShapeIds: string[] = [];
 
-    // Helper → compute bounding box for selected shapes
     const getGroupBoundingBox = () => {
       if (selectedShapes.length === 0) return null;
       const minX = Math.min(...selectedShapes.map((s) => s.x));
@@ -50,9 +50,7 @@ export const useSelect = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
       const maxY = Math.max(...selectedShapes.map((s) => s.y + s.height));
       return { x: minX, y: minY, width: maxX - minX, height: maxY - minY };
     };
-
     const groupBox = getGroupBoundingBox();
-
     const isInsideGroupBox =
       groupBox &&
       x >= groupBox.x &&
@@ -61,48 +59,46 @@ export const useSelect = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
       y <= groupBox.y + groupBox.height;
 
     if (shape) {
-      // --- Clicked on a shape ---
-      const isAlreadySelected = store.selectedShapeIds.includes(shape.id);
+      const isAlreadySelected = selectedShapes.some((s) => s.id === shape.id);
 
-      if (!isAlreadySelected && !e.shiftKey) {
-        // Clear old and select this
+      if (!isAlreadySelected || !e.shiftKey) {
+        // Clear old selection and select this shape
         store.selection.clear();
         allShapes.forEach((s) =>
           store.shapesActions.update({
             ...s,
             isSelected: s.id === shape.id,
-            strokeColor: s.id === shape.id ? "#a8a8a8ff" : "#3d3d3d",
+            strokeColor: s.id === shape.id ? "#fff" : "#a0a0a0",
           })
         );
         store.selection.addId(shape.id);
+
+        // **Use this shape for drag immediately**
+        draggingShapeIds = [shape.id];
       } else if (e.shiftKey) {
-        // Toggle selection on shift-click
+        // Toggle selection
         if (isAlreadySelected) {
           store.selection.removeId(shape.id);
           store.shapesActions.update({
             ...shape,
             isSelected: false,
-            strokeColor: "#3d3d3d",
+            strokeColor: "#a0a0a0",
           });
+          draggingShapeIds = selectedShapes
+            .map((s) => s.id)
+            .filter((id) => id !== shape.id);
         } else {
           store.selection.addId(shape.id);
           store.shapesActions.update({
             ...shape,
             isSelected: true,
-            strokeColor: "#a8a8a8ff",
+            strokeColor: "#fff",
           });
+          draggingShapeIds = [...selectedShapes.map((s) => s.id), shape.id];
         }
       }
-
-      // prepare for dragging (single or multiple)
-      dragStartRef.current = { x, y };
-      initialShapePositionsRef.current = {};
-      store.selectedShapeIds.forEach((id) => {
-        const s = store.shapes[id];
-        if (s) initialShapePositionsRef.current[id] = { x: s.x, y: s.y };
-      });
     } else if (isInsideGroupBox) {
-      // --- Clicked inside group bounding box (no shape directly clicked) ---
+      // Clicked inside the group selection box (drag multi-select)
       dragStartRef.current = { x, y };
       initialShapePositionsRef.current = {};
       store.selectedShapeIds.forEach((id) => {
@@ -110,18 +106,27 @@ export const useSelect = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
         if (s) initialShapePositionsRef.current[id] = { x: s.x, y: s.y };
       });
     } else {
-      // --- Clicked empty space: start selection box ---
+      // Clicked empty space: prepare selection box
       allShapes.forEach((s) =>
         store.shapesActions.update({
           ...s,
           isSelected: false,
-          strokeColor: "#3d3d3d",
+          strokeColor: "#a0a0a0",
         })
       );
       store.selection.clear();
-
       setSelectionBoxStart({ x, y });
       setSelectionBoxEnd({ x, y });
+    }
+
+    // --- Initialize drag for **any shapes we want to drag immediately** ---
+    if (draggingShapeIds.length) {
+      dragStartRef.current = { x, y };
+      initialShapePositionsRef.current = {};
+      draggingShapeIds.forEach((id) => {
+        const s = store.shapes[id];
+        if (s) initialShapePositionsRef.current[id] = { x: s.x, y: s.y };
+      });
     }
   };
 
@@ -138,8 +143,9 @@ export const useSelect = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
         store.offsetY
       );
 
-      // --- DRAGGING SELECTED SHAPES ---
-      if (dragStartRef.current && store.selectedShapeIds?.length) {
+      // Dragging shapes
+      if (dragStartRef.current) {
+        if (!dragStartRef.current) return;
         const dx = x - dragStartRef.current.x;
         const dy = y - dragStartRef.current.y;
 
@@ -154,11 +160,10 @@ export const useSelect = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
             y: initial.y + dy,
           });
         });
-
         return;
       }
 
-      // --- SELECTION BOX LOGIC ---
+      // Rectangle selection
       if (selectionBoxStart) {
         setSelectionBoxEnd({ x, y });
 
@@ -168,35 +173,31 @@ export const useSelect = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
         const y2 = Math.max(selectionBoxStart.y, y);
 
         const selectedIds: string[] = [];
-
         Object.values(store.shapes).forEach((s) => {
           const sx = s.x;
           const sy = s.y;
           const ex = s.x + s.width;
           const ey = s.y + s.height;
-
           // Intersection area with selection box
           const ix = Math.max(0, Math.min(ex, x2) - Math.max(sx, x1));
           const iy = Math.max(0, Math.min(ey, y2) - Math.max(sy, y1));
           const intersectionArea = ix * iy;
-          const shapeArea = s.width * s.height;
-
-          if (intersectionArea / shapeArea >= 0.8) {
+          const shapeArea = Math.abs(s.width * s.height);
+          if (intersectionArea > 0 && intersectionArea / shapeArea >= 0.2) {
             selectedIds.push(s.id);
             store.shapesActions.update({
               ...s,
               isSelected: true,
-              strokeColor: "#a8a8a8ff",
+              strokeColor: "#fff",
             });
           } else {
             store.shapesActions.update({
               ...s,
               isSelected: false,
-              strokeColor: "#3d3d3d",
+              strokeColor: "#a0a0a0",
             });
           }
         });
-
         store.selection.select(selectedIds);
       }
     },
@@ -212,9 +213,17 @@ export const useSelect = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
   }, []);
 
   // --- Draw selection box ---
-  const drawSelectionBox = (ctx: CanvasRenderingContext2D) => {
+  const drawSelectionBox = (
+    ctx: CanvasRenderingContext2D,
+    scale: number,
+    offsetX: number,
+    offsetY: number
+  ) => {
     if (!selectionBoxStart || !selectionBoxEnd) return;
 
+    ctx.save();
+    ctx.translate(offsetX, offsetY);
+    ctx.scale(scale, scale);
     const x = Math.min(selectionBoxStart.x, selectionBoxEnd.x);
     const y = Math.min(selectionBoxStart.y, selectionBoxEnd.y);
     const width = Math.abs(selectionBoxEnd.x - selectionBoxStart.x);
@@ -228,16 +237,15 @@ export const useSelect = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
     ctx.lineWidth = 0.5;
     ctx.strokeRect(x, y, width, height);
     ctx.setLineDash([]);
+    ctx.restore();
   };
 
-  // --- Register global listeners ---
+  // --- Register global listeners (mousemove/up) ---
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
     canvas.addEventListener("mousemove", onMouseMove);
     window.addEventListener("mouseup", onMouseUp);
-
     return () => {
       canvas.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("mouseup", onMouseUp);

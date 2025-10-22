@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { CanvasMode, Shape, ShapeType } from "@/lib/types/canvas-type";
 
 export type State = {
-  // --- Shapes ---\
+  // --- Shapes ---
   shapeType: ShapeType | null;
   shapes: Record<string, Shape>;
   shapeOrder: string[];
@@ -22,6 +22,10 @@ export type State = {
   offsetX: number;
   offsetY: number;
   doubleClickLock: boolean;
+
+  // --- Panning ---
+  panStart: { x: number; y: number } | null;
+  panIsActive: boolean;
 
   // --- History ---
   history: Record<string, Shape>[];
@@ -49,9 +53,9 @@ export type Actions = {
     delete: (id: string) => void;
   };
 
-  // --- Selection Actions ---
+  // --- Selection ---
   selection: {
-    select: (ids: string[]) => void;
+    select: (ids: string[] | null) => void;
     addId: (id: string) => void;
     removeId: (id: string) => void;
     clear: () => void;
@@ -60,20 +64,28 @@ export type Actions = {
     setMode: (mode: CanvasMode) => void;
   };
 
-  // --- Canvas View Actions ---
+  // --- Canvas View ---
   view: {
     setScale: (scale: number) => void;
     setOffset: (x: number, y: number) => void;
     setDoubleClickLock: (lock: boolean) => void;
   };
 
-  // --- History Actions ---
+  // --- Pan Actions ---
+  pan: {
+    start: (x: number, y: number) => void;
+    move: (x: number, y: number) => void;
+    end: () => void;
+  };
+
+  // --- History ---
   historyActions: {
     push: () => void;
     undo: () => void;
     redo: () => void;
   };
 
+  // --- Selection Box ---
   selectionBox: {
     start: (x: number, y: number) => void;
     update: (x: number, y: number) => void;
@@ -85,7 +97,7 @@ const initialState: State = {
   shapeType: null,
   shapes: {},
   shapeOrder: [],
-  drawingInProgress: true,
+  drawingInProgress: false,
   tempShapeId: null,
   startX: 0,
   startY: 0,
@@ -95,6 +107,8 @@ const initialState: State = {
   offsetX: 0,
   offsetY: 0,
   doubleClickLock: false,
+  panStart: null,
+  panIsActive: false,
   history: [],
   redoStack: [],
   selectionBoxStart: null,
@@ -104,9 +118,9 @@ const initialState: State = {
 const useCanvasStore = create<State & Actions>((set, get) => ({
   ...initialState,
 
+  // --- Drawing ---
   setShapeType: (type) => set({ shapeType: type }),
 
-  // --- Drawing Actions ---
   drawing: {
     start: (shape, startX, startY) => {
       set((state) => ({
@@ -119,13 +133,11 @@ const useCanvasStore = create<State & Actions>((set, get) => ({
       }));
       get().historyActions.push();
     },
-
     updateTemp: (width, height) => {
       const tempId = get().tempShapeId;
       if (!tempId) return;
       get().shapesActions.update({ ...get().shapes[tempId], width, height });
     },
-
     finish: () => set({ drawingInProgress: false, tempShapeId: null }),
   },
 
@@ -137,9 +149,7 @@ const useCanvasStore = create<State & Actions>((set, get) => ({
         shapeOrder: [...state.shapeOrder, shape.id],
       })),
     update: (shape) =>
-      set((state) => ({
-        shapes: { ...state.shapes, [shape.id]: shape },
-      })),
+      set((state) => ({ shapes: { ...state.shapes, [shape.id]: shape } })),
     delete: (id) =>
       set((state) => ({
         shapes: Object.fromEntries(
@@ -149,45 +159,35 @@ const useCanvasStore = create<State & Actions>((set, get) => ({
       })),
   },
 
-  // --- Selection Actions ---
+  // --- Selection ---
   selection: {
-    select: (ids: string[] | null) => set({ selectedShapeIds: ids ?? [] }),
+    select: (ids) => set({ selectedShapeIds: ids ?? [] }),
     addId: (id) =>
       set((state) => {
         const shape = state.shapes[id];
-        if (shape) {
+        if (shape)
           state.shapes[id] = {
             ...shape,
             isSelected: true,
-            strokeColor: "#a8a8a8ff",
+            strokeColor: "#d6d6d6",
           };
-        }
-
         const newSelected = state.selectedShapeIds.includes(id)
           ? state.selectedShapeIds
           : [...state.selectedShapeIds, id];
-
-        return {
-          shapes: { ...state.shapes },
-          selectedShapeIds: newSelected,
-        };
+        return { shapes: { ...state.shapes }, selectedShapeIds: newSelected };
       }),
     removeId: (id) =>
       set((state) => {
         const shape = state.shapes[id];
-        if (shape) {
+        if (shape)
           state.shapes[id] = {
             ...shape,
             isSelected: false,
-            strokeColor: "#3d3d3d",
+            strokeColor: "#d6d6d6",
           };
-        }
-        const newSelected = state.selectedShapeIds.filter(
-          (selectedId) => selectedId !== id
-        );
         return {
           shapes: { ...state.shapes },
-          selectedShapeIds: newSelected,
+          selectedShapeIds: state.selectedShapeIds.filter((s) => s !== id),
         };
       }),
     clear: () =>
@@ -219,14 +219,31 @@ const useCanvasStore = create<State & Actions>((set, get) => ({
     setMode: (mode) => set({ mode }),
   },
 
-  // --- Canvas View Actions ---
+  // --- Canvas View ---
   view: {
     setScale: (scale) => set({ scale }),
     setOffset: (x, y) => set({ offsetX: x, offsetY: y }),
     setDoubleClickLock: (lock) => set({ doubleClickLock: lock }),
   },
 
-  // --- History Actions ---
+  // --- Pan ---
+  pan: {
+    start: (x, y) => set({ panStart: { x, y }, panIsActive: true }),
+    move: (x, y) => {
+      const state = get();
+      if (!state.panIsActive || !state.panStart) return;
+      const dx = x - state.panStart.x;
+      const dy = y - state.panStart.y;
+      set({
+        offsetX: state.offsetX + dx,
+        offsetY: state.offsetY + dy,
+        panStart: { x, y },
+      });
+    },
+    end: () => set({ panStart: null, panIsActive: false }),
+  },
+
+  // --- History ---
   historyActions: {
     push: () => {
       const snapshot = { ...get().shapes };
@@ -242,7 +259,7 @@ const useCanvasStore = create<State & Actions>((set, get) => ({
       set(() => ({
         shapes: last,
         shapeOrder: Object.keys(last),
-        history: history.slice(0, history.length - 1),
+        history: history.slice(0, -1),
       }));
     },
     redo: () => {
@@ -252,27 +269,24 @@ const useCanvasStore = create<State & Actions>((set, get) => ({
       set(() => ({
         shapes: next,
         shapeOrder: Object.keys(next),
-        redoStack: redoStack.slice(0, redoStack.length - 1),
+        redoStack: redoStack.slice(0, -1),
       }));
     },
   },
 
-  // --- Selection Box Actions ---
+  // --- Selection Box ---
   selectionBox: {
-    start: (x: number, y: number) => {
-      set({ selectionBoxStart: { x, y }, selectionBoxEnd: { x, y } });
-    },
-    update: (x: number, y: number) => {
+    start: (x, y) =>
+      set({ selectionBoxStart: { x, y }, selectionBoxEnd: { x, y } }),
+    update: (x, y) => {
       set({ selectionBoxEnd: { x, y } });
-
       const { selectionBoxStart, shapes } = get();
       if (!selectionBoxStart) return;
-      const [x1, y1] = [selectionBoxStart.x, selectionBoxStart.y];
-      const [x2, y2] = [x, y];
-      const left = Math.min(x1, x2);
-      const top = Math.min(y1, y2);
-      const right = Math.max(x1, x2);
-      const bottom = Math.max(y1, y2);
+
+      const left = Math.min(selectionBoxStart.x, x);
+      const top = Math.min(selectionBoxStart.y, y);
+      const right = Math.max(selectionBoxStart.x, x);
+      const bottom = Math.max(selectionBoxStart.y, y);
 
       const selected = Object.values(shapes)
         .filter(
@@ -286,9 +300,7 @@ const useCanvasStore = create<State & Actions>((set, get) => ({
 
       set({ selectedShapeIds: selected });
     },
-    finish: () => {
-      set({ selectionBoxStart: null, selectionBoxEnd: null });
-    },
+    finish: () => set({ selectionBoxStart: null, selectionBoxEnd: null }),
   },
 }));
 

@@ -47,7 +47,7 @@ export function Toolbar() {
   };
 
   return (
-    <div className="flex gap-1 p-1 bg-midnight-200/50 z-50 absolute bottom-0 backdrop-blur-sm rounded-md border border-neutral-800/60">
+    <div className="flex gap-1 p-1 bg-midnight-200/50 z-50 absolute bottom-3 backdrop-blur-sm rounded-md border border-neutral-800/60">
       {tools.map((tool) => (
         <Button
           key={tool.key}

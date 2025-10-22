@@ -22,7 +22,7 @@ export const renderShapes = (
 
   // --- draw shapes ---
   allShapes.forEach((shape) => {
-    const strokeColor = shape.strokeColor ?? "#3d3d3d";
+    const strokeColor = shape.strokeColor ?? "#d6d6d6";
     const fillColor = shape.fillColor ?? "transparent";
     const strokeWidth = Number(shape.strokeWidth ?? 2);
     const safeScale = Number(scale);
@@ -76,9 +76,8 @@ export const renderShapes = (
         );
         ctx.restore();
       } else {
-        // multi selection → faint gray outline
         ctx.save();
-        ctx.strokeStyle = "rgba(0,0,0,0.15)";
+        ctx.strokeStyle = "#d6d6d6";
         ctx.lineWidth = 1;
         ctx.strokeRect(shape.x, shape.y, shape.width, shape.height);
         ctx.restore();
