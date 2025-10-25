@@ -52,12 +52,19 @@ export type Actions = {
     finish: () => void;
   };
 
+  text: {
+    updateText: (id: string, newText: string) => void;
+    setFontSize: (id: string, newSize: number) => void;
+  };
+
   // --- Shape Management ---
   shapesActions: {
     add: (shape: Shape) => void;
     update: (shape: Shape) => void;
     delete: (id: string) => void;
     batchUpdate: (shapes: Record<string, Partial<Shape>>) => void;
+    batchDelete: (shapes: Shape[]) => void;
+    clearSelectedShapes: () => void;
   };
 
   // --- Selection ---
@@ -150,6 +157,19 @@ const useCanvasStore = create<State & Actions>((set, get) => ({
     finish: () => set({ drawingInProgress: false, tempShapeId: null }),
   },
 
+  text: {
+    updateText: (id, newText) => {
+      const shape = get().shapes[id];
+      if (!shape) return;
+      get().shapesActions.update({ ...shape, text: newText });
+    },
+    setFontSize: (id, newSize) => {
+      const shape = get().shapes[id];
+      if (!shape) return;
+      get().shapesActions.update({ ...shape, fontSize: newSize });
+    },
+  },
+
   // --- Shape Management ---
   shapesActions: {
     add: (shape) =>
@@ -175,6 +195,32 @@ const useCanvasStore = create<State & Actions>((set, get) => ({
         return { shapes: newShapes };
       });
     },
+    batchDelete: (shapes: Shape[]) => {
+      set((state) => {
+        const idsToDelete = new Set(shapes.map((s) => s.id));
+        const newShapes = Object.fromEntries(
+          Object.entries(state.shapes).filter(([key]) => !idsToDelete.has(key))
+        );
+        return {
+          shapes: newShapes,
+          shapeOrder: state.shapeOrder.filter((sid) => !idsToDelete.has(sid)),
+        };
+      });
+    },
+    clearSelectedShapes: () => {
+      set((state) => {
+        const newShapes = { ...state.shapes };
+        state.selectedShapeIds.forEach((id) => {
+          if (newShapes[id]) {
+            newShapes[id] = {
+              ...newShapes[id],
+              isSelected: false,
+            };
+          }
+        });
+        return { shapes: newShapes, selectedShapeIds: [] };
+      });
+    },
   },
 
   // --- Selection ---
@@ -187,7 +233,6 @@ const useCanvasStore = create<State & Actions>((set, get) => ({
           state.shapes[id] = {
             ...shape,
             isSelected: true,
-            strokeColor: "#d6d6d6",
           };
         const newSelected = state.selectedShapeIds.includes(id)
           ? state.selectedShapeIds
@@ -201,7 +246,6 @@ const useCanvasStore = create<State & Actions>((set, get) => ({
           state.shapes[id] = {
             ...shape,
             isSelected: false,
-            strokeColor: "#d6d6d6",
           };
         return {
           shapes: { ...state.shapes },

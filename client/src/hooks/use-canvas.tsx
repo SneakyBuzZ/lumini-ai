@@ -1,5 +1,5 @@
 import useCanvasStore from "@/lib/store/canvas-store";
-import { useRef, useCallback } from "react";
+import { useRef, useCallback, useEffect } from "react";
 import { useDrawing } from "@/hooks/use-drawing";
 import { useSelect } from "@/hooks/use-select";
 import { usePanZoom } from "@/hooks/use-panzoom";
@@ -14,7 +14,25 @@ export const useCanvas = () => {
   const panZoomHandlers = usePanZoom(canvasRef);
   const resizeHandlers = useResize(canvasRef);
 
-  /** --- Combined mouse down handler --- */
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "x") {
+        e.preventDefault();
+        const selectedShapes = Object.values(store.shapes).filter((shape) =>
+          store.selectedShapeIds.includes(shape.id)
+        );
+        if (selectedShapes.length > 0) {
+          store.shapesActions.batchDelete(selectedShapes);
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [store]);
+
   const onMouseDown = useCallback(
     (e: React.MouseEvent) => {
       if (!canvasRef.current) return;
@@ -46,7 +64,6 @@ export const useCanvas = () => {
     [store, drawingHandlers, selectHandlers, resizeHandlers, panZoomHandlers]
   );
 
-  /** --- Combined mouse move handler --- */
   const onMouseMove = useCallback(
     (e: React.MouseEvent) => {
       // --- Resize first ---
@@ -64,7 +81,6 @@ export const useCanvas = () => {
     [drawingHandlers, selectHandlers, resizeHandlers, panZoomHandlers]
   );
 
-  /** --- Combined mouse up handler --- */
   const onMouseUp = useCallback(() => {
     resizeHandlers.onMouseUp?.();
     selectHandlers.onMouseUp?.();
@@ -83,5 +99,7 @@ export const useCanvas = () => {
     store,
     drawSelectionBox: selectHandlers.drawSelectionBox,
     drawResizeHandles: resizeHandlers.drawResizeHandles,
+    onTextChange: drawingHandlers.onTextChange,
+    onTextBlur: drawingHandlers.onTextBlur,
   };
 };

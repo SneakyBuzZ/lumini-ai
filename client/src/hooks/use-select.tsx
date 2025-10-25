@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef } from "react";
 import useCanvasStore from "@/lib/store/canvas-store";
 import { getCanvasCoords, isPointInsideShape } from "@/lib/canvas/utils";
+import { Shape } from "@/lib/types/canvas-type";
 
 export const useSelect = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
   const store = useCanvasStore();
@@ -9,6 +10,10 @@ export const useSelect = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
   const initialShapePositionsRef = useRef<
     Record<string, { x: number; y: number }>
   >({});
+
+  const altDragRef = useRef<{ originalId: string; copyId: string } | null>(
+    null
+  );
 
   const [selectionBoxStart, setSelectionBoxStart] = useState<{
     x: number;
@@ -31,6 +36,29 @@ export const useSelect = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
       store.offsetX,
       store.offsetY
     );
+
+    if (e.altKey && store.mode === "select") {
+      const clickedShape = Object.values(store.shapes)
+        .reverse()
+        .find((s) => isPointInsideShape(s, x, y));
+
+      if (!clickedShape) return;
+
+      const copyId = crypto.randomUUID();
+      const copyShape: Shape = {
+        ...clickedShape,
+        id: copyId,
+        isSelected: true,
+        isDragging: true,
+      };
+
+      store.shapesActions.add(copyShape);
+      altDragRef.current = { originalId: clickedShape.id, copyId };
+
+      store.selection.clear();
+      store.selection.addId(copyId);
+      return;
+    }
 
     const allShapes = Object.values(store.shapes);
     const shape = allShapes
@@ -72,7 +100,6 @@ export const useSelect = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
           store.shapesActions.update({
             ...s,
             isSelected: s.id === shape.id,
-            strokeColor: s.id === shape.id ? "#fff" : "#a0a0a0",
           })
         );
         store.selection.addId(shape.id);
@@ -84,7 +111,6 @@ export const useSelect = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
           store.shapesActions.update({
             ...shape,
             isSelected: false,
-            strokeColor: "#a0a0a0",
           });
           draggingShapeIds = selectedShapes
             .map((s) => s.id)
@@ -94,7 +120,6 @@ export const useSelect = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
           store.shapesActions.update({
             ...shape,
             isSelected: true,
-            strokeColor: "#fff",
           });
           draggingShapeIds = [...selectedShapes.map((s) => s.id), shape.id];
         }
@@ -120,7 +145,6 @@ export const useSelect = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
         store.shapesActions.update({
           ...s,
           isSelected: false,
-          strokeColor: "#a0a0a0",
         })
       );
       store.selection.clear();
@@ -140,6 +164,16 @@ export const useSelect = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
         store.offsetX,
         store.offsetY
       );
+
+      if (altDragRef.current) {
+        const copy = store.shapes[altDragRef.current.copyId];
+        if (!copy) return;
+
+        copy.x = x - copy.width / 2;
+        copy.y = y - copy.height / 2;
+        store.shapesActions.update(copy);
+        return;
+      }
 
       // Dragging shapes
       if (dragStartRef.current) {
@@ -185,13 +219,11 @@ export const useSelect = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
             store.shapesActions.update({
               ...s,
               isSelected: true,
-              strokeColor: "#fff",
             });
           } else {
             store.shapesActions.update({
               ...s,
               isSelected: false,
-              strokeColor: "#a0a0a0",
             });
           }
         });
@@ -203,11 +235,19 @@ export const useSelect = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
 
   /** --- Mouse up --- */
   const onMouseUp = useCallback(() => {
+    if (altDragRef.current) {
+      const copy = store.shapes[altDragRef.current.copyId];
+      if (copy) copy.isDragging = false;
+      store.shapesActions.update(copy!);
+      altDragRef.current = null;
+      return;
+    }
+
     dragStartRef.current = null;
     initialShapePositionsRef.current = {};
     setSelectionBoxStart(null);
     setSelectionBoxEnd(null);
-  }, []);
+  }, [store.shapes, store.shapesActions]);
 
   /** --- Draw selection box --- */
   const drawSelectionBox = (
@@ -230,11 +270,16 @@ export const useSelect = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
     ctx.fillRect(x, y, width, height);
     ctx.strokeStyle = "rgba(0, 120, 215, 1)";
     ctx.setLineDash([5, 3]);
-    ctx.lineWidth = 0.5;
+    ctx.lineWidth = 0.5 / scale;
     ctx.strokeRect(x, y, width, height);
     ctx.setLineDash([]);
     ctx.restore();
   };
 
-  return { onMouseDown, onMouseMove, onMouseUp, drawSelectionBox };
+  return {
+    onMouseDown,
+    onMouseMove,
+    onMouseUp,
+    drawSelectionBox,
+  };
 };

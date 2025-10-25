@@ -10,7 +10,9 @@ export const useDrawing = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
     x: number;
     y: number;
     value: string;
-    fontSize?: number;
+    height: number;
+    width: number;
+    fontSize: number;
     fontFamily?: string;
   } | null>(null);
 
@@ -34,6 +36,8 @@ export const useDrawing = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
       width: 0,
       height: 0,
       strokeWidth: 0.5,
+      strokeType: "solid",
+      strokeColor: "#a0a0a0",
       isSelected: false,
       isDragging: false,
       isHovered: false,
@@ -96,18 +100,23 @@ export const useDrawing = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
     const shape = Object.values(store.shapes)
       .slice()
       .reverse()
-      .find((s) => s.type === "text" && isPointInsideShape(s, x, y));
+      .find((s) => isPointInsideShape(s, x, y));
 
     if (shape) {
       setEditingText({
         id: shape.id,
-        x: shape.x,
-        y: shape.y,
+        x: shape.x + shape.width / 2,
+        y: shape.y + shape.height / 2,
         value: shape.text ?? "",
-        fontSize: 16,
-        fontFamily: "sans-serif",
+        fontSize: shape.fontSize ?? 16,
+        fontFamily: shape.fontFamily ?? "sans-serif",
+        height: shape.height,
+        width: shape.width,
       });
     } else {
+      const defaultWidth = 150;
+      const defaultHeight = 40;
+
       const newShape: Shape = {
         id: crypto.randomUUID(),
         type: "text",
@@ -116,9 +125,9 @@ export const useDrawing = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
         width: 0,
         height: 0,
         strokeWidth: 0.5,
+        strokeType: "solid",
+        strokeColor: "#a0a0a0",
         isSelected: true,
-        isDragging: false,
-        isHovered: false,
         text: "",
       };
 
@@ -131,14 +140,33 @@ export const useDrawing = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
         value: "",
         fontSize: 16,
         fontFamily: "sans-serif",
+        width: defaultWidth,
+        height: defaultHeight,
       });
     }
+  };
+
+  const onTextChange = (value: string) => {
+    setEditingText((prev) => (prev ? { ...prev, value } : null));
+  };
+
+  const onTextBlur = () => {
+    if (!editingText) return;
+
+    store.shapesActions.update({
+      ...store.shapes[editingText.id],
+      text: editingText.value,
+    });
+    setEditingText(null);
   };
 
   const onWheel = (e: React.WheelEvent) => {
     if (!canvasRef.current) return;
 
     e.preventDefault();
+
+    const MIN_ZOOM = 0.1; // 10%
+    const MAX_ZOOM = 2; // 200%
 
     const rect = canvasRef.current.getBoundingClientRect();
     const mouseX = e.clientX - rect.left;
@@ -153,7 +181,7 @@ export const useDrawing = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
     const offsetY =
       mouseY - ((mouseY - store.offsetY) / store.scale) * newScale;
 
-    store.view.setScale(newScale);
+    store.view.setScale(Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, newScale)));
     store.view.setOffset(offsetX, offsetY);
   };
 
@@ -165,5 +193,7 @@ export const useDrawing = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
     onWheel,
     editingText,
     setEditingText,
+    onTextChange,
+    onTextBlur,
   };
 };

@@ -4,24 +4,33 @@ import { snapLine } from "@/lib/canvas/utils";
 export const renderShapes = (
   shapes: Record<string, Shape>,
   ctx: CanvasRenderingContext2D,
-  options: DrawOptions
+  options: DrawOptions,
+  editingText: {
+    id: string;
+    x: number;
+    y: number;
+    value: string;
+  } | null = null
 ) => {
   const { scale, offsetX, offsetY } = options;
   const canvas = ctx.canvas;
 
-  // clear canvas
+  // Clear canvas
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.save();
   ctx.translate(offsetX, offsetY);
   ctx.scale(scale, scale);
 
-  // --- get selected shapes ---
   const allShapes = Object.values(shapes);
   const selectedShapes = allShapes.filter((s) => s.isSelected);
   const multipleSelected = selectedShapes.length > 1;
 
-  // --- draw shapes ---
+  // --- Draw all shapes ---
   allShapes.forEach((shape) => {
+    if (shape.strokeType === "dashed") ctx.setLineDash([6, 4]);
+    else if (shape.strokeType === "dotted") ctx.setLineDash([2, 3]);
+    else ctx.setLineDash([]);
+
     const strokeColor = shape.strokeColor ?? "#d6d6d6";
     const fillColor = shape.fillColor ?? "transparent";
     const strokeWidth = Number(shape.strokeWidth ?? 2);
@@ -29,7 +38,7 @@ export const renderShapes = (
 
     ctx.lineWidth = (strokeWidth / safeScale) * 2;
 
-    // shadow for hover/drag
+    // Shadow effect
     if (shape.isDragging || shape.isHovered) {
       ctx.shadowColor = "rgba(0,0,0,0.2)";
       ctx.shadowBlur = 8;
@@ -42,6 +51,7 @@ export const renderShapes = (
     ctx.strokeStyle = strokeColor;
     ctx.fillStyle = fillColor;
 
+    // --- Draw shape ---
     switch (shape.type) {
       case "rectangle":
         drawRoundedRect(ctx, shape.x, shape.y, shape.width, shape.height, 12);
@@ -60,32 +70,23 @@ export const renderShapes = (
         break;
     }
 
-    // --- draw selection outlines ---
-    if (shape.isSelected && shape.type !== "text") {
-      if (!multipleSelected) {
-        // single selection → show main blue box
-        ctx.save();
-        ctx.strokeStyle = "rgba(0, 120, 215, 0.5)";
-        ctx.setLineDash([4, 2]);
-        ctx.lineWidth = 1;
-        ctx.strokeRect(
-          shape.x - 6,
-          shape.y - 6,
-          shape.width + 12,
-          shape.height + 12
+    // --- Draw text content ---
+    if (shape.text?.trim()) {
+      if (!(editingText && editingText.id === shape.id)) {
+        drawText(
+          ctx,
+          shape.type === "text" ? shape : { ...shape, type: "text" }
         );
-        ctx.restore();
-      } else {
-        ctx.save();
-        ctx.strokeStyle = "#d6d6d6";
-        ctx.lineWidth = 1;
-        ctx.strokeRect(shape.x, shape.y, shape.width, shape.height);
-        ctx.restore();
       }
+    }
+
+    // --- Draw selection outlines and handles ---
+    if (shape.isSelected) {
+      drawSelectionOutline(ctx, shape, multipleSelected, scale);
     }
   });
 
-  // --- draw group selection box if multiple shapes selected ---
+  // --- Draw group selection box ---
   if (multipleSelected) {
     const minX = Math.min(...selectedShapes.map((s) => s.x));
     const minY = Math.min(...selectedShapes.map((s) => s.y));
@@ -102,6 +103,8 @@ export const renderShapes = (
 
   ctx.restore();
 };
+
+/* ---------------- Shape Drawing Helpers ---------------- */
 
 export const drawRoundedRect = (
   ctx: CanvasRenderingContext2D,
@@ -150,7 +153,7 @@ export const drawEllipse = (ctx: CanvasRenderingContext2D, shape: Shape) => {
 export const drawLine = (
   ctx: CanvasRenderingContext2D,
   shape: Shape,
-  enableSnap: boolean = true
+  enableSnap: boolean = false
 ) => {
   const { x, y, width, height } = shape;
   let x2 = x + width;
@@ -171,13 +174,12 @@ export const drawLine = (
 export const drawArrow = (
   ctx: CanvasRenderingContext2D,
   shape: Shape,
-  enableSnap: boolean = true
+  enableSnap: boolean = false
 ) => {
   const { x, y } = shape;
   let { width, height } = shape;
   let x2 = x + width;
   let y2 = y + height;
-
   if (enableSnap) {
     const snapped = snapLine(x, y, x2, y2);
     x2 = snapped.x2;
@@ -185,32 +187,71 @@ export const drawArrow = (
     width = x2 - x;
     height = y2 - y;
   }
-
   const lineLength = Math.sqrt(width * width + height * height);
-  const headlen = Math.max(6, Math.min(lineLength * 0.22, 16));
+  const headlen = Math.max(4, Math.min(lineLength * 0.12, 10));
   const angle = Math.atan2(height, width);
-
   ctx.beginPath();
   ctx.moveTo(x, y);
   ctx.lineTo(x2, y2);
   ctx.stroke();
-
+  ctx.fillStyle = shape.fillColor ?? ctx.strokeStyle;
   ctx.beginPath();
   ctx.moveTo(x2, y2);
   ctx.lineTo(
-    x2 - headlen * Math.cos(angle - 0.3),
-    y2 - headlen * Math.sin(angle - 0.3)
+    x2 - headlen * Math.cos(angle - 0.4),
+    y2 - headlen * Math.sin(angle - 0.4)
   );
   ctx.lineTo(
-    x2 - headlen * Math.cos(angle + 0.3),
-    y2 - headlen * Math.sin(angle + 0.3)
+    x2 - headlen * Math.cos(angle + 0.4),
+    y2 - headlen * Math.sin(angle + 0.4)
   );
   ctx.closePath();
   ctx.fill();
 };
 
 export const drawText = (ctx: CanvasRenderingContext2D, shape: Shape) => {
-  ctx.fillStyle = shape.fillColor ?? "#000";
-  ctx.font = `${shape.fontSize ?? 16}px ${shape.fontFamily ?? "sans-serif"}`;
-  ctx.fillText(shape.text ?? "", shape.x, shape.y + (shape.fontSize ?? 16));
+  if (!shape.text || shape.text.trim() === "") return;
+
+  ctx.save();
+  ctx.fillStyle = shape.textColor ?? "#e0e0e0";
+  ctx.font = `${shape.fontWeight ?? "normal"} ${shape.fontSize ?? 16}px ${shape.fontFamily ?? "sans-serif"}`;
+  ctx.textAlign = shape.textAlign ?? "center";
+  ctx.textBaseline = "middle";
+
+  const centerX = shape.x + shape.width / 2;
+  const centerY = shape.y + shape.height / 2;
+
+  ctx.fillText(shape.text, centerX, centerY, Math.abs(shape.width) - 8);
+  ctx.restore();
 };
+
+/* ---------------- Selection Helpers ---------------- */
+
+function drawSelectionOutline(
+  ctx: CanvasRenderingContext2D,
+  shape: Shape,
+  multipleSelected: boolean,
+  scale: number = 1
+) {
+  ctx.save();
+  ctx.strokeStyle = "rgba(0, 120, 215, 0.5)";
+  ctx.setLineDash([4, 2]);
+  ctx.lineWidth = 1 / scale;
+
+  if (shape.type === "line" || shape.type === "arrow") {
+    ctx.beginPath();
+    ctx.moveTo(shape.x, shape.y);
+    ctx.lineTo(shape.x + shape.width, shape.y + shape.height);
+    ctx.setLineDash([]);
+    ctx.stroke();
+  } else if (!multipleSelected) {
+    ctx.strokeRect(
+      shape.x - 6,
+      shape.y - 6,
+      shape.width + 12,
+      shape.height + 12
+    );
+  }
+
+  ctx.restore();
+}

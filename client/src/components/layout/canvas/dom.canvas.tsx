@@ -1,7 +1,8 @@
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useRef } from "react";
 import { renderShapes } from "@/lib/canvas/drawing";
 import { initialiseCanvas } from "@/lib/canvas/utils";
 import { useCanvas } from "@/hooks/use-canvas";
+import ZoomDropdown from "./zoom-dropdown";
 
 export function Canvas() {
   const {
@@ -12,9 +13,10 @@ export function Canvas() {
     onDoubleClick,
     store,
     editingText,
-    setEditingText,
     drawSelectionBox,
     drawResizeHandles,
+    onTextChange,
+    onTextBlur,
   } = useCanvas();
 
   const { shapes, scale, offsetX, offsetY, mode } = store;
@@ -30,7 +32,7 @@ export function Canvas() {
     initialiseCanvas(ctx, canvas);
 
     // draw shapes
-    renderShapes(shapes, ctx, { scale, offsetX, offsetY });
+    renderShapes(shapes, ctx, { scale, offsetX, offsetY }, editingText);
 
     // draw selection box
     if (mode === "select") drawSelectionBox(ctx, scale, offsetX, offsetY);
@@ -50,8 +52,8 @@ export function Canvas() {
     mode,
     drawSelectionBox,
     drawResizeHandles,
-    store.cursor,
-    store.mode,
+    store,
+    editingText,
   ]);
 
   // --- resize canvas ---
@@ -84,44 +86,94 @@ export function Canvas() {
     return () => observer.disconnect();
   }, [canvasRef, redraw]);
 
+  // --- set textarea cursor at end when editingText changes ---
+  const textareaRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      const len = textareaRef.current.value.length;
+      textareaRef.current.setSelectionRange(len, len);
+    }
+  }, [editingText]);
+
   return (
     <>
-      <canvas
-        ref={canvasRef}
-        tabIndex={0}
-        className="w-full h-full"
-        onMouseDown={onMouseDown}
-        onMouseMove={onMouseMove}
-        onMouseUp={onMouseUp}
-        onDoubleClick={onDoubleClick}
-      />
-      {editingText && (
-        <textarea
-          autoFocus
-          style={{
-            position: "absolute",
-            left: editingText.x * scale + offsetX,
-            top: editingText.y * scale + offsetY,
-            fontSize: `${editingText.fontSize ?? 16}px`,
-            fontFamily: editingText.fontFamily ?? "sans-serif",
-            zIndex: 10,
-            background: "transparent",
-            color: "#fff",
-          }}
-          className="bg-midnight-400 text-white border-none outline-none resize-none"
-          value={editingText.value}
-          onChange={(e) =>
-            setEditingText({ ...editingText, value: e.target.value })
-          }
-          onBlur={() => setEditingText(null)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              (e.target as HTMLTextAreaElement).blur();
-            }
-          }}
+      <div className="relative w-full h-full">
+        <canvas
+          ref={canvasRef}
+          tabIndex={0}
+          className="w-full h-full z-0"
+          onMouseDown={onMouseDown}
+          onMouseMove={onMouseMove}
+          onMouseUp={onMouseUp}
+          onDoubleClick={onDoubleClick}
         />
-      )}
+        {editingText && (
+          <div
+            style={{
+              position: "absolute",
+              left:
+                editingText.x * scale +
+                offsetX -
+                (editingText.width * scale) / 2,
+              top:
+                editingText.y * scale +
+                offsetY -
+                (editingText.height * scale) / 2,
+              width: editingText.width * scale,
+              height: editingText.height * scale,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              overflow: "hidden",
+              pointerEvents: "none",
+              zIndex: 10,
+            }}
+          >
+            <input
+              type="text"
+              ref={textareaRef}
+              autoFocus
+              style={{
+                fontSize: `${editingText.fontSize * scale}px`,
+                fontFamily: editingText.fontFamily,
+                textAlign: "center",
+                background: "#66666600",
+                color: "#ebebeb",
+                border: "none",
+                outline: "none",
+                resize: "none",
+                zIndex: 10,
+                padding: 0,
+                lineHeight: "normal",
+                pointerEvents: "all",
+                width: "fit-content",
+                minHeight: "9px", // minimum height
+                height: "auto", // grow as content grows
+              }}
+              className="bg-midnight-400 text-white border-none outline-none resize-none hide-scrollbar"
+              value={editingText.value}
+              onChange={(e) => {
+                const textarea = e.target;
+                onTextChange(e.target.value);
+
+                // Auto-grow logic
+                textarea.style.height = "auto"; // reset height to recalc
+                textarea.style.height =
+                  Math.max(textarea.scrollHeight, 16) + "px";
+              }}
+              onBlur={onTextBlur}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  (e.target as HTMLTextAreaElement).blur();
+                }
+              }}
+            />
+          </div>
+        )}
+        <ZoomDropdown scale={scale} />
+      </div>
     </>
   );
 }

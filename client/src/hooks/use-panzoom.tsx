@@ -50,20 +50,25 @@ export const usePanZoom = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
 
       const { scale, offsetX, offsetY, view } = store;
 
+      const MIN_ZOOM = 0.1; // 10%
+      const MAX_ZOOM = 2; // 200%
+
       const rect = canvas.getBoundingClientRect();
       const mouseX = e.clientX - rect.left;
       const mouseY = e.clientY - rect.top;
 
-      const zoomFactor = 1.1;
-      const newScale = e.deltaY < 0 ? scale * zoomFactor : scale / zoomFactor;
-      const clampedScale = Math.min(Math.max(newScale, 0.2), 5);
+      // Increment/decrement in 10% steps
+      const delta = e.deltaY < 0 ? 0.1 : -0.1;
+      let newScale = scale + delta;
+
+      newScale = Math.min(Math.max(newScale, MIN_ZOOM), MAX_ZOOM);
 
       const dx = mouseX - offsetX;
       const dy = mouseY - offsetY;
-      const newOffsetX = mouseX - (dx * clampedScale) / scale;
-      const newOffsetY = mouseY - (dy * clampedScale) / scale;
+      const newOffsetX = mouseX - (dx * newScale) / scale;
+      const newOffsetY = mouseY - (dy * newScale) / scale;
 
-      view.setScale(clampedScale);
+      view.setScale(newScale);
       view.setOffset(newOffsetX, newOffsetY);
     };
 
