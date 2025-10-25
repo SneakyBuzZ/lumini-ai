@@ -10,13 +10,15 @@ export interface Shape {
   rotation?: number;
 
   // Style
-  strokeColor?: string;
+  strokeType: "solid" | "dashed" | "dotted";
+  strokeColor: string;
   fillColor?: string;
-  strokeWidth?: number;
+  strokeWidth: number;
   opacity?: number;
 
   // Text-specific
   text?: string;
+  textColor?: string;
   fontSize?: number;
   fontFamily?: string;
   fontWeight?: "normal" | "bold";
@@ -45,3 +47,15 @@ export type DrawOptions = {
 };
 
 export type CanvasMode = "draw" | "select" | "pan" | "text";
+
+export type CanvasCusor =
+  | "default"
+  | "grab"
+  | "grabbing"
+  | "crosshair"
+  | "pointer"
+  | "nwse-resize"
+  | "nesw-resize"
+  | "ns-resize"
+  | "ew-resize"
+  | "text";

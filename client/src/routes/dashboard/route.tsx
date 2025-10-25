@@ -8,24 +8,22 @@ import { useGetWorkspaces } from "@/lib/api/queries/app-queries";
 export const Route = createFileRoute("/dashboard")({
   beforeLoad: async () => {
     const authenticated = await getIsAuthenticated();
-    if (!authenticated) {
-      throw redirect({ to: "/auth" });
-    }
+    if (!authenticated) throw redirect({ to: "/auth" });
   },
-  component: RouteComponent,
+  component: DashboardLayout,
 });
 
-function RouteComponent() {
+function DashboardLayout() {
   useGetUser();
   useGetWorkspaces();
   return (
-    <section className="w-full h-screen flex">
+    <section className="w-full h-screen flex overflow-hidden">
       <AppSidebar />
-      <div className="flex-1 flex flex-col items-center justify-start h-full min-h-0 min-w-0 relative bg-midnight-300">
+      <div className="flex-1 flex flex-col min-h-0">
         <AppNavbar />
-        <div className="flex-1 w-full flex flex-col items-center justify-start min-h-0 min-w-0">
+        <main className="flex-1 min-h-0 flex flex-col">
           <Outlet />
-        </div>
+        </main>
       </div>
     </section>
   );

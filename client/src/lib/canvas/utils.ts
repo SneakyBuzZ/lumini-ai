@@ -43,9 +43,13 @@ export const getCanvasCoords = (
   offsetY: number
 ) => {
   const rect = canvas.getBoundingClientRect();
-  const x = ("clientX" in e ? e.clientX : 0) - rect.left - offsetX;
-  const y = ("clientY" in e ? e.clientY : 0) - rect.top - offsetY;
-  return { x: x / scale, y: y / scale };
+  const clientX = "clientX" in e ? e.clientX : 0;
+  const clientY = "clientY" in e ? e.clientY : 0;
+
+  const x = (clientX - rect.left - offsetX) / scale;
+  const y = (clientY - rect.top - offsetY) / scale;
+
+  return { x, y };
 };
 
 /**
