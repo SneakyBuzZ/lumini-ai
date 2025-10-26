@@ -5,6 +5,18 @@ import {
   Shape,
   ShapeType,
 } from "@/lib/types/canvas-type";
+import {
+  loadCanvasFromLocalStorage,
+  saveCanvasToLocalStorage,
+} from "@/utils/local-storage";
+
+const HISTORY_LIMIT = 100;
+
+type CanvasSnapshot = {
+  shapes: Record<string, Shape>;
+  shapeOrder: string[];
+  selectedShapeIds: string[];
+};
 
 export type State = {
   // --- Shapes ---
@@ -34,8 +46,8 @@ export type State = {
   panIsActive: boolean;
 
   // --- History ---
-  history: Record<string, Shape>[];
-  redoStack: Record<string, Shape>[];
+  history: CanvasSnapshot[];
+  redoStack: CanvasSnapshot[];
 
   // --- Selection Box ---
   selectionBoxStart: { x: number; y: number } | null;
@@ -108,7 +120,9 @@ export type Actions = {
   };
 };
 
-const initialState: State = {
+const persistedState = loadCanvasFromLocalStorage();
+
+const initialStateBase: State = {
   shapeType: null,
   shapes: {},
   shapeOrder: [],
@@ -129,6 +143,11 @@ const initialState: State = {
   redoStack: [],
   selectionBoxStart: null,
   selectionBoxEnd: null,
+};
+
+const initialState: State = {
+  ...initialStateBase,
+  ...persistedState,
 };
 
 const useCanvasStore = create<State & Actions>((set, get) => ({
@@ -172,27 +191,43 @@ const useCanvasStore = create<State & Actions>((set, get) => ({
 
   // --- Shape Management ---
   shapesActions: {
-    add: (shape) =>
-      set((state) => ({
-        shapes: { ...state.shapes, [shape.id]: shape },
-        shapeOrder: [...state.shapeOrder, shape.id],
-      })),
-    update: (shape) =>
-      set((state) => ({ shapes: { ...state.shapes, [shape.id]: shape } })),
-    delete: (id) =>
-      set((state) => ({
-        shapes: Object.fromEntries(
+    add: (shape) => {
+      set((state) => {
+        const newState = {
+          shapes: { ...state.shapes, [shape.id]: shape },
+          shapeOrder: [...state.shapeOrder, shape.id],
+        };
+        saveCanvasToLocalStorage({ ...state, ...newState });
+        return newState;
+      });
+    },
+    update: (shape) => {
+      set((state) => {
+        const newState = { shapes: { ...state.shapes, [shape.id]: shape } };
+        saveCanvasToLocalStorage({ ...state, ...newState });
+        return newState;
+      });
+    },
+    delete: (id) => {
+      set((state) => {
+        const newShapes = Object.fromEntries(
           Object.entries(state.shapes).filter(([key]) => key !== id)
-        ),
-        shapeOrder: state.shapeOrder.filter((sid) => sid !== id),
-      })),
-    batchUpdate: (updates: Record<string, Partial<Shape>>) => {
+        );
+        const newShapeOrder = state.shapeOrder.filter((sid) => sid !== id);
+        const newState = { shapes: newShapes, shapeOrder: newShapeOrder };
+        saveCanvasToLocalStorage({ ...state, ...newState });
+        return newState;
+      });
+    },
+    batchUpdate: (updates) => {
       set((state) => {
         const newShapes = { ...state.shapes };
         for (const [id, changes] of Object.entries(updates)) {
           newShapes[id] = { ...newShapes[id], ...changes };
         }
-        return { shapes: newShapes };
+        const newState = { shapes: newShapes };
+        saveCanvasToLocalStorage({ ...state, ...newState });
+        return newState;
       });
     },
     batchDelete: (shapes: Shape[]) => {
@@ -283,8 +318,20 @@ const useCanvasStore = create<State & Actions>((set, get) => ({
 
   // --- Canvas View ---
   view: {
-    setScale: (scale) => set({ scale }),
-    setOffset: (x, y) => set({ offsetX: x, offsetY: y }),
+    setScale: (scale) => {
+      set((state) => {
+        const newState = { scale };
+        saveCanvasToLocalStorage({ ...state, ...newState });
+        return newState;
+      });
+    },
+    setOffset: (x, y) => {
+      set((state) => {
+        const newState = { offsetX: x, offsetY: y };
+        saveCanvasToLocalStorage({ ...state, ...newState });
+        return newState;
+      });
+    },
     setDoubleClickLock: (lock) => set({ doubleClickLock: lock }),
     setCursor: (cursor) => set({ cursor }),
   },
@@ -309,31 +356,46 @@ const useCanvasStore = create<State & Actions>((set, get) => ({
   // --- History ---
   historyActions: {
     push: () => {
-      const snapshot = { ...get().shapes };
-      set((state) => ({
-        history: [...state.history, snapshot],
+      const state = get();
+      const snapshot: CanvasSnapshot = {
+        shapes: structuredClone(state.shapes),
+        shapeOrder: [...state.shapeOrder],
+        selectedShapeIds: [...state.selectedShapeIds],
+      };
+      set({
+        history: [...state.history, snapshot].slice(-HISTORY_LIMIT),
         redoStack: [],
-      }));
+      });
     },
+
     undo: () => {
-      const history = get().history;
+      const { history, redoStack } = get();
       if (!history.length) return;
-      const last = history[history.length - 1];
-      set(() => ({
-        shapes: last,
-        shapeOrder: Object.keys(last),
+
+      const lastSnapshot = history[history.length - 1];
+
+      set({
+        shapes: structuredClone(lastSnapshot.shapes),
+        shapeOrder: [...lastSnapshot.shapeOrder],
+        selectedShapeIds: [...lastSnapshot.selectedShapeIds],
         history: history.slice(0, -1),
-      }));
+        redoStack: [...redoStack, lastSnapshot],
+      });
     },
+
     redo: () => {
-      const redoStack = get().redoStack;
+      const { redoStack, history } = get();
       if (!redoStack.length) return;
-      const next = redoStack[redoStack.length - 1];
-      set(() => ({
-        shapes: next,
-        shapeOrder: Object.keys(next),
+
+      const nextSnapshot = redoStack[redoStack.length - 1];
+
+      set({
+        shapes: structuredClone(nextSnapshot.shapes),
+        shapeOrder: [...nextSnapshot.shapeOrder],
+        selectedShapeIds: [...nextSnapshot.selectedShapeIds],
         redoStack: redoStack.slice(0, -1),
-      }));
+        history: [...history, nextSnapshot],
+      });
     },
   },
 

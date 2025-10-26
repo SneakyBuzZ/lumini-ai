@@ -83,6 +83,8 @@ export const useDrawing = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
       store.selection.setMode("select");
       store.setShapeType(null);
     }
+
+    store.historyActions.push();
   };
 
   const onDoubleClick = (e: React.MouseEvent) => {

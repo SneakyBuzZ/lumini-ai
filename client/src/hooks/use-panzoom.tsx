@@ -33,6 +33,7 @@ export const usePanZoom = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
     lastPos.current = null;
 
     store.view.setCursor("default");
+    store.historyActions.push();
   };
 
   // --- ZOOM: use native wheel listener to support preventDefault ---
