@@ -369,7 +369,8 @@ export const useResize = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
   /** --- Mouse up --- */
   const onMouseUp = useCallback(() => {
     resizingRef.current = null;
-  }, []);
+    store.historyActions.push();
+  }, [store.historyActions]);
 
   /** --- Draw resize handles --- */
   const drawResizeHandles = (

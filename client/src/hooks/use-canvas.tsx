@@ -4,6 +4,7 @@ import { useDrawing } from "@/hooks/use-drawing";
 import { useSelect } from "@/hooks/use-select";
 import { usePanZoom } from "@/hooks/use-panzoom";
 import { useResize } from "./use-resize";
+import { useUndoRedo } from "./use-undo-redo";
 
 export const useCanvas = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -14,6 +15,8 @@ export const useCanvas = () => {
   const panZoomHandlers = usePanZoom(canvasRef);
   const resizeHandlers = useResize(canvasRef);
 
+  useUndoRedo();
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === "x") {
@@ -23,6 +26,7 @@ export const useCanvas = () => {
         );
         if (selectedShapes.length > 0) {
           store.shapesActions.batchDelete(selectedShapes);
+          store.historyActions.push();
         }
       }
     };
