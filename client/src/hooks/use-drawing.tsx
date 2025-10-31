@@ -1,26 +1,31 @@
-import { ShapeType, Shape } from "@/lib/types/canvas-type";
-import { getCanvasCoords, isPointInsideShape } from "@/lib/canvas/utils";
+import { ShapeType } from "@/lib/types/canvas-type";
+import { getCursorCoords, isPointInsideShape } from "@/lib/canvas/utils";
 import useCanvasStore from "@/lib/store/canvas-store";
 import { useState } from "react";
+import { createShape, createTextShape } from "@/lib/canvas/crud";
+
+type EditingText = {
+  id: string;
+  x: number;
+  y: number;
+  value: string;
+  height: number;
+  width: number;
+  fontSize: number;
+  fontFamily?: string;
+} | null;
 
 export const useDrawing = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
+  //* --- Store & State ---
   const store = useCanvasStore();
-  const [editingText, setEditingText] = useState<{
-    id: string;
-    x: number;
-    y: number;
-    value: string;
-    height: number;
-    width: number;
-    fontSize: number;
-    fontFamily?: string;
-  } | null>(null);
+  const [editingText, setEditingText] = useState<EditingText>(null);
 
+  //* --- Mouse Down Handler ---
   const onMouseDown = (e: React.MouseEvent, currentTool?: ShapeType | null) => {
     if (!canvasRef.current) return;
     if (store.mode !== "draw" || !currentTool || !store.shapeType) return;
 
-    const { x, y } = getCanvasCoords(
+    const { x, y } = getCursorCoords(
       canvasRef.current,
       e,
       store.scale,
@@ -28,29 +33,16 @@ export const useDrawing = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
       store.offsetY
     );
 
-    const shape: Shape = {
-      id: crypto.randomUUID(),
-      type: currentTool,
-      x,
-      y,
-      width: 0,
-      height: 0,
-      strokeWidth: 0.5,
-      strokeType: "solid",
-      strokeColor: "#a0a0a0",
-      isSelected: false,
-      isDragging: false,
-      isHovered: false,
-      text: currentTool === "text" ? "" : undefined,
-    };
+    const shape = createShape(currentTool, x, y);
     store.drawing.start(shape, x, y);
   };
 
+  //* --- Mouse Move Handler ---
   const onMouseMove = (e: React.MouseEvent) => {
     if (!canvasRef.current) return;
     if (store.mode !== "draw" || !store.drawingInProgress) return;
 
-    const { x, y } = getCanvasCoords(
+    const { x, y } = getCursorCoords(
       canvasRef.current,
       e,
       store.scale,
@@ -58,6 +50,7 @@ export const useDrawing = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
       store.offsetY
     );
 
+    //* --- Shift for proportional shapes ---
     if (e.shiftKey) {
       const deltaX = x - store.startX;
       const deltaY = y - store.startY;
@@ -73,10 +66,12 @@ export const useDrawing = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
     store.drawing.updateTemp(width, height);
   };
 
+  //* --- Mouse Up Handler ---
   const onMouseUp = () => {
     if (store.mode !== "draw" || !store.drawingInProgress) return;
     store.drawing.finish();
 
+    //* --- Select the newly drawn shape ---
     const tempId = store.tempShapeId;
     if (tempId) {
       store.selection.addId(tempId);
@@ -87,10 +82,11 @@ export const useDrawing = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
     store.historyActions.push();
   };
 
+  //* --- Double Click Handler for Text ---
   const onDoubleClick = (e: React.MouseEvent) => {
     if (!canvasRef.current) return;
 
-    const { x, y } = getCanvasCoords(
+    const { x, y } = getCursorCoords(
       canvasRef.current,
       e,
       store.scale,
@@ -98,7 +94,7 @@ export const useDrawing = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
       store.offsetY
     );
 
-    // Check if double-clicked an existing text shape
+    //* --- Check if clicking on existing text shape ---
     const shape = Object.values(store.shapes)
       .slice()
       .reverse()
@@ -119,26 +115,14 @@ export const useDrawing = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
       const defaultWidth = 150;
       const defaultHeight = 40;
 
-      const newShape: Shape = {
-        id: crypto.randomUUID(),
-        type: "text",
-        x,
-        y,
-        width: 0,
-        height: 0,
-        strokeWidth: 0.5,
-        strokeType: "solid",
-        strokeColor: "#a0a0a0",
-        isSelected: true,
-        text: "",
-      };
+      const textShape = createTextShape(x, y);
 
-      store.drawing.start(newShape, x, y);
+      store.drawing.start(textShape, x, y);
 
       setEditingText({
-        id: newShape.id,
-        x: newShape.x,
-        y: newShape.y,
+        id: textShape.id,
+        x: textShape.x,
+        y: textShape.y,
         value: "",
         fontSize: 16,
         fontFamily: "sans-serif",
@@ -159,9 +143,11 @@ export const useDrawing = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
       ...store.shapes[editingText.id],
       text: editingText.value,
     });
+
     setEditingText(null);
   };
 
+  //* --- Wheel Handler for Zooming ---
   const onWheel = (e: React.WheelEvent) => {
     if (!canvasRef.current) return;
 

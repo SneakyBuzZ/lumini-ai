@@ -7,14 +7,14 @@ export interface Shape {
   y: number;
   width: number;
   height: number;
-  rotation?: number;
+  rotation: number;
 
   // Style
   strokeType: "solid" | "dashed" | "dotted";
   strokeColor: string;
-  fillColor?: string;
+  fillColor: string;
   strokeWidth: number;
-  opacity?: number;
+  opacity: number;
 
   // Text-specific
   text?: string;

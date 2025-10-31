@@ -5,8 +5,9 @@ export default {
 	theme: {
 		extend: {
 			fontFamily: {
-				spline: ["Spline Sans", "sans-serif"],
-				poppins: ["Poppins", "sans-serif"]
+				audiowide: ["Audiowide", "sans-serif"],
+				rubik: ["Rubik Mono One", "sans-serif"],
+				manrope: ["Manrope", "sans-serif"],
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

@@ -27,7 +27,9 @@ const Logo = ({ withText = false, imgClassName, className }: LogoProps) => {
           alt="Logo Image"
           className={cn("size-6", imgClassName)}
         />
-        <span className="tracking-tight text-[23px] text-white">Lumini</span>
+        <span className="tracking-tight text-[23px] text-white font-manrope">
+          Lumini
+        </span>
       </div>
     </div>
   );

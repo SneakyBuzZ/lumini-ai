@@ -151,7 +151,7 @@ export function Canvas() {
                 minHeight: "9px", // minimum height
                 height: "auto", // grow as content grows
               }}
-              className="bg-midnight-400 text-white border-none outline-none resize-none hide-scrollbar"
+              className="bg-midnight-400 border-none outline-none resize-none hide-scrollbar"
               value={editingText.value}
               onChange={(e) => {
                 const textarea = e.target;

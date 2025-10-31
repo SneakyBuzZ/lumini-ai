@@ -35,7 +35,7 @@ export const getLocation = (e: React.MouseEvent, canvas: HTMLCanvasElement) => {
 /**
  * Get canvas coordinates considering scale and offset
  */
-export const getCanvasCoords = (
+export const getCursorCoords = (
   canvas: HTMLCanvasElement,
   e: MouseEvent | React.MouseEvent,
   scale: number,

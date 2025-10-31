@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useRef, useCallback } from "react";
 import useCanvasStore from "@/lib/store/canvas-store";
-import { getCanvasCoords } from "@/lib/canvas/utils";
+import { getCursorCoords } from "@/lib/canvas/utils";
 import { CanvasCusor, Shape } from "@/lib/types/canvas-type";
 
 type HandleName =
@@ -172,7 +172,7 @@ export const useResize = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
   const onMouseDown = (e: React.MouseEvent) => {
     if (!canvasRef.current || store.mode !== "select") return;
 
-    const { x, y } = getCanvasCoords(
+    const { x, y } = getCursorCoords(
       canvasRef.current,
       e as unknown as MouseEvent,
       store.scale,
@@ -206,7 +206,7 @@ export const useResize = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
       const canvas = canvasRef.current;
       if (!canvas) return;
 
-      const { x, y } = getCanvasCoords(
+      const { x, y } = getCursorCoords(
         canvas,
         e as unknown as MouseEvent,
         store.scale,

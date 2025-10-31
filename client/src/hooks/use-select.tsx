@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from "react";
 import useCanvasStore from "@/lib/store/canvas-store";
-import { getCanvasCoords, isPointInsideShape } from "@/lib/canvas/utils";
+import { getCursorCoords, isPointInsideShape } from "@/lib/canvas/utils";
 import { Shape } from "@/lib/types/canvas-type";
 
 export const useSelect = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
@@ -29,7 +29,7 @@ export const useSelect = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
     if (e.button !== 0) return;
     if (!canvasRef.current || store.mode !== "select") return;
 
-    const { x, y } = getCanvasCoords(
+    const { x, y } = getCursorCoords(
       canvasRef.current,
       e as unknown as MouseEvent,
       store.scale,
@@ -157,7 +157,7 @@ export const useSelect = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
   const onMouseMove = useCallback(
     (e: MouseEvent) => {
       if (!canvasRef.current) return;
-      const { x, y } = getCanvasCoords(
+      const { x, y } = getCursorCoords(
         canvasRef.current,
         e as unknown as MouseEvent,
         store.scale,

@@ -25,9 +25,9 @@ function AuthComponent() {
     location: { pathname },
   } = useRouterState();
   return (
-    <div className="w-full h-screen flex justify-center items-center">
-      <div className="z-20 w-[45%] relative flex flex-col justify-start items-center text-center gap-5 px-5 h-full bg-midnight-300 border-r border-r-neutral-900">
-        <div className="absolute w-full top-0 flex h-20 justify-between items-center px-10">
+    <div className="w-full h-screen flex justify-center items-center bg-midnight-400">
+      <div className="w-[45%] h-full relative flex flex-col justify-start items-center border-dashed border-x border-neutral-800">
+        <div className="absolute w-full top-0 flex h-20 justify-between items-center px-10 border-dashed border-b border-neutral-800 bg-midnight-400">
           <Logo withText imgClassName="size-6" />
           <Button variant={"link"} onClick={() => navigate({ to: "/" })}>
             <ChevronLeft />
@@ -36,7 +36,11 @@ function AuthComponent() {
         </div>
         <div className="w-3/5 flex flex-col justify-center items-center text-center gap-8 h-full pt-20">
           <div className="relative w-full flex flex-col justify-center items-center gap-6">
-            <Button type="submit" className="w-full" variant={"bright"}>
+            <Button
+              type="submit"
+              className="w-full bg-midnight-100 hover:bg-midnight-200"
+              variant={"outline"}
+            >
               <SiGithub />
               Continue with Github
             </Button>
@@ -53,24 +57,6 @@ function AuthComponent() {
             </Link>
           </span>
         </div>
-      </div>
-      <div className="relative flex flex-1 flex-col justify-center items-center bg-midnight-400 h-full overflow-clip">
-        <h3 className="text-4xl font-bold text-white z-10">
-          Welcome to <span className="text-cyan">Lumini</span>
-        </h3>
-        <p className="text-md text-neutral-500">
-          Unlock your workspaces. Search your repos. Ship faster.
-        </p>
-        <img
-          className="z-10 absolute -top-[15rem] right-0 rotate-[-225deg]"
-          src="/assets/images/blob-left.png"
-          alt="Left Blob"
-        />
-        <img
-          className="z-10 absolute -bottom-10"
-          src="/assets/vectors/stars.svg"
-          alt="Left Blob"
-        />
       </div>
     </div>
   );
