@@ -7,12 +7,14 @@ import * as accountModels from "@/_user/models/account-model";
 import * as userModels from "@/_user/models/user-model";
 import * as workspaceModels from "@/_workspace/models/workspace-model";
 import * as labModels from "@/_lab/models/lab-table";
+import * as shapeModels from "@/_lab/models/shape-table";
 
 const schema = {
   ...accountModels,
   ...userModels,
   ...workspaceModels,
   ...labModels,
+  ...shapeModels,
 };
 
 const pool = new Pool({

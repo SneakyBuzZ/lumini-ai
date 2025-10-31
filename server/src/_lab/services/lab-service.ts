@@ -2,8 +2,6 @@ import { LabRepository } from "@/_lab/repositories/lab-repository";
 import { CreateLabDTO } from "@/_lab/dto";
 import { WorkspaceRepository } from "@/_workspace/repositories/workspace-repository";
 import { AppError } from "@/utils/error";
-import axios from "axios";
-import { AI_SERVER_URL } from "@/utils/constants";
 
 export class LabService {
   private labRepository: LabRepository;
