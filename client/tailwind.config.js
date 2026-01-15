@@ -8,6 +8,7 @@ export default {
 				audiowide: ["Audiowide", "sans-serif"],
 				rubik: ["Rubik Mono One", "sans-serif"],
 				manrope: ["Manrope", "sans-serif"],
+				"dm-sans": ["DM Sans", "sans-serif"]
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

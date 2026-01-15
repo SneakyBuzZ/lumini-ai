@@ -1,6 +1,7 @@
 import { Actions, State } from "@/lib/store/canvas-store";
 
 const CANVAS_LS_KEY = "lumini/canvas_state";
+const RECENT_WORKSPACE_ID_LS_KEY = "lumini/recent_workspace_id";
 
 export const saveCanvasToLocalStorage = (state: State & Actions) => {
   try {
@@ -28,4 +29,8 @@ export const loadCanvasFromLocalStorage = () => {
     console.error("Failed to load canvas from localStorage:", err);
     return null;
   }
+};
+
+export const loadRecentWorkspaceId = () => {
+  return localStorage.getItem(RECENT_WORKSPACE_ID_LS_KEY);
 };

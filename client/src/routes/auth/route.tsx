@@ -29,7 +29,7 @@ function AuthComponent() {
       <div className="w-[45%] h-full relative flex flex-col justify-start items-center border-dashed border-x border-neutral-800">
         <div className="absolute w-full top-0 flex h-20 justify-between items-center px-10 border-dashed border-b border-neutral-800 bg-midnight-400">
           <Logo withText imgClassName="size-6" />
-          <Button variant={"link"} onClick={() => navigate({ to: "/" })}>
+          <Button variant={"link"} onClick={() => navigate({ to: "." })}>
             <ChevronLeft />
             Back
           </Button>

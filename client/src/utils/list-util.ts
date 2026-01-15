@@ -191,14 +191,19 @@ export const NAVBAR_LIST = [
   },
 ];
 
-export const SIDEBAR_LIST = [
+export const SIDEBAR_LIST = (workspaceId: string) => [
   {
     name: "Application",
     items: [
       {
         name: "Labs",
         icons: FlaskRound,
-        href: "/app",
+        href: `/dashboard/space/${workspaceId}`,
+      },
+      {
+        name: "Team",
+        icons: FlaskRound,
+        href: `/dashboard/space/${workspaceId}/team`,
       },
     ],
   },
@@ -208,12 +213,12 @@ export const SIDEBAR_LIST = [
       {
         name: "Billing",
         icons: Wallet,
-        href: "/app/billing",
+        href: `/dashboard/space/${workspaceId}/billing`,
       },
       {
         name: "Settings",
         icons: Settings,
-        href: "/app/settings",
+        href: `/dashboard/space/${workspaceId}/general`,
       },
     ],
   },

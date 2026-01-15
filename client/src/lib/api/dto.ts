@@ -20,3 +20,8 @@ export type CreateWorkspace = {
   name: string;
   plan: "free" | "pro" | "enterprise";
 };
+
+export type CreateInvite = {
+  email: string;
+  role: string;
+};

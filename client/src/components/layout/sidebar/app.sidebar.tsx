@@ -1,5 +1,4 @@
 import HeaderSidebar from "@/components/layout/sidebar/header.sidebar";
-import FooterSidebar from "@/components/layout/sidebar/footer.sidebar";
 import ContentSidebar from "@/components/layout/sidebar/content.sidebar";
 
 const AppSidebar = () => {
@@ -8,7 +7,6 @@ const AppSidebar = () => {
       <div className="z-10 absolute h-20 w-20 bg-neutral-600 blur-[100px]" />
       <HeaderSidebar />
       <ContentSidebar />
-      {/* <FooterSidebar /> */}
     </div>
   );
 };

@@ -1,6 +1,6 @@
 import { api } from "@/lib/config/axios-config";
 import { CreateWorkspace } from "@/lib/api/dto";
-import { Workspace } from "@/lib/types/workspace-type";
+import { Workspace, WorkspaceSettingsMap } from "@/lib/types/workspace-type";
 
 export const getAllWorkspaces = async (): Promise<Workspace[]> => {
   const response = await api.get("/workspace");
@@ -14,10 +14,32 @@ export const createWorkspace = async (
   return response.status;
 };
 
-// export const getWorkspaceSettings = async (
-//   workspaceId: string
-// ): Promise<WorkspaceSettings | null> => {
-//   const response = await api.get(`/workspace/settings/${workspaceId}`);
+export const getWorkspaceSettings = async <
+  T extends keyof WorkspaceSettingsMap,
+>(
+  settingType: T,
+  workspaceId: string
+): Promise<WorkspaceSettingsMap[T]> => {
+  const response = await api.get(
+    `/workspace/${workspaceId}/settings/${settingType}`
+  );
+  return response.data.payload;
+};
 
-//   return response.data.payload;
-// };
+export const getWorkspaceMembers = async (workspaceId: string) => {
+  const response = await api.get(`/workspace/${workspaceId}/members`);
+  console.log("RESPONSE: ", response.data.payload);
+  return response.data.payload;
+};
+
+export const createWorkspaceInvite = async (
+  workspaceId: string,
+  email: string,
+  role: string
+) => {
+  const response = await api.post(`/workspace/${workspaceId}/invite`, {
+    email,
+    role,
+  });
+  return response.data.payload;
+};
