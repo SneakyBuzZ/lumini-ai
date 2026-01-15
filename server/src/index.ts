@@ -9,6 +9,7 @@ import workspaceRouter from "@/_workspace/routes/workspace-route";
 import { errorMiddleware } from "./middlewares/error-middleware";
 import authRouter from "@/_user/routes/auth-route";
 import labRouter from "@/_lab/routes/lab-route";
+import { authenticateJwt } from "./middlewares/authenticate-middleware";
 
 const app = express();
 
@@ -25,7 +26,7 @@ app.get("/", (_, res) => {
 app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
 app.use("/api/lab", labRouter);
-app.use("/api/workspace", workspaceRouter);
+app.use("/api/workspace", authenticateJwt(), workspaceRouter);
 
 app.use(errorMiddleware);
 

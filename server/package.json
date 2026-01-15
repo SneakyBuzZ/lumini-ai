@@ -14,13 +14,9 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@google/generative-ai": "^0.24.0",
-    "@langchain/community": "^0.3.40",
-    "@langchain/core": "^0.3.44",
     "@octokit/rest": "^21.1.1",
     "axios": "^1.8.4",
     "bcryptjs": "^3.0.2",
-    "chromadb": "^2.2.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "cuid": "^3.0.0",
@@ -28,12 +24,15 @@
     "dotenv": "^16.4.7",
     "drizzle-orm": "^0.40.0",
     "drizzle-zod": "^0.7.0",
+    "esbuild-register": "^3.6.0",
     "express": "^4.21.2",
     "ignore": "^5.3.2",
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
     "morgan": "^1.10.0",
+    "nodemailer": "^7.0.12",
     "pg": "^8.14.0",
+    "ts-node": "^10.9.2",
     "uuid": "^11.1.0",
     "zod": "^3.24.2"
   },
@@ -45,14 +44,14 @@
     "@types/lodash": "^4.17.16",
     "@types/morgan": "^1.9.9",
     "@types/node": "^22.13.10",
+    "@types/nodemailer": "^7.0.5",
     "@types/pg": "^8.11.11",
-    "drizzle-kit": "^0.31.4",
-    "ts-node": "^10.9.2",
-    "tsx": "^4.19.3",
+    "drizzle-kit": "^0.31.8",
+    "tsx": "^4.21.0",
     "typescript": "^5.8.2"
   },
   "overrides": {
-    "esbuild": "^0.24.2"
+    "esbuild": "^0.25.0"
   },
   "resolutions": {
     "esbuild": "^0.24.3"

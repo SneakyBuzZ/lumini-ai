@@ -11,21 +11,45 @@ const workspaceController = new WorkspaceController();
 
 workspaceRouter.post(
   "/",
-  authenticateJwt(),
   validateData(SaveWorkspaceDTO),
   catchAsync(workspaceController.create)
 );
 
+workspaceRouter.get("/", catchAsync(workspaceController.findUserWorkspaces));
+
 workspaceRouter.get(
-  "/",
-  authenticateJwt(),
-  workspaceController.findUserWorkspaces
+  "/:workspaceId/settings/general",
+  catchAsync(workspaceController.findGeneralSettings)
 );
 
 workspaceRouter.get(
   "/:workspaceId/members",
-  authenticateJwt(),
-  workspaceController.findAllMembers
+  catchAsync(workspaceController.findAllMembers)
+);
+
+workspaceRouter.put(
+  "/:workspaceId/details",
+  catchAsync(workspaceController.updateDetails)
+);
+
+workspaceRouter.put(
+  "/:workspaceId/visibility",
+  catchAsync(workspaceController.updateVisibility)
+);
+
+workspaceRouter.put(
+  "/:workspaceId/language",
+  catchAsync(workspaceController.updateLanguage)
+);
+
+workspaceRouter.put(
+  "/:workspaceId/notifications",
+  catchAsync(workspaceController.updateNotifications)
+);
+
+workspaceRouter.post(
+  "/:workspaceId/invite",
+  catchAsync(workspaceController.inviteMember)
 );
 
 export default workspaceRouter;

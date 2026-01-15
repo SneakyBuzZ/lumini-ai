@@ -19,17 +19,22 @@ const schema = {
 
 const pool = new Pool({
   connectionString: DATABASE_URL,
+  ssl: { rejectUnauthorized: true },
+  max: 5,
+  statement_timeout: 10_000,
+  idleTimeoutMillis: 30_000,
+  allowExitOnIdle: true,
 });
 
 (async () => {
   try {
-    await pool.query("SELECT 1 + 1 AS result");
+    await pool.query("SELECT 1");
     console.log("✅ Connected to the PostgreSQL database successfully.");
   } catch (error) {
-    console.error(
-      "❌ Error connecting to the PostgreSQL database:",
-      (error as Error).message
-    );
+    console.error("❌ Database connection failed");
+    console.error("Message:", (error as Error).message);
+    console.error("URL:", DATABASE_URL.replace(/:\/\/.*@/, "://***@"));
+    process.exit(1);
   }
 })();
 

@@ -49,6 +49,7 @@ export const VectorDBEnum = pgEnum("vector_db", [
   "pinecone",
   "chroma",
   "mongodb",
+  "qdrant",
 ]);
 
 export const EmbeddingModel = pgEnum("embedding_model", [
@@ -72,7 +73,7 @@ export const labSettingsTable = pgTable(
       .notNull(),
 
     visibility: visibility("visibility").default("public"),
-    vectorDb: VectorDBEnum("vector_db").default("postgresql"),
+    vectorDb: VectorDBEnum("vector_db").default("qdrant"),
     embeddingModel: varchar("embedding_model", { length: 255 }).default(
       "gemini-1.5-flash"
     ),

@@ -154,43 +154,45 @@ export const workspaceApisRelations = relations(
   })
 );
 
-// const workspaceInviteStatusEnum = pgEnum("workspace_invite_status", [
-//   "Pending",
-//   "Accepted",
-//   "Declined",
-// ]);
+export const workspaceInviteStatusEnum = pgEnum("workspace_invite_status", [
+  "pending",
+  "accepted",
+  "declined",
+]);
 
-// const workspaceInvitesTable = pgTable("workspace_invites", {
-//   id: uuid().defaultRandom().primaryKey(),
+export const workspaceInvitesTable = pgTable(
+  "workspace_invites",
+  {
+    id: varchar("id", { length: 36 })
+      .primaryKey()
+      .$defaultFn(() => cuid()),
 
-//   workspaceId: uuid()
-//     .references(() => workspacesTable.id, { onDelete: "cascade" })
-//     .notNull(),
+    workspaceId: varchar("workspace_id", { length: 36 })
+      .references(() => workspacesTable.id, { onDelete: "cascade" })
+      .notNull(),
 
-//   invitedById: uuid().references(() => usersTable.id, { onDelete: "set null" }),
+    invitedById: varchar("invited_by_id", { length: 36 })
+      .references(() => usersTable.id, { onDelete: "set null" })
+      .notNull(),
 
-//   email: varchar({ length: 255 }).notNull(),
+    email: varchar("email", { length: 255 }).notNull(),
 
-//   role: workspaceRoleEnum("role").notNull().default("Member"),
-//   status: workspaceInviteStatusEnum("status").notNull().default("Pending"),
+    role: memberRoleEnum("role").notNull().default("developer"),
+    status: workspaceInviteStatusEnum("status").notNull().default("pending"),
 
-//   createdAt: timestamp().notNull().defaultNow(),
-//   updatedAt: timestamp().notNull().defaultNow(),
-// });
+    token: varchar("token", { length: 64 }).notNull().unique(),
+    expiresAt: timestamp("expires_at").notNull(),
 
-// const workspaceMembersTable = pgTable("workspace_members", {
-//   id: uuid().defaultRandom().primaryKey(),
+    acceptedAt: timestamp("accepted_at"),
+    declinedAt: timestamp("declined_at"),
 
-//   workspaceId: uuid()
-//     .references(() => workspacesTable.id, { onDelete: "cascade" })
-//     .notNull(),
-
-//   memberId: uuid()
-//     .references(() => usersTable.id, { onDelete: "cascade" })
-//     .notNull(),
-
-//   role: workspaceRoleEnum("role").notNull().default("Member"),
-
-//   joinedAt: timestamp().notNull().defaultNow(),
-//   updatedAt: timestamp().notNull().defaultNow(),
-// });
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp().notNull().defaultNow(),
+  },
+  (workspaceInvitesTable) => ({
+    uniqueInvite: uniqueIndex("unique_workspace_invite").on(
+      workspaceInvitesTable.workspaceId,
+      workspaceInvitesTable.email
+    ),
+  })
+);
