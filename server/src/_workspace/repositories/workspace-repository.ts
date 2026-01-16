@@ -12,7 +12,7 @@ import {
   workspaceSettingsTable,
   workspacesTable,
 } from "@/_workspace/models/workspace-model";
-import { db } from "@/lib/config/db-config";
+import { db, DbExecutor } from "@/lib/config/db-config";
 import { getSlug } from "@/utils/slug";
 import { and, eq, gt, isNotNull, isNull, lt } from "drizzle-orm";
 import crypto from "crypto";
@@ -176,9 +176,23 @@ export class WorkspaceRepository {
     return [...normalizedMembers, ...normalizedInvites];
   }
 
-  async findMemberRoleById(memberId: string) {
+  async findIsWorkspaceMember(workspaceId: string, memberId: string) {
     const member = await db.query.workspaceMembersTable.findFirst({
-      where: (workspace, { eq }) => eq(workspace.memberId, memberId),
+      where: and(
+        eq(workspaceMembersTable.workspaceId, workspaceId),
+        eq(workspaceMembersTable.memberId, memberId)
+      ),
+    });
+    return !!member;
+  }
+
+  async findMemberRoleById(memberId: string, workspaceId: string) {
+    const member = await db.query.workspaceMembersTable.findFirst({
+      where: (workspace, { eq }) =>
+        and(
+          eq(workspace.memberId, memberId),
+          eq(workspace.workspaceId, workspaceId)
+        ),
       columns: {
         role: true,
       },
@@ -234,11 +248,14 @@ export class WorkspaceRepository {
       .where(eq(workspaceSettingsTable.workspaceId, workspaceId));
   }
 
-  async findInvite(token: string, tx?: any) {
-    const queryBuilder = tx ? tx : db;
-    return await queryBuilder.query.workspaceInvitesTable.findFirst({
-      where: and(eq(workspaceInvitesTable.token, token)),
-    });
+  async findInvite(token: string, tx?: DbExecutor) {
+    const queryBuilder = tx || db;
+    const [invite] = await queryBuilder
+      .select()
+      .from(workspaceInvitesTable)
+      .where(and(eq(workspaceInvitesTable.token, token)))
+      .limit(1);
+    return invite;
   }
 
   async createInvite(
@@ -311,9 +328,9 @@ export class WorkspaceRepository {
     memberId: string,
     workspaceId: string,
     recipientRole: "owner" | "administrator" | "developer",
-    tx: any
+    tx?: DbExecutor
   ) {
-    const queryBuilder = tx ? tx : db;
+    const queryBuilder = tx || db;
     await queryBuilder.insert(workspaceMembersTable).values({
       workspaceId,
       memberId,
@@ -336,14 +353,18 @@ export class WorkspaceRepository {
       );
   }
 
-  async findIfMember(workspaceId: string, memberId: string, tx?: any) {
+  async findIfMember(workspaceId: string, memberId: string, tx?: DbExecutor) {
     const queryBuilder = tx ? tx : db;
-    const member = await queryBuilder.query.workspaceMembersTable.findFirst({
-      where: and(
-        eq(workspaceMembersTable.workspaceId, workspaceId),
-        eq(workspaceMembersTable.memberId, memberId)
-      ),
-    });
+    const [member] = await queryBuilder
+      .select()
+      .from(workspaceMembersTable)
+      .where(
+        and(
+          eq(workspaceMembersTable.workspaceId, workspaceId),
+          eq(workspaceMembersTable.memberId, memberId)
+        )
+      )
+      .limit(1);
     return !!member;
   }
 

@@ -34,7 +34,9 @@ export class LabController {
   createShape = async (req: Request, res: Response) => {
     const labId = req.params.labId;
     if (!labId) throw new AppError(400, "Lab ID is required");
-    await this.shapeService.create(req.body, labId);
+    const userId = req.user?.id;
+    if (!userId) throw new AppError(403, "Unauthorized");
+    await this.shapeService.create(req.body, labId, userId);
     res.status(201).json(new DataResponse(201, "Shape created successfully."));
   };
 

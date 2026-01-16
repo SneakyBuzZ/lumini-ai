@@ -93,7 +93,8 @@ export class WorkspaceService {
 
     const { email, role } = data;
     const inviterRole = await this.workspaceRepository.findMemberRoleById(
-      inviterId
+      inviterId,
+      workspaceId
     );
     const recipientRole = await this.workspaceRepository.findMemberRoleByEmail(
       email

@@ -1,5 +1,5 @@
 import { DATABASE_URL } from "@/utils/constants";
-import { drizzle } from "drizzle-orm/node-postgres";
+import { drizzle, NodePgDatabase } from "drizzle-orm/node-postgres";
 import pkg from "pg";
 const { Pool } = pkg;
 
@@ -8,6 +8,7 @@ import * as userModels from "@/_user/models/user-model";
 import * as workspaceModels from "@/_workspace/models/workspace-model";
 import * as labModels from "@/_lab/models/lab-table";
 import * as shapeModels from "@/_lab/models/shape-table";
+import { PgTransaction } from "drizzle-orm/pg-core";
 
 const schema = {
   ...accountModels,
@@ -38,3 +39,6 @@ const pool = new Pool({
 })();
 
 export const db = drizzle(pool, { schema });
+export type DbExecutor =
+  | NodePgDatabase<typeof schema>
+  | PgTransaction<any, typeof schema>;

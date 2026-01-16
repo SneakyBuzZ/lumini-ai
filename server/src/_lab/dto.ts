@@ -8,22 +8,47 @@ export const createLabDTO = z.object({
 });
 
 export const shapeDTO = z.object({
+  // -- Geometry --
   type: z.string().min(2).max(32),
   x: z.number().min(0),
   y: z.number().min(0),
   width: z.number().min(0),
   height: z.number().min(0),
-  strokeWidth: z.number().min(0).default(0.5),
+  rotation: z.number().default(0),
+
+  // -- Style --
   strokeType: z.string().min(2).max(16).default("solid"),
   strokeColor: z.string().min(2).max(32).default("#d6d6d6"),
-  fillColor: z.string().min(2).max(32).default("#transparent"),
+  fillColor: z.string().min(2).max(32).default("#ffffff00"),
+  strokeWidth: z.number().min(0).default(0.5),
   opacity: z.number().min(0).max(1).default(1),
-  rotation: z.number().default(0),
+
+  // -- Text --
+  text: z.string().min(2).max(256).optional(),
+  textColor: z.string().min(2).max(32).default("#ebebeb"),
+  fontSize: z.number().min(1).max(256).default(16),
+  fontFamily: z.string().min(2).max(64).default("sans-serif"),
+  fontWeight: z.string().min(2).max(32).default("normal"),
+  textAlign: z.string().min(2).max(16).default("center"),
+
+  // -- Layering --
+  zIndex: z.number().default(0),
+
+  // -- Flags --
   isLocked: z.boolean().default(false),
   isHidden: z.boolean().default(false),
-  isHovered: z.boolean().default(false),
-  text: z.string().min(2).max(256).optional(),
+  isDeleted: z.boolean().default(false),
+
+  // -- Sync Metadata --
+  version: z.number().default(1),
+});
+
+// add id to shape dto
+export const ShapeType = shapeDTO.extend({
+  id: z.string().cuid(),
 });
 
 export type CreateLabDTO = z.infer<typeof createLabDTO>;
 export type ShapeDTO = z.infer<typeof shapeDTO>;
+export type ShapeType = z.infer<typeof ShapeType>;
+export type UpdateShapeDTO = Partial<ShapeDTO>;

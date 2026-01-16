@@ -29,6 +29,17 @@ export class LabRepository {
     return labs.count;
   }
 
+  async findById(labId: string) {
+    const lab = await db.query.labsTable.findFirst({
+      where: (labs, { eq }) => eq(labs.id, labId),
+      // select specific columns to return
+      columns: {
+        id: false,
+      },
+    });
+    return lab;
+  }
+
   async findAll(workspaceId: string) {
     return await db.query.labsTable.findMany({
       where: (labs, { and, eq }) => and(eq(labs.workspaceId, workspaceId)),
