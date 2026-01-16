@@ -27,7 +27,6 @@ function RouteComponent() {
   const isActive = (to: string) => lastSegement === to;
 
   const { data: general } = useGetWorkspaceSettings(id, "general");
-  console.log(general);
   return (
     <div className="w-full flex flex-col justify-start items-start bg-midnight-300/70 h-full space-y-10 p-10 overflow-y-auto">
       <div className="w-full flex flex-col space-y-5">

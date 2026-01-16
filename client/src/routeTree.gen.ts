@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as DashboardRouteRouteImport } from './routes/dashboard/route'
 import { Route as AuthRouteRouteImport } from './routes/auth/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as InviteIndexRouteImport } from './routes/invite/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as AuthRegisterIndexRouteImport } from './routes/auth/register/index'
 import { Route as AuthLoginIndexRouteImport } from './routes/auth/login/index'
@@ -38,6 +39,11 @@ const AuthRouteRoute = AuthRouteRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InviteIndexRoute = InviteIndexRouteImport.update({
+  id: '/invite/',
+  path: '/invite/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardIndexRoute = DashboardIndexRouteImport.update({
@@ -110,6 +116,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRouteRouteWithChildren
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/dashboard/': typeof DashboardIndexRoute
+  '/invite': typeof InviteIndexRoute
   '/dashboard/lab/$id': typeof DashboardLabIdRouteRouteWithChildren
   '/dashboard/space/$id': typeof DashboardSpaceIdRouteRouteWithChildren
   '/auth/login': typeof AuthLoginIndexRoute
@@ -126,6 +133,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRouteRouteWithChildren
   '/dashboard': typeof DashboardIndexRoute
+  '/invite': typeof InviteIndexRoute
   '/auth/login': typeof AuthLoginIndexRoute
   '/auth/register': typeof AuthRegisterIndexRoute
   '/dashboard/lab/$id': typeof DashboardLabIdIndexRoute
@@ -142,6 +150,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRouteRouteWithChildren
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/dashboard/': typeof DashboardIndexRoute
+  '/invite/': typeof InviteIndexRoute
   '/dashboard/lab/$id': typeof DashboardLabIdRouteRouteWithChildren
   '/dashboard/space/$id': typeof DashboardSpaceIdRouteRouteWithChildren
   '/auth/login/': typeof AuthLoginIndexRoute
@@ -161,6 +170,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/dashboard'
     | '/dashboard/'
+    | '/invite'
     | '/dashboard/lab/$id'
     | '/dashboard/space/$id'
     | '/auth/login'
@@ -177,6 +187,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/dashboard'
+    | '/invite'
     | '/auth/login'
     | '/auth/register'
     | '/dashboard/lab/$id'
@@ -192,6 +203,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/dashboard'
     | '/dashboard/'
+    | '/invite/'
     | '/dashboard/lab/$id'
     | '/dashboard/space/$id'
     | '/auth/login/'
@@ -209,6 +221,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRouteRoute: typeof AuthRouteRouteWithChildren
   DashboardRouteRoute: typeof DashboardRouteRouteWithChildren
+  InviteIndexRoute: typeof InviteIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -232,6 +245,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/invite/': {
+      id: '/invite/'
+      path: '/invite'
+      fullPath: '/invite'
+      preLoaderRoute: typeof InviteIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard/': {
@@ -389,6 +409,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRouteRoute: AuthRouteRouteWithChildren,
   DashboardRouteRoute: DashboardRouteRouteWithChildren,
+  InviteIndexRoute: InviteIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

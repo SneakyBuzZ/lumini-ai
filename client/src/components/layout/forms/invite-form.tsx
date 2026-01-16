@@ -27,7 +27,6 @@ const InviteForm = () => {
   const { pathname } = useLocation();
   const [error, setError] = useState<string | null>(null);
   const workspaceId = pathname.split("/")[3];
-  console.log("Workspace ID:", workspaceId);
   const { mutateAsync: createInvite, isPending } = useCreateInvite(
     workspaceId,
     setError

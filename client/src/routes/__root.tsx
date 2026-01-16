@@ -9,7 +9,7 @@ export interface RouterContext {
 
 export const Route = createRootRouteWithContext<RouterContext>()({
   component: () => (
-    <section className="w-full min-h-screen flex flex-col font-dm-sans overflow-x-clip">
+    <section className="w-full min-h-screen flex flex-col justify-center items-center font-dm-sans overflow-x-clip">
       <Outlet />
     </section>
   ),

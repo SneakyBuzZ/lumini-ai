@@ -28,7 +28,6 @@ export const getWorkspaceSettings = async <
 
 export const getWorkspaceMembers = async (workspaceId: string) => {
   const response = await api.get(`/workspace/${workspaceId}/members`);
-  console.log("RESPONSE: ", response.data.payload);
   return response.data.payload;
 };
 
@@ -42,4 +41,9 @@ export const createWorkspaceInvite = async (
     role,
   });
   return response.data.payload;
+};
+
+export const acceptWorkspaceInvite = async (token: string): Promise<string> => {
+  const response = await api.post(`/workspace/invite/accept`, { token });
+  return response.data.payload.workspaceId;
 };

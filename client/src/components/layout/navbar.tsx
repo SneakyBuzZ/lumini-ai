@@ -27,13 +27,13 @@ const Navbar = () => {
               <>
                 <Button
                   onClick={() => navigate({ to: "/auth/login" })}
-                  variant={"link"}
+                  variant={"outline"}
                 >
                   Login
                 </Button>
                 <Button
                   onClick={() => navigate({ to: "/auth/register" })}
-                  variant={"bright"}
+                  variant={"secondary"}
                 >
                   Register
                 </Button>

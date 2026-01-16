@@ -42,12 +42,11 @@ export type WorkspaceSettingsMap = {
 };
 
 export type WorkspaceMember = {
+  id: string;
+  name: string;
+  email: string;
+  image: string | null;
+  role: string;
+  status: "active" | "pending";
   joinedAt: string;
-  role: "owner" | "developer" | "administrator";
-  member: {
-    id: string;
-    name: string;
-    email: string;
-    image: string | null;
-  };
 };

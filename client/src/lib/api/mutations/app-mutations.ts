@@ -3,6 +3,7 @@ import { CreateInvite, CreateLab } from "@/lib/api/dto";
 import { create } from "@/lib/api/lab-api";
 import { AxiosError } from "axios";
 import {
+  acceptWorkspaceInvite,
   createWorkspace,
   createWorkspaceInvite,
 } from "@/lib/api/workspace-api";
@@ -44,6 +45,17 @@ export const useCreateInvite = (
   return useMutation({
     mutationFn: (payload: CreateInvite) =>
       createWorkspaceInvite(workspaceId, payload.email, payload.role),
+    onError: (error) => {
+      if (error instanceof AxiosError) {
+        setError(error.response?.data.messages);
+      }
+    },
+  });
+};
+
+export const useAcceptInvite = (setError: (error: string) => void) => {
+  return useMutation({
+    mutationFn: (token: string) => acceptWorkspaceInvite(token),
     onError: (error) => {
       if (error instanceof AxiosError) {
         setError(error.response?.data.messages);

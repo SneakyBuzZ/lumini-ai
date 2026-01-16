@@ -6,7 +6,6 @@ import { CreateLab } from "@/lib/api/dto";
 
 export const create = async (data: CreateLab) => {
   const response = await api.post("/lab/", data);
-  console.log("STATUS: ", response.status);
   if (response.status === 201) {
     const labId = response.data.payload.labId;
     const fastapiurl = `http://localhost:8000/api/lab-files/all/${labId}`;

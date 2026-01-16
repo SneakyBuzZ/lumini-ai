@@ -67,7 +67,7 @@ export default {
 					ring: 'hsl(var(--sidebar-ring))'
 				},
 				teal: "#006D9C",
-				cyan: "#3FF2FF",
+				cyan: "#4AF0FF",
 				midnight: {
 					// "100": "#0C0F16",
 					// "200": "#080A0F",

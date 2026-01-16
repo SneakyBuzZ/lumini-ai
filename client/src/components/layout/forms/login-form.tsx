@@ -14,8 +14,11 @@ import { Input } from "@/components/ui/input";
 import Spinner from "@/components/shared/spinner";
 import { useState } from "react";
 import { useLogin } from "@/lib/api/mutations/user-mutations";
+import { Route as LoginRoute } from "@/routes/auth/login";
 
 const LoginForm = () => {
+  const { redirect } = LoginRoute.useSearch();
+  const navigate = LoginRoute.useNavigate();
   const [error, setError] = useState<string | null>(null);
   const { mutateAsync: login, isPending } = useLogin(setError);
 
@@ -29,6 +32,10 @@ const LoginForm = () => {
 
   async function onSubmit(values: LoginFormValues) {
     await login(values);
+    navigate({
+      to: redirect?.startsWith("/") ? redirect : "/",
+      replace: true,
+    });
   }
 
   return (
@@ -67,7 +74,12 @@ const LoginForm = () => {
               </>
             )}
           />
-          <Button disabled={isPending} type="submit" className="w-full">
+          <Button
+            variant={"primary"}
+            disabled={isPending}
+            type="submit"
+            className="w-full"
+          >
             {isPending ? (
               <>
                 <Spinner color="#ffff" />
