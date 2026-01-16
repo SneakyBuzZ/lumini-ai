@@ -10,19 +10,21 @@ import {
 import { AppError } from "@/utils/error";
 import { Request } from "express";
 import { sendWorkspaceInviteEmail } from "@/utils/mailer";
+import { UserRepository } from "@/_user/repositories/user-repository";
+import { db } from "@/lib/config/db-config";
 
 export class WorkspaceService {
   workspaceRepository: WorkspaceRepository;
+  userRepository: UserRepository;
 
   constructor() {
     this.workspaceRepository = new WorkspaceRepository();
+    this.userRepository = new UserRepository();
   }
 
   async create(data: SaveWorkspaceDTOType, ownerId: string) {
     if (data.plan === "free") {
-      const userWorkspaces = await this.workspaceRepository.findAllAndUser(
-        ownerId
-      );
+      const userWorkspaces = await this.workspaceRepository.findAll(ownerId);
 
       const hasFreePlan = userWorkspaces.some(
         (workspace) => workspace.plan === "free"
@@ -43,7 +45,7 @@ export class WorkspaceService {
   }
 
   async findUserWorkspaces(userId: string) {
-    return await this.workspaceRepository.findAllAndUser(userId);
+    return await this.workspaceRepository.findAllWithInvited(userId);
   }
 
   async findAllMembers(workspaceId: string) {
@@ -86,21 +88,16 @@ export class WorkspaceService {
     workspaceId: string,
     inviterId: string
   ) {
-    console.log("DATA: ", data);
     const workspace = await this.workspaceRepository.findById(workspaceId);
     if (!workspace) throw new AppError(404, "Workspace not found");
 
     const { email, role } = data;
-    console.log("Inviting member:", email, "with role:", role);
     const inviterRole = await this.workspaceRepository.findMemberRoleById(
       inviterId
     );
     const recipientRole = await this.workspaceRepository.findMemberRoleByEmail(
       email
     );
-
-    console.log("Inviter Role:", inviterRole);
-    console.log("Recipient Role:", recipientRole);
 
     if (!inviterRole) throw new Error("Inviter role not found");
     if (recipientRole) throw new Error("User is already a workspace member");
@@ -112,12 +109,48 @@ export class WorkspaceService {
       workspaceId,
       inviterId
     );
-    console.log("Invite created with token:", invite);
 
     await sendWorkspaceInviteEmail({
       to: email,
       token: invite.token,
       workspaceName: workspace.name,
+    });
+  }
+
+  async acceptInvite(token: string, userId: string): Promise<string> {
+    return await db.transaction(async (tx) => {
+      const invite = await this.workspaceRepository.findInvite(token, tx);
+
+      if (!invite) throw new AppError(404, "Invalid invite token");
+
+      if (invite.acceptedAt)
+        throw new AppError(400, "Invite has already been accepted");
+
+      if (invite.expiresAt < new Date())
+        throw new AppError(400, "Invite has expired");
+
+      const user = await this.userRepository.findById(userId, tx);
+      if (!user) throw new AppError(404, "User not found");
+
+      if (user.email !== invite.email)
+        throw new AppError(400, "User email does not match invite email");
+
+      const existingMember = await this.workspaceRepository.findIfMember(
+        invite.workspaceId,
+        userId,
+        tx
+      );
+      if (existingMember)
+        throw new AppError(400, "User is already a workspace member");
+
+      await this.workspaceRepository.acceptInvite(
+        userId,
+        invite.workspaceId,
+        invite.role,
+        tx
+      );
+
+      return invite.workspaceId;
     });
   }
 }

@@ -8,21 +8,15 @@ const labRouter = Router();
 
 const labController = new LabController();
 
-labRouter.post(
-  "/",
-  authenticateJwt(),
-  validateData(createLabDTO),
-  labController.create
-);
+labRouter.post("/", validateData(createLabDTO), labController.create);
 
-labRouter.get("/:workspaceId", authenticateJwt(), labController.getAll);
+labRouter.get("/:workspaceId", labController.getAll);
 
 labRouter.post(
   "/:labId/shapes",
-  authenticateJwt(),
   validateData(shapeDTO),
   labController.createShape
 );
-labRouter.get("/:labId/shapes", authenticateJwt(), labController.getAllShapes);
+labRouter.get("/:labId/shapes", labController.getAllShapes);
 
 export default labRouter;

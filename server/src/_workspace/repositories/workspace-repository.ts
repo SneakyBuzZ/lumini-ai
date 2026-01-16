@@ -14,7 +14,7 @@ import {
 } from "@/_workspace/models/workspace-model";
 import { db } from "@/lib/config/db-config";
 import { getSlug } from "@/utils/slug";
-import { and, eq, gt, isNull, lt } from "drizzle-orm";
+import { and, eq, gt, isNotNull, isNull, lt } from "drizzle-orm";
 import crypto from "crypto";
 
 const INVITE_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000;
@@ -73,7 +73,7 @@ export class WorkspaceRepository {
     return generalSettings;
   }
 
-  async findAllAndUser(userId: string) {
+  async findAll(userId: string) {
     const workspaces = await db
       .select({
         id: workspacesTable.id,
@@ -84,8 +84,30 @@ export class WorkspaceRepository {
       })
       .from(workspacesTable)
       .where(eq(workspacesTable.ownerId, userId));
-
     return workspaces;
+  }
+
+  async findAllWithInvited(userId: string) {
+    const memberWorkspaces = await db
+      .select({
+        id: workspacesTable.id,
+        name: workspacesTable.name,
+        plan: workspacesTable.plan,
+        slug: workspacesTable.slug,
+        createdAt: workspacesTable.createdAt,
+      })
+      .from(workspacesTable)
+      .innerJoin(
+        workspaceMembersTable,
+        eq(workspaceMembersTable.workspaceId, workspacesTable.id)
+      )
+      .where(
+        and(
+          eq(workspaceMembersTable.memberId, userId),
+          isNotNull(workspaceMembersTable.memberId)
+        )
+      );
+    return memberWorkspaces;
   }
 
   async findAllMembers(workspaceId: string) {
@@ -106,7 +128,52 @@ export class WorkspaceRepository {
         },
       },
     });
-    return members;
+
+    const invitedMembers = await db.query.workspaceInvitesTable.findMany({
+      where: (invite, { eq, isNull }) =>
+        and(
+          eq(invite.workspaceId, workspaceId),
+          isNull(invite.acceptedAt),
+          isNull(invite.declinedAt),
+          eq(invite.status, "pending")
+        ),
+      columns: {
+        role: true,
+        status: true,
+      },
+      with: {
+        invitedUser: {
+          columns: {
+            id: true,
+            image: true,
+            email: true,
+            name: true,
+          },
+        },
+      },
+    });
+
+    const normalizedMembers = members.map((m) => ({
+      id: m.member.id,
+      name: m.member.name,
+      email: m.member.email,
+      image: m.member.image,
+      role: m.role,
+      status: "active" as const,
+      joinedAt: m.joinedAt,
+    }));
+
+    const normalizedInvites = invitedMembers.map((im) => ({
+      id: im.invitedUser.id,
+      name: im.invitedUser.name,
+      email: im.invitedUser.email,
+      image: im.invitedUser.image,
+      role: im.role,
+      status: im.status,
+      joinedAt: null,
+    }));
+
+    return [...normalizedMembers, ...normalizedInvites];
   }
 
   async findMemberRoleById(memberId: string) {
@@ -165,6 +232,13 @@ export class WorkspaceRepository {
       .update(workspaceSettingsTable)
       .set(data)
       .where(eq(workspaceSettingsTable.workspaceId, workspaceId));
+  }
+
+  async findInvite(token: string, tx?: any) {
+    const queryBuilder = tx ? tx : db;
+    return await queryBuilder.query.workspaceInvitesTable.findFirst({
+      where: and(eq(workspaceInvitesTable.token, token)),
+    });
   }
 
   async createInvite(
@@ -231,6 +305,46 @@ export class WorkspaceRepository {
       token,
       email,
     };
+  }
+
+  async acceptInvite(
+    memberId: string,
+    workspaceId: string,
+    recipientRole: "owner" | "administrator" | "developer",
+    tx: any
+  ) {
+    const queryBuilder = tx ? tx : db;
+    await queryBuilder.insert(workspaceMembersTable).values({
+      workspaceId,
+      memberId,
+      role: recipientRole,
+    });
+    await queryBuilder
+      .update(workspaceInvitesTable)
+      .set({
+        acceptedAt: new Date(),
+        status: "accepted",
+        updatedAt: new Date(),
+        token: "accepted-" + crypto.randomBytes(8).toString("hex"),
+      })
+      .where(
+        and(
+          eq(workspaceInvitesTable.workspaceId, workspaceId),
+          eq(workspaceInvitesTable.email, memberId),
+          isNull(workspaceInvitesTable.acceptedAt)
+        )
+      );
+  }
+
+  async findIfMember(workspaceId: string, memberId: string, tx?: any) {
+    const queryBuilder = tx ? tx : db;
+    const member = await queryBuilder.query.workspaceMembersTable.findFirst({
+      where: and(
+        eq(workspaceMembersTable.workspaceId, workspaceId),
+        eq(workspaceMembersTable.memberId, memberId)
+      ),
+    });
+    return !!member;
   }
 
   canAssignRole(inviterRole: string, targetRole: string) {

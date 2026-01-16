@@ -1,7 +1,7 @@
 import { authenticateJwt } from "@/middlewares/authenticate-middleware";
 import { validateData } from "@/middlewares/validate-middleware";
 import { Router } from "express";
-import { SaveWorkspaceDTO } from "@/_workspace/dto";
+import { AcceptWorkspaceInviteDTO, SaveWorkspaceDTO } from "@/_workspace/dto";
 import { WorkspaceController } from "@/_workspace/controllers/workspace-controller";
 import { catchAsync } from "@/utils/catch-async";
 
@@ -50,6 +50,12 @@ workspaceRouter.put(
 workspaceRouter.post(
   "/:workspaceId/invite",
   catchAsync(workspaceController.inviteMember)
+);
+
+workspaceRouter.post(
+  "/invite/accept",
+  validateData(AcceptWorkspaceInviteDTO),
+  catchAsync(workspaceController.acceptMember)
 );
 
 export default workspaceRouter;

@@ -128,7 +128,6 @@ const loginWithGoogle = async (req: Request, res: Response) => {
       .status(201)
       .json(new DataResponse(201, "Account created successfully."));
   } catch (error) {
-    console.log("GOOGLE LOGIN ERROR: ", error);
     res.status(500).json(new ErrorResponse(500, "Something went wrong"));
     return;
   }

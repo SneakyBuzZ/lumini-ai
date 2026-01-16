@@ -33,7 +33,6 @@ const pool = new Pool({
   } catch (error) {
     console.error("❌ Database connection failed");
     console.error("Message:", (error as Error).message);
-    console.error("URL:", DATABASE_URL.replace(/:\/\/.*@/, "://***@"));
     process.exit(1);
   }
 })();

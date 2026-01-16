@@ -100,60 +100,6 @@ export const workspaceMembersTable = pgTable("workspace_members", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
-export const workspaceRelations = relations(
-  workspacesTable,
-  ({ one, many }) => ({
-    settings: one(workspaceSettingsTable, {
-      fields: [workspacesTable.id],
-      references: [workspaceSettingsTable.workspaceId],
-    }),
-    members: many(workspaceMembersTable),
-    apis: many(workspaceApisTable),
-  })
-);
-
-export const workspaceMembersRelations = relations(
-  workspaceMembersTable,
-  ({ one }) => ({
-    workspace: one(workspacesTable, {
-      fields: [workspaceMembersTable.workspaceId],
-      references: [workspacesTable.id],
-    }),
-    member: one(usersTable, {
-      fields: [workspaceMembersTable.memberId],
-      references: [usersTable.id],
-    }),
-  })
-);
-
-export const workspaceApisTable = pgTable("workspace_apis", {
-  id: varchar("id", { length: 36 })
-    .primaryKey()
-    .$defaultFn(() => cuid()),
-
-  workspaceId: varchar("workspace_id", { length: 36 })
-    .references(() => workspacesTable.id, { onDelete: "cascade" })
-    .notNull(),
-
-  name: varchar("name", { length: 255 }).notNull(),
-  embeddingModel: varchar("embedding_model", { length: 255 }),
-  apiKey: varchar("api_key", { length: 255 }).unique(),
-  visibility: visibility("visibility").default("public"),
-
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
-
-export const workspaceApisRelations = relations(
-  workspaceApisTable,
-  ({ one }) => ({
-    workspace: one(workspacesTable, {
-      fields: [workspaceApisTable.workspaceId],
-      references: [workspacesTable.id],
-    }),
-  })
-);
-
 export const workspaceInviteStatusEnum = pgEnum("workspace_invite_status", [
   "pending",
   "accepted",
@@ -194,5 +140,76 @@ export const workspaceInvitesTable = pgTable(
       workspaceInvitesTable.workspaceId,
       workspaceInvitesTable.email
     ),
+  })
+);
+
+export const workspaceApisTable = pgTable("workspace_apis", {
+  id: varchar("id", { length: 36 })
+    .primaryKey()
+    .$defaultFn(() => cuid()),
+
+  workspaceId: varchar("workspace_id", { length: 36 })
+    .references(() => workspacesTable.id, { onDelete: "cascade" })
+    .notNull(),
+
+  name: varchar("name", { length: 255 }).notNull(),
+  embeddingModel: varchar("embedding_model", { length: 255 }),
+  apiKey: varchar("api_key", { length: 255 }).unique(),
+  visibility: visibility("visibility").default("public"),
+
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const workspaceApisRelations = relations(
+  workspaceApisTable,
+  ({ one }) => ({
+    workspace: one(workspacesTable, {
+      fields: [workspaceApisTable.workspaceId],
+      references: [workspacesTable.id],
+    }),
+  })
+);
+
+// ========== RELATIONS ==========
+
+export const workspaceRelations = relations(
+  workspacesTable,
+  ({ one, many }) => ({
+    settings: one(workspaceSettingsTable, {
+      fields: [workspacesTable.id],
+      references: [workspaceSettingsTable.workspaceId],
+    }),
+    members: many(workspaceMembersTable),
+    apis: many(workspaceApisTable),
+    invites: many(workspaceInvitesTable),
+  })
+);
+
+export const workspaceMembersRelations = relations(
+  workspaceMembersTable,
+  ({ one }) => ({
+    workspace: one(workspacesTable, {
+      fields: [workspaceMembersTable.workspaceId],
+      references: [workspacesTable.id],
+    }),
+    member: one(usersTable, {
+      fields: [workspaceMembersTable.memberId],
+      references: [usersTable.id],
+    }),
+  })
+);
+
+export const workspaceInvitesRelations = relations(
+  workspaceInvitesTable,
+  ({ one }) => ({
+    workspace: one(workspacesTable, {
+      fields: [workspaceInvitesTable.workspaceId],
+      references: [workspacesTable.id],
+    }),
+    invitedUser: one(usersTable, {
+      fields: [workspaceInvitesTable.email],
+      references: [usersTable.email],
+    }),
   })
 );

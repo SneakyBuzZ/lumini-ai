@@ -49,3 +49,10 @@ export const UpdateWorkspaceInviteSchema = z.object({
 export type UpdateWorkspaceInviteDTOType = z.infer<
   typeof UpdateWorkspaceInviteSchema
 >;
+
+export const AcceptWorkspaceInviteDTO = z.object({
+  token: z.string().min(10),
+});
+export type AcceptWorkspaceInviteDTOType = z.infer<
+  typeof AcceptWorkspaceInviteDTO
+>;

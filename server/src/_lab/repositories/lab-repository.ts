@@ -29,10 +29,9 @@ export class LabRepository {
     return labs.count;
   }
 
-  async findAll(workspaceId: string, userId: string) {
+  async findAll(workspaceId: string) {
     return await db.query.labsTable.findMany({
-      where: (labs, { and, eq }) =>
-        and(eq(labs.workspaceId, workspaceId), eq(labs.creatorId, userId)),
+      where: (labs, { and, eq }) => and(eq(labs.workspaceId, workspaceId)),
       columns: {
         creatorId: false,
         workspaceId: false,

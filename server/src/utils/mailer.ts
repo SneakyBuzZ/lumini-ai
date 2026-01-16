@@ -23,8 +23,6 @@ export async function sendWorkspaceInviteEmail({
     process.env.CLIENT_URL
   }/invite?token=${token}&workspace=${encodeURIComponent(workspaceName)}`;
 
-  console.log("Generated invite link:", inviteLink);
-
   const html = `
 <div
   style="
@@ -106,7 +104,6 @@ export async function sendWorkspaceInviteEmail({
     subject: `Invitation to join ${workspaceName}`,
     html,
   });
-  console.log("Email send result: ", res.accepted);
 
   if (res.rejected.length > 0) {
     throw new Error(`Failed to send invite email to ${to}`);

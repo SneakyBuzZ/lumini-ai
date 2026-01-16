@@ -115,4 +115,16 @@ export class WorkspaceController {
       .status(200)
       .json(new DataResponse(200, {}, "Workspace member invited successfully"));
   };
+
+  acceptMember = async (req: Request, res: Response) => {
+    const { token } = req.body;
+    const userId = req.user?.id;
+    if (!userId) throw new AppError(403, "Unauthorized");
+    const workspaceId = await this.workspaceService.acceptInvite(token, userId);
+    res
+      .status(200)
+      .json(
+        new DataResponse(200, { workspaceId }, "Invite accepted successfully")
+      );
+  };
 }

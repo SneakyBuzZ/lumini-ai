@@ -23,11 +23,9 @@ export class LabController {
   };
 
   getAll = async (req: Request, res: Response) => {
-    const userId = req.user?.id;
-    if (!userId) throw new AppError(403, "Unauthorized");
     const workspaceId = req.params.workspaceId;
     if (!workspaceId) throw new AppError(400, "Workspace ID is required");
-    const labs = await this.labService.findAll(workspaceId, userId);
+    const labs = await this.labService.findAll(workspaceId);
     res
       .status(200)
       .json(new DataResponse(200, labs, "Labs retrieved successfully."));

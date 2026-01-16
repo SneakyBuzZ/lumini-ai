@@ -25,7 +25,7 @@ app.get("/", (_, res) => {
 
 app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
-app.use("/api/lab", labRouter);
+app.use("/api/lab", authenticateJwt(), labRouter);
 app.use("/api/workspace", authenticateJwt(), workspaceRouter);
 
 app.use(errorMiddleware);

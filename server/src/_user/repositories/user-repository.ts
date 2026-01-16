@@ -17,8 +17,9 @@ export class UserRepository {
     return user;
   }
 
-  async findById(id: string) {
-    const [user] = await db
+  async findById(id: string, tx?: any) {
+    const queryBuilder = tx ? tx : db;
+    const [user] = await queryBuilder
       .select({
         id: usersTable.id,
         name: usersTable.name,
