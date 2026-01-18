@@ -1,3 +1,4 @@
+import { UpsertView } from "../api/dto";
 import { DBShape, ShapeKind } from "./lab-type";
 
 export type CanvasShape = DBShape & {
@@ -118,6 +119,7 @@ export type Actions = {
     setOffset: (x: number, y: number) => void;
     setDoubleClickLock: (lock: boolean) => void;
     setCursor: (cursor: CanvasCusor) => void;
+    hydrateView: (view: UpsertView) => void;
   };
 
   // --- Pan Actions ---

@@ -234,20 +234,16 @@ const useCanvasStore = create<State & Actions>()(
 
     // --- Canvas View ---
     view: {
-      setScale: (scale) => {
-        set(() => {
-          const newState = { scale };
-          return newState;
-        });
-      },
-      setOffset: (x, y) => {
-        set(() => {
-          const newState = { offsetX: x, offsetY: y };
-          return newState;
-        });
-      },
+      setScale: (scale) => set({ scale }),
+      setOffset: (x, y) => set({ offsetX: x, offsetY: y }),
       setDoubleClickLock: (lock) => set({ doubleClickLock: lock }),
       setCursor: (cursor) => set({ cursor }),
+      hydrateView: (view) =>
+        set({
+          scale: view.scale,
+          offsetX: view.offsetX,
+          offsetY: view.offsetY,
+        }),
     },
 
     // --- Pan ---

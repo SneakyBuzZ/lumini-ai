@@ -55,3 +55,9 @@ export interface BatchUpdateShapes {
   labId: string;
   operations: ShapeBatchOperation[];
 }
+
+export type UpsertView = {
+  scale: number;
+  offsetX: number;
+  offsetY: number;
+};

@@ -6,6 +6,9 @@ import ZoomDropdown from "./zoom-dropdown";
 import { GetSnapshot } from "@/lib/api/dto";
 import useCanvasPersistence from "@/hooks/use-canvas-persistence";
 import { Route } from "@/routes/dashboard/lab/$id/canvas";
+import { getView } from "@/lib/api/lab-api";
+import useCanvasStore from "@/lib/store/canvas-store";
+import { useCanvasViewPersistence } from "@/hooks/use-canvas-view-persistence";
 
 interface CanvasProps {
   snapshot: GetSnapshot;
@@ -13,7 +16,10 @@ interface CanvasProps {
 
 export function Canvas({ snapshot }: CanvasProps) {
   const { id: labId } = Route.useParams();
+  const textareaRef = useRef<HTMLInputElement>(null);
+
   useCanvasPersistence(labId);
+  useCanvasViewPersistence(labId);
 
   const {
     canvasRef,
@@ -30,14 +36,37 @@ export function Canvas({ snapshot }: CanvasProps) {
   } = useCanvas();
 
   const { data } = snapshot;
+  const { shapes, scale, offsetX, offsetY, mode, cursor } = store;
+
+  const hydrateCanvas = useCanvasStore((s) => s.hydrateCanvas);
+  const hydrateView = useCanvasStore((s) => s.view.hydrateView);
+  const hasHydrated = useCanvasStore((s) => s.hasHydrated);
+
+  // --- hydrate shapes ---
   useEffect(() => {
-    if (store.hasHydrated) return;
+    if (hasHydrated) return;
     if (!data?.shapes) return;
 
-    store.hydrateCanvas(data);
-  }, [data, store]);
+    hydrateCanvas(data);
+  }, [data, hasHydrated, hydrateCanvas]);
 
-  const { shapes, scale, offsetX, offsetY, mode, cursor } = store;
+  // --- hydrate view ---
+  useEffect(() => {
+    if (!hasHydrated) return;
+
+    let cancelled = false;
+    const activeLab = labId;
+    (async () => {
+      const view = await getView(activeLab);
+      if (!view || cancelled || activeLab !== labId) return;
+
+      hydrateView(view);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [labId, hasHydrated, hydrateView]);
 
   // --- redraw with proper cursor ---
   const redraw = useCallback(() => {
@@ -75,6 +104,7 @@ export function Canvas({ snapshot }: CanvasProps) {
     editingText,
   ]);
 
+  // --- redraw on relevant changes ---
   useEffect(() => {
     redraw();
   }, [shapes, scale, offsetX, offsetY, redraw]);
@@ -108,9 +138,6 @@ export function Canvas({ snapshot }: CanvasProps) {
 
     return () => observer.disconnect();
   }, [canvasRef, redraw]);
-
-  // --- set textarea cursor at end when editingText changes ---
-  const textareaRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (textareaRef.current) {
