@@ -108,4 +108,33 @@ export class LabController {
       .status(200)
       .json(new DataResponse(200, snapshot, "Shapes retrieved successfully."));
   };
+
+  upsertView = async (req: Request, res: Response) => {
+    const labId = req.params.labId;
+    if (!labId) throw new AppError(400, "Lab ID is required");
+
+    const userId = req.user?.id;
+    if (!userId) throw new AppError(403, "Unauthorized");
+
+    const data = req.body;
+
+    await this.shapeService.upsertView(data, userId, labId);
+    res
+      .status(200)
+      .json(new DataResponse(200, "View state saved successfully."));
+  };
+
+  getView = async (req: Request, res: Response) => {
+    const labId = req.params.labId;
+    if (!labId) throw new AppError(400, "Lab ID is required");
+
+    const userId = req.user?.id;
+    if (!userId) throw new AppError(403, "Unauthorized");
+
+    const view = await this.shapeService.findView(labId, userId);
+
+    res
+      .status(200)
+      .json(new DataResponse(200, view, "View state retrieved successfully."));
+  };
 }

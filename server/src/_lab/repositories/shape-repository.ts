@@ -1,10 +1,16 @@
 import { db, DbExecutor } from "@/lib/config/db-config";
-import { shapesTable, snapshotsTable } from "@/_lab/models/shape-table";
+import {
+  shapesTable,
+  snapshotsTable,
+  viewTable,
+} from "@/_lab/models/shape-table";
 import {
   ShapeDTO,
   ShapeType,
   UpdateBatchDTO,
   UpdateShapeDTO,
+  ViewDTO,
+  ViewStateDTO,
 } from "@/_lab/dto";
 import { and, eq, sql } from "drizzle-orm";
 import { AppError } from "@/utils/error";
@@ -284,6 +290,35 @@ export class SnapshotRepository {
       .returning();
 
     return snapshot;
+  }
+}
+
+export class ViewRepository {
+  async upsert(data: ViewStateDTO) {
+    await db
+      .insert(viewTable)
+      .values({
+        ...data,
+        updatedAt: new Date(),
+      })
+      .onConflictDoUpdate({
+        target: [viewTable.labId, viewTable.userId],
+        set: {
+          scale: data.scale,
+          offsetX: data.offsetX,
+          offsetY: data.offsetY,
+          updatedAt: new Date(),
+        },
+      });
+  }
+
+  async find(labId: string, userId: string) {
+    const [view] = await db
+      .select()
+      .from(viewTable)
+      .where(and(eq(viewTable.labId, labId), eq(viewTable.userId, userId)))
+      .limit(1);
+    return view ?? null;
   }
 }
 

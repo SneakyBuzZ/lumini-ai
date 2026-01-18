@@ -6,9 +6,11 @@ import {
   integer,
   doublePrecision,
   jsonb,
+  primaryKey,
 } from "drizzle-orm/pg-core";
 import cuid from "cuid";
 import { labsTable } from "@/_lab/models/lab-table";
+import { usersTable } from "@/_user/models/user-model";
 
 export const shapesTable = pgTable("shapes", {
   id: varchar("id", { length: 36 })
@@ -74,3 +76,25 @@ export const snapshotsTable = pgTable("shape_snapshots", {
   version: integer("version").notNull().default(1),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
+
+export const viewTable = pgTable(
+  "views",
+  {
+    labId: varchar("lab_id", { length: 36 })
+      .references(() => labsTable.id, { onDelete: "cascade" })
+      .notNull(),
+
+    userId: varchar("user_id", { length: 36 })
+      .references(() => usersTable.id, { onDelete: "cascade" })
+      .notNull(),
+
+    scale: doublePrecision("scale").notNull().default(1),
+    offsetX: doublePrecision("offset_x").notNull().default(0),
+    offsetY: doublePrecision("offset_y").notNull().default(0),
+
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => ({
+    pk: primaryKey({ columns: [table.labId, table.userId] }),
+  }),
+);
