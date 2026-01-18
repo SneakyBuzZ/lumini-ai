@@ -5,7 +5,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import useCanvasStore from "@/lib/store/canvas-store";
-import { Shape } from "@/lib/types/canvas-type";
+import { CanvasShape } from "@/lib/types/canvas-type";
 import { cn } from "@/utils/cn.util";
 import { Check, PaintBucket } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -54,12 +54,12 @@ const colors = [
 ];
 
 interface FillDropdownProps {
-  selectedShapes: Shape[];
+  selectedShapes: CanvasShape[];
 }
 
 export default function FillDropdown({ selectedShapes }: FillDropdownProps) {
   const store = useCanvasStore();
-  const [shapes, setShapes] = useState<Record<string, Shape>>({});
+  const [shapes, setShapes] = useState<Record<string, CanvasShape>>({});
   const [isOpen, setIsOpen] = useState(false);
   const [currentFillColor, setCurrentFillColor] = useState<string>("#ffffff00");
 

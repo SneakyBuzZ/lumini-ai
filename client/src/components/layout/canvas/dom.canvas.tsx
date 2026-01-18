@@ -3,8 +3,18 @@ import { renderShapes } from "@/lib/canvas/drawing";
 import { initialiseCanvas } from "@/lib/canvas/utils";
 import { useCanvas } from "@/hooks/use-canvas";
 import ZoomDropdown from "./zoom-dropdown";
+import { GetSnapshot } from "@/lib/api/dto";
+import useCanvasPersistence from "@/hooks/use-canvas-persistence";
+import { Route } from "@/routes/dashboard/lab/$id/canvas";
 
-export function Canvas() {
+interface CanvasProps {
+  snapshot: GetSnapshot;
+}
+
+export function Canvas({ snapshot }: CanvasProps) {
+  const { id: labId } = Route.useParams();
+  useCanvasPersistence(labId);
+
   const {
     canvasRef,
     onMouseDown,
@@ -19,7 +29,15 @@ export function Canvas() {
     onTextBlur,
   } = useCanvas();
 
-  const { shapes, scale, offsetX, offsetY, mode } = store;
+  const { data } = snapshot;
+  useEffect(() => {
+    if (store.hasHydrated) return;
+    if (!data?.shapes) return;
+
+    store.hydrateCanvas(data);
+  }, [data, store]);
+
+  const { shapes, scale, offsetX, offsetY, mode, cursor } = store;
 
   // --- redraw with proper cursor ---
   const redraw = useCallback(() => {
@@ -31,17 +49,18 @@ export function Canvas() {
 
     initialiseCanvas(ctx, canvas);
 
-    // draw shapes
     renderShapes(shapes, ctx, { scale, offsetX, offsetY }, editingText);
 
-    // draw selection box
-    if (mode === "select") drawSelectionBox(ctx, scale, offsetX, offsetY);
+    if (mode === "select") {
+      drawSelectionBox(ctx, scale, offsetX, offsetY);
+    }
+
     drawResizeHandles(ctx, scale, offsetX, offsetY);
 
-    if (store.mode === "draw") {
+    if (mode === "draw") {
       canvas.style.cursor = "crosshair";
-    } else if (store.mode === "select") {
-      canvas.style.cursor = store.cursor || "default";
+    } else if (mode === "select") {
+      canvas.style.cursor = cursor || "default";
     }
   }, [
     canvasRef,
@@ -50,11 +69,15 @@ export function Canvas() {
     offsetX,
     offsetY,
     mode,
+    cursor,
     drawSelectionBox,
     drawResizeHandles,
-    store,
     editingText,
   ]);
+
+  useEffect(() => {
+    redraw();
+  }, [shapes, scale, offsetX, offsetY, redraw]);
 
   // --- resize canvas ---
   useEffect(() => {

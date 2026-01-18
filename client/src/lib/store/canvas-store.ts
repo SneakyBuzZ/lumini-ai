@@ -1,128 +1,14 @@
 import { create } from "zustand";
 import {
-  CanvasCusor,
-  CanvasMode,
-  Shape,
-  ShapeType,
+  CanvasShape,
+  Actions,
+  State,
+  CanvasSnapshot,
 } from "@/lib/types/canvas-type";
-import {
-  loadCanvasFromLocalStorage,
-  saveCanvasToLocalStorage,
-} from "@/utils/local-storage";
 
-const HISTORY_LIMIT = 100;
+const HISTORY_LIMIT = 10;
 
-type CanvasSnapshot = {
-  shapes: Record<string, Shape>;
-  shapeOrder: string[];
-  selectedShapeIds: string[];
-};
-
-export type State = {
-  // --- Shapes ---
-  shapeType: ShapeType | null;
-  shapes: Record<string, Shape>;
-  shapeOrder: string[];
-
-  // --- Drawing ---
-  drawingInProgress: boolean;
-  tempShapeId: string | null;
-  startX: number;
-  startY: number;
-
-  // --- Selection ---
-  selectedShapeIds: string[];
-  mode: CanvasMode;
-  cursor: CanvasCusor;
-
-  // --- Canvas View ---
-  scale: number;
-  offsetX: number;
-  offsetY: number;
-  doubleClickLock: boolean;
-
-  // --- Panning ---
-  panStart: { x: number; y: number } | null;
-  panIsActive: boolean;
-
-  // --- History ---
-  history: CanvasSnapshot[];
-  redoStack: CanvasSnapshot[];
-
-  // --- Selection Box ---
-  selectionBoxStart: { x: number; y: number } | null;
-  selectionBoxEnd: { x: number; y: number } | null;
-};
-
-export type Actions = {
-  // --- Drawing Actions ---
-  setShapeType: (type: ShapeType | null) => void;
-
-  drawing: {
-    start: (shape: Shape, startX: number, startY: number) => void;
-    updateTemp: (width: number, height: number) => void;
-    finish: () => void;
-  };
-
-  text: {
-    updateText: (id: string, newText: string) => void;
-    setFontSize: (id: string, newSize: number) => void;
-  };
-
-  // --- Shape Management ---
-  shapesActions: {
-    add: (shape: Shape) => void;
-    update: (shape: Shape) => void;
-    delete: (id: string) => void;
-    batchUpdate: (shapes: Record<string, Partial<Shape>>) => void;
-    batchDelete: (shapes: Shape[]) => void;
-    clearSelectedShapes: () => void;
-  };
-
-  // --- Selection ---
-  selection: {
-    select: (ids: string[] | null) => void;
-    addId: (id: string) => void;
-    removeId: (id: string) => void;
-    clear: () => void;
-    move: (id: string, dx: number, dy: number) => void;
-    resize: (id: string, newWidth: number, newHeight: number) => void;
-    setMode: (mode: CanvasMode) => void;
-  };
-
-  // --- Canvas View ---
-  view: {
-    setScale: (scale: number) => void;
-    setOffset: (x: number, y: number) => void;
-    setDoubleClickLock: (lock: boolean) => void;
-    setCursor: (cursor: CanvasCusor) => void;
-  };
-
-  // --- Pan Actions ---
-  pan: {
-    start: (x: number, y: number) => void;
-    move: (x: number, y: number) => void;
-    end: () => void;
-  };
-
-  // --- History ---
-  historyActions: {
-    push: () => void;
-    undo: () => void;
-    redo: () => void;
-  };
-
-  // --- Selection Box ---
-  selectionBox: {
-    start: (x: number, y: number) => void;
-    update: (x: number, y: number) => void;
-    finish: () => void;
-  };
-};
-
-const persistedState = loadCanvasFromLocalStorage();
-
-const initialStateBase: State = {
+const initialState: State = {
   shapeType: null,
   shapes: {},
   shapeOrder: [],
@@ -143,11 +29,7 @@ const initialStateBase: State = {
   redoStack: [],
   selectionBoxStart: null,
   selectionBoxEnd: null,
-};
-
-const initialState: State = {
-  ...initialStateBase,
-  ...persistedState,
+  hasHydrated: false,
 };
 
 const useCanvasStore = create<State & Actions>((set, get) => ({
@@ -166,14 +48,26 @@ const useCanvasStore = create<State & Actions>((set, get) => ({
         startX,
         startY,
       }));
-      get().historyActions.push();
     },
     updateTemp: (width, height) => {
       const tempId = get().tempShapeId;
       if (!tempId) return;
-      get().shapesActions.update({ ...get().shapes[tempId], width, height });
+      get().shapesActions.update({
+        ...get().shapes[tempId],
+        width,
+        height,
+      });
     },
-    finish: () => set({ drawingInProgress: false, tempShapeId: null }),
+    finish: () => {
+      const id = get().tempShapeId;
+
+      set(() => ({
+        drawingInProgress: false,
+        tempShapeId: null,
+      }));
+
+      if (id) get().shapesActions.commitShape(id, "new");
+    },
   },
 
   text: {
@@ -187,6 +81,24 @@ const useCanvasStore = create<State & Actions>((set, get) => ({
       if (!shape) return;
       get().shapesActions.update({ ...shape, fontSize: newSize });
     },
+    commitText: (id, text) => {
+      set((state) => {
+        const shape = state.shapes[id];
+        if (!shape) return state;
+
+        return {
+          shapes: {
+            ...state.shapes,
+            [id]: {
+              ...shape,
+              text,
+              commitVersion: shape.commitVersion + 1,
+              persistStatus: shape.persistStatus === "new" ? "new" : "updated",
+            },
+          },
+        };
+      });
+    },
   },
 
   // --- Shape Management ---
@@ -197,26 +109,36 @@ const useCanvasStore = create<State & Actions>((set, get) => ({
           shapes: { ...state.shapes, [shape.id]: shape },
           shapeOrder: [...state.shapeOrder, shape.id],
         };
-        saveCanvasToLocalStorage({ ...state, ...newState });
         return newState;
       });
     },
     update: (shape) => {
-      set((state) => {
-        const newState = { shapes: { ...state.shapes, [shape.id]: shape } };
-        saveCanvasToLocalStorage({ ...state, ...newState });
-        return newState;
-      });
+      set((state) => ({
+        shapes: {
+          ...state.shapes,
+          [shape.id]: shape,
+        },
+      }));
     },
     delete: (id) => {
+      set((state) => ({
+        shapes: {
+          ...state.shapes,
+          [id]: {
+            ...state.shapes[id],
+            persistStatus: "deleted",
+          },
+        },
+      }));
+    },
+    remove: (shapeId) => {
       set((state) => {
-        const newShapes = Object.fromEntries(
-          Object.entries(state.shapes).filter(([key]) => key !== id)
-        );
-        const newShapeOrder = state.shapeOrder.filter((sid) => sid !== id);
-        const newState = { shapes: newShapes, shapeOrder: newShapeOrder };
-        saveCanvasToLocalStorage({ ...state, ...newState });
-        return newState;
+        const newShapes = { ...state.shapes };
+        delete newShapes[shapeId];
+        return {
+          shapes: newShapes,
+          shapeOrder: state.shapeOrder.filter((id) => id !== shapeId),
+        };
       });
     },
     batchUpdate: (updates) => {
@@ -226,15 +148,14 @@ const useCanvasStore = create<State & Actions>((set, get) => ({
           newShapes[id] = { ...newShapes[id], ...changes };
         }
         const newState = { shapes: newShapes };
-        saveCanvasToLocalStorage({ ...state, ...newState });
         return newState;
       });
     },
-    batchDelete: (shapes: Shape[]) => {
+    batchDelete: (shapes: CanvasShape[]) => {
       set((state) => {
         const idsToDelete = new Set(shapes.map((s) => s.id));
         const newShapes = Object.fromEntries(
-          Object.entries(state.shapes).filter(([key]) => !idsToDelete.has(key))
+          Object.entries(state.shapes).filter(([key]) => !idsToDelete.has(key)),
         );
         return {
           shapes: newShapes,
@@ -254,6 +175,23 @@ const useCanvasStore = create<State & Actions>((set, get) => ({
           }
         });
         return { shapes: newShapes, selectedShapeIds: [] };
+      });
+    },
+    commitShape: (id, type = "updated") => {
+      set((state) => {
+        const shape = state.shapes[id];
+        if (!shape) return state;
+
+        return {
+          shapes: {
+            ...state.shapes,
+            [id]: {
+              ...shape,
+              commitVersion: shape.commitVersion + 1,
+              persistStatus: shape.persistStatus === "new" ? "new" : type,
+            },
+          },
+        };
       });
     },
   },
@@ -319,16 +257,14 @@ const useCanvasStore = create<State & Actions>((set, get) => ({
   // --- Canvas View ---
   view: {
     setScale: (scale) => {
-      set((state) => {
+      set(() => {
         const newState = { scale };
-        saveCanvasToLocalStorage({ ...state, ...newState });
         return newState;
       });
     },
     setOffset: (x, y) => {
-      set((state) => {
+      set(() => {
         const newState = { offsetX: x, offsetY: y };
-        saveCanvasToLocalStorage({ ...state, ...newState });
         return newState;
       });
     },
@@ -419,13 +355,65 @@ const useCanvasStore = create<State & Actions>((set, get) => ({
             s.x >= left &&
             s.y >= top &&
             s.x + s.width <= right &&
-            s.y + s.height <= bottom
+            s.y + s.height <= bottom,
         )
         .map((s) => s.id);
 
       set({ selectedShapeIds: selected });
     },
     finish: () => set({ selectionBoxStart: null, selectionBoxEnd: null }),
+  },
+
+  // --- Server Sync ---
+  hydrateCanvas: (snapshot) => {
+    set((state) => {
+      if (state.hasHydrated) return state;
+
+      const shapes: Record<string, CanvasShape> = {};
+
+      for (const [id, shape] of Object.entries(snapshot.shapes)) {
+        if (shape.isDeleted) continue;
+        if (shape.width <= 0 || shape.height <= 0) continue;
+
+        shapes[id] = {
+          ...shape,
+          isSelected: false,
+          isHovered: false,
+          isDragging: false,
+          persistStatus: "synced",
+          commitVersion: shape.version,
+          lastPersistedVersion: shape.version,
+        };
+      }
+
+      return {
+        shapes: shapes,
+        shapeOrder: Object.values(shapes)
+          .sort((a, b) =>
+            a.zIndex === b.zIndex
+              ? a.id.localeCompare(b.id)
+              : a.zIndex - b.zIndex,
+          )
+          .map((s) => s.id),
+        selectedShapeIds: [],
+        history: [],
+        redoStack: [],
+        hasHydrated: true,
+      };
+    });
+  },
+
+  markAsSynced: (shapeId, version) => {
+    set((state) => ({
+      shapes: {
+        ...state.shapes,
+        [shapeId]: {
+          ...state.shapes[shapeId],
+          persistStatus: "synced",
+          lastPersistedVersion: version,
+        },
+      },
+    }));
   },
 }));
 

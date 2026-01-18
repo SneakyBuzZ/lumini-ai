@@ -2,7 +2,7 @@
 import { useRef, useCallback } from "react";
 import useCanvasStore from "@/lib/store/canvas-store";
 import { getCursorCoords } from "@/lib/canvas/utils";
-import { CanvasCusor, Shape } from "@/lib/types/canvas-type";
+import { CanvasCusor, CanvasShape } from "@/lib/types/canvas-type";
 
 type HandleName =
   | "tl"
@@ -22,7 +22,7 @@ export const useResize = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
   const resizingRef = useRef<{
     handle: HandleName;
     initialBox: { x: number; y: number; width: number; height: number };
-    initialShapes: Record<string, Shape>;
+    initialShapes: Record<string, CanvasShape>;
   } | null>(null);
 
   /** --- Check if currently resizing --- */
@@ -165,7 +165,7 @@ export const useResize = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
 
       return null;
     },
-    [getSelectionBox, store.shapes]
+    [getSelectionBox, store.shapes],
   );
 
   /** --- Mouse down --- */
@@ -177,7 +177,7 @@ export const useResize = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
       e as unknown as MouseEvent,
       store.scale,
       store.offsetX,
-      store.offsetY
+      store.offsetY,
     );
 
     const handle = getHandleAtPoint(x, y);
@@ -187,7 +187,7 @@ export const useResize = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
     if (!selectionBox) return;
 
     const selectedIds = store.selectedShapeIds;
-    const initialShapes: Record<string, Shape> = {};
+    const initialShapes: Record<string, CanvasShape> = {};
     selectedIds.forEach((id) => {
       const s = store.shapes[id];
       if (s) initialShapes[id] = { ...s };
@@ -211,7 +211,7 @@ export const useResize = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
         e as unknown as MouseEvent,
         store.scale,
         store.offsetX,
-        store.offsetY
+        store.offsetY,
       );
 
       let cursor: CanvasCusor = "default";
@@ -345,7 +345,7 @@ export const useResize = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
       const scaleX = newW / initialBox.width;
       const scaleY = newH / initialBox.height;
 
-      const updates: Record<string, Partial<Shape>> = {};
+      const updates: Record<string, Partial<CanvasShape>> = {};
       Object.entries(initialShapes).forEach(([id, shape]) => {
         if (!(shape.type === "line" || shape.type === "arrow")) {
           const relX = shape.x - initialBox.x;
@@ -363,21 +363,28 @@ export const useResize = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
         store.shapesActions.batchUpdate(updates);
       }
     },
-    [canvasRef, store, getHandleAtPoint]
+    [canvasRef, store, getHandleAtPoint],
   );
 
   /** --- Mouse up --- */
   const onMouseUp = useCallback(() => {
+    if (!resizingRef.current) return;
+
+    const ids = store.selectedShapeIds;
+    ids.forEach((id) => {
+      store.shapesActions.commitShape(id, "updated");
+    });
+
     resizingRef.current = null;
     store.historyActions.push();
-  }, [store.historyActions]);
+  }, [store]);
 
   /** --- Draw resize handles --- */
   const drawResizeHandles = (
     ctx: CanvasRenderingContext2D,
     scale: number,
     offsetX: number,
-    offsetY: number
+    offsetY: number,
   ) => {
     const box = getSelectionBox();
     if (!box) return;

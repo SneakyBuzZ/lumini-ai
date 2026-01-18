@@ -51,3 +51,53 @@ export type LabChat = {
   createdAt: string;
   updatedAt: string;
 };
+
+export type DBShape = {
+  id: string;
+
+  // -- Geometry --
+  type: ShapeKind;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  rotation: number;
+
+  // -- Style --
+  strokeType: StrokeType;
+  strokeColor: string;
+  fillColor: string;
+  strokeWidth: number;
+  opacity: number;
+
+  // -- Text --
+  text?: string;
+  textColor: string;
+  fontSize: number;
+  fontFamily: string;
+  fontWeight: FontWeight;
+  textAlign: TextAlign;
+
+  // -- Layering --
+  zIndex: number;
+
+  // -- Flags --
+  isLocked: boolean;
+  isHidden: boolean;
+  isDeleted: boolean;
+
+  // -- Sync Metadata --
+  version: number;
+};
+
+export type ShapeKind =
+  | "rectangle"
+  | "ellipse"
+  | "line"
+  | "arrow"
+  | "text"
+  | "image";
+
+export type StrokeType = "solid" | "dashed" | "dotted";
+export type FontWeight = "normal" | "bold";
+export type TextAlign = "left" | "center" | "right";

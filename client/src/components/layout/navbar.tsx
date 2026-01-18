@@ -1,11 +1,10 @@
 import Logo from "@/components/shared/logo";
 import { Button } from "@/components/ui/button";
-import useAuthStore from "@/lib/store/auth-store";
 import { NAVBAR_LIST } from "@/utils/list-util";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 
 const Navbar = () => {
-  const { authenticated } = useAuthStore();
+  const authenticated = true;
   const navigate = useNavigate();
 
   return (

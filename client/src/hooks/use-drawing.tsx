@@ -1,8 +1,8 @@
-import { ShapeType } from "@/lib/types/canvas-type";
 import { getCursorCoords, isPointInsideShape } from "@/lib/canvas/utils";
 import useCanvasStore from "@/lib/store/canvas-store";
 import { useState } from "react";
 import { createShape, createTextShape } from "@/lib/canvas/crud";
+import { ShapeKind } from "@/lib/types/lab-type";
 
 type EditingText = {
   id: string;
@@ -21,7 +21,7 @@ export const useDrawing = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
   const [editingText, setEditingText] = useState<EditingText>(null);
 
   //* --- Mouse Down Handler ---
-  const onMouseDown = (e: React.MouseEvent, currentTool?: ShapeType | null) => {
+  const onMouseDown = (e: React.MouseEvent, currentTool?: ShapeKind | null) => {
     if (!canvasRef.current) return;
     if (store.mode !== "draw" || !currentTool || !store.shapeType) return;
 
@@ -30,7 +30,7 @@ export const useDrawing = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
       e,
       store.scale,
       store.offsetX,
-      store.offsetY
+      store.offsetY,
     );
 
     const shape = createShape(currentTool, x, y);
@@ -47,7 +47,7 @@ export const useDrawing = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
       e,
       store.scale,
       store.offsetX,
-      store.offsetY
+      store.offsetY,
     );
 
     //* --- Shift for proportional shapes ---
@@ -91,7 +91,7 @@ export const useDrawing = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
       e,
       store.scale,
       store.offsetX,
-      store.offsetY
+      store.offsetY,
     );
 
     //* --- Check if clicking on existing text shape ---
@@ -139,10 +139,8 @@ export const useDrawing = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
   const onTextBlur = () => {
     if (!editingText) return;
 
-    store.shapesActions.update({
-      ...store.shapes[editingText.id],
-      text: editingText.value,
-    });
+    store.text.commitText(editingText.id, editingText.value);
+    store.historyActions.push();
 
     setEditingText(null);
   };

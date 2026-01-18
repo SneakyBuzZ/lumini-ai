@@ -1,47 +1,63 @@
-import { Shape, ShapeType } from "@/lib/types/canvas-type";
+import { CanvasShape } from "@/lib/types/canvas-type";
 import { createId } from "@paralleldrive/cuid2";
+import { ShapeKind } from "../types/lab-type";
 
-export const createShape = (currentTool: ShapeType, x: number, y: number) => {
-  const shape: Shape = {
+function createBaseShape(type: ShapeKind, x: number, y: number): CanvasShape {
+  return {
+    // --- Identity ---
     id: createId(),
-    type: currentTool,
+    type,
+
+    // --- Geometry ---
     x,
     y,
     width: 0,
     height: 0,
-    strokeWidth: 0.5,
+    rotation: 0,
+
+    // --- Style ---
     strokeType: "solid",
     strokeColor: "#d6d6d6",
     fillColor: "transparent",
+    strokeWidth: 0.5,
     opacity: 1,
-    rotation: 0,
+
+    // --- Text ---
+    text: type === "text" ? "" : undefined,
+    textColor: "#ffff",
+    fontSize: 14,
+    fontFamily: "Arial",
+    fontWeight: "normal",
+    textAlign: "center",
+
+    // --- Layering ---
+    zIndex: 0,
+
+    // --- Flags (DB required) ---
+    isLocked: false,
+    isHidden: false,
+    isDeleted: false,
+
+    // --- Sync ---
+    version: 1,
+
+    // --- UI only ---
     isSelected: false,
-    isDragging: false,
     isHovered: false,
-    text: currentTool === "text" ? "" : undefined,
+    isDragging: false,
+
+    persistStatus: "new",
+    commitVersion: 1,
+    lastPersistedVersion: 0,
   };
-  return shape;
+}
+
+export const createShape = (currentTool: ShapeKind, x: number, y: number) => {
+  return createBaseShape(currentTool, x, y);
 };
 
 export const createTextShape = (x: number, y: number) => {
-  const shape: Shape = {
-    id: createId(),
-    type: "text",
-    x,
-    y,
-    width: 0,
-    height: 0,
-    strokeWidth: 0.5,
-    strokeType: "solid",
-    strokeColor: "#a0a0a0",
-    fillColor: "transparent",
-    opacity: 1,
-    rotation: 0,
-    isSelected: true,
-    isDragging: false,
-    isHovered: false,
-    text: "",
-  };
-
+  const shape = createBaseShape("text", x, y);
+  shape.isSelected = true;
   return shape;
 };

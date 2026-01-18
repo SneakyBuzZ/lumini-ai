@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getAllLabs } from "@/lib/api/lab-api";
+import { getAllLabs, getSnapshot } from "@/lib/api/lab-api";
 import {
   getAllWorkspaces,
   getWorkspaceMembers,
@@ -35,5 +35,12 @@ export const useGetWorkspaceMembers = (workspaceId: string) => {
   return useQuery({
     queryKey: ["workspace-members", workspaceId],
     queryFn: () => getWorkspaceMembers(workspaceId),
+  });
+};
+
+export const useGetSnapshot = (labId: string) => {
+  return useQuery({
+    queryKey: ["lab-snapshot", labId],
+    queryFn: () => getSnapshot(labId),
   });
 };

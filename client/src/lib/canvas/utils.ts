@@ -1,4 +1,5 @@
-import { Shape } from "@/lib/types/canvas-type";
+import { CanvasShape } from "@/lib/types/canvas-type";
+import { DBShape } from "../types/lab-type";
 
 /**
  * Initialize canvas with proper device pixel ratio scaling
@@ -87,7 +88,7 @@ export function snapLine(
  * Check if a point (px, py) is inside a shape
  */
 export function isPointInsideShape(
-  shape: Shape,
+  shape: CanvasShape,
   px: number,
   py: number
 ): boolean {
@@ -142,7 +143,7 @@ export function isPointInsideShape(
  * Draw highlight rectangle for selected shape
  */
 export function drawHighlight(
-  shape: Shape,
+  shape: CanvasShape,
   ctx: CanvasRenderingContext2D,
   scale: number,
   offsetX: number,
@@ -160,4 +161,12 @@ export function drawHighlight(
     height * scale
   );
   ctx.restore();
+}
+
+export function toDBShape(shape: CanvasShape): DBShape {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { isSelected, isHovered, isDragging, persistStatus, ...dbShape } =
+    shape;
+
+  return dbShape;
 }
