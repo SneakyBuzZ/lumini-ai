@@ -62,6 +62,21 @@ export class LabController {
       .json(new DataResponse(200, { shape }, "Shape updated successfully."));
   };
 
+  batchUpdateShapes = async (req: Request, res: Response) => {
+    const labId = req.params.labId;
+    if (!labId) throw new AppError(400, "Lab ID is required");
+
+    const data = req.body;
+    if (data.labId !== labId)
+      throw new AppError(400, "Lab ID in body does not match URL parameter");
+
+    const result = await this.shapeService.batchUpdate(data);
+
+    res
+      .status(200)
+      .json(new DataResponse(200, result, "Batch update completed."));
+  };
+
   deleteShape = async (req: Request, res: Response) => {
     const labId = req.params.labId;
     if (!labId) throw new AppError(400, "Lab ID is required");

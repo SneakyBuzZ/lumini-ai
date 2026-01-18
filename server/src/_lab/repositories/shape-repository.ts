@@ -1,6 +1,11 @@
 import { db, DbExecutor } from "@/lib/config/db-config";
 import { shapesTable, snapshotsTable } from "@/_lab/models/shape-table";
-import { ShapeDTO, ShapeType, UpdateShapeDTO } from "@/_lab/dto";
+import {
+  ShapeDTO,
+  ShapeType,
+  UpdateBatchDTO,
+  UpdateShapeDTO,
+} from "@/_lab/dto";
 import { and, eq, sql } from "drizzle-orm";
 import { AppError } from "@/utils/error";
 
@@ -20,6 +25,7 @@ export class ShapeRepository {
       .values({
         ...this.shapeDefaults,
         ...data,
+        version: data.version,
         labId,
       })
       .returning();
@@ -48,8 +54,7 @@ export class ShapeRepository {
       .update(shapesTable)
       .set({
         ...patch,
-        version: sql`${shapesTable.version} + 1`,
-        updatedAt: new Date(),
+        version: patch.version,
       })
       .where(and(eq(shapesTable.id, shapeId), eq(shapesTable.labId, labId)))
       .returning();
@@ -58,36 +63,62 @@ export class ShapeRepository {
 
   //* --- Upsert multiple shapes (only updates fields provided in DTO) ---
   // --- Batch upsert/update shapes ---
-  async batchUpdate(shapes: UpdateShapeDTO[], labId: string) {
-    const values = shapes.map((s) => ({
-      ...this.shapeDefaults,
-      ...s,
-      labId,
-    }));
+  async batchUpdate(data: UpdateBatchDTO) {
+    const { labId, operations } = data;
 
-    await db
-      .insert(shapesTable)
-      .values(values)
-      .onConflictDoUpdate({
-        target: shapesTable.id,
-        set: {
-          type: sql`EXCLUDED.type`,
-          x: sql`EXCLUDED.x`,
-          y: sql`EXCLUDED.y`,
-          width: sql`EXCLUDED.width`,
-          height: sql`EXCLUDED.height`,
-          strokeWidth: sql`EXCLUDED.strokeWidth`,
-          strokeType: sql`EXCLUDED.strokeType`,
-          strokeColor: sql`EXCLUDED.strokeColor`,
-          fillColor: sql`EXCLUDED.fillColor`,
-          opacity: sql`EXCLUDED.opacity`,
-          rotation: sql`EXCLUDED.rotation`,
-          isLocked: sql`EXCLUDED.isLocked`,
-          isHidden: sql`EXCLUDED.isHidden`,
-          text: sql`EXCLUDED.text`,
-          updatedAt: new Date(),
-        },
-      });
+    const applied: { shapeId: string; commitVersion: number }[] = [];
+    const rejected: { shapeId: string; reason: string }[] = [];
+
+    return await db.transaction(async (tx) => {
+      for (const op of operations) {
+        const existingShape = await this.findById(op.shapeId, labId, tx);
+        if (existingShape && existingShape.version >= op.commitVersion) {
+          rejected.push({
+            shapeId: op.shapeId,
+            reason: "stale_commit",
+          });
+          continue;
+        }
+
+        if (op.op === "create") {
+          const created = await this.save(
+            { ...op.payload, version: op.commitVersion },
+            labId,
+            tx,
+          );
+          await this.snapshotRepository.saveToSnapshot(created, labId, tx);
+        }
+
+        if (op.op === "update") {
+          const updated = await this.update(op.shapeId, labId, op.payload, tx);
+          if (!updated) {
+            rejected.push({
+              shapeId: op.shapeId,
+              reason: "not_found",
+            });
+            continue;
+          }
+          if (updated.isDeleted) continue;
+          await this.snapshotRepository.saveToSnapshot(updated, labId, tx);
+        }
+
+        if (op.op === "delete") {
+          await this.softDelete(op.shapeId, labId, op.commitVersion, tx);
+          await this.snapshotRepository.removeFromSnapshot(
+            op.shapeId,
+            labId,
+            tx,
+          );
+        }
+
+        applied.push({
+          shapeId: op.shapeId,
+          commitVersion: op.commitVersion,
+        });
+      }
+
+      return { applied, rejected };
+    });
   }
 
   //* --- Find shape by id ---
@@ -115,14 +146,18 @@ export class ShapeRepository {
   }
 
   //* --- Soft delete a shape ---
-  async softDelete(shapeId: string, labId: string, tx?: DbExecutor) {
+  async softDelete(
+    shapeId: string,
+    labId: string,
+    version: number,
+    tx?: DbExecutor,
+  ) {
     const queryBuilder = tx || db;
     const [deleted] = await queryBuilder
       .update(shapesTable)
       .set({
         isDeleted: true,
-        version: sql`${shapesTable.version} + 1`,
-        updatedAt: new Date(),
+        version: version,
       })
       .where(and(eq(shapesTable.id, shapeId), eq(shapesTable.labId, labId)))
       .returning();
@@ -140,7 +175,12 @@ export class ShapeRepository {
       if (shape.isLocked)
         throw new AppError(403, "Shape is locked and cannot be deleted");
 
-      const deletedShape = await this.softDelete(shapeId, labId, tx);
+      const deletedShape = await this.softDelete(
+        shapeId,
+        labId,
+        shape.version,
+        tx,
+      );
       await this.snapshotRepository.removeFromSnapshot(shapeId, labId, tx);
 
       return deletedShape;
