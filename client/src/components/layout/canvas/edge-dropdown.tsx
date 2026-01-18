@@ -68,7 +68,7 @@ export default function EdgeDropdown({ selectedShapes }: EdgeDropdownProps) {
     "solid" | "dashed" | "dotted" | null
   >(null);
   const [currentStrokeWidth, setCurrentStrokeWidth] = useState<number | null>(
-    null
+    null,
   );
 
   useEffect(() => {
@@ -81,7 +81,7 @@ export default function EdgeDropdown({ selectedShapes }: EdgeDropdownProps) {
 
   useEffect(() => {
     const initialShapes = Object.fromEntries(
-      selectedShapes.map((shape) => [shape.id, shape])
+      selectedShapes.map((shape) => [shape.id, shape]),
     );
     setShapes(initialShapes);
   }, [selectedShapes]);
@@ -89,7 +89,7 @@ export default function EdgeDropdown({ selectedShapes }: EdgeDropdownProps) {
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open);
     if (!open) {
-      store.shapesActions.clearSelectedShapes();
+      store.selection.clear();
     }
   };
 
@@ -140,7 +140,7 @@ export default function EdgeDropdown({ selectedShapes }: EdgeDropdownProps) {
             onClick={() => handleSelectStroke("solid")}
             className={cn(
               "flex justify-center items-center h-8 w-8 cursor-pointer rounded-md bg-midnight-100",
-              { "ring-[1px] ring-teal": currentStroke === "solid" }
+              { "ring-[1px] ring-teal": currentStroke === "solid" },
             )}
           >
             <Square className="h-5 w-5 opacity-90" />
@@ -149,7 +149,7 @@ export default function EdgeDropdown({ selectedShapes }: EdgeDropdownProps) {
             onClick={() => handleSelectStroke("dashed")}
             className={cn(
               "flex justify-center items-center h-8 w-8 cursor-pointer rounded-md bg-midnight-100",
-              { "ring-[1px] ring-teal": currentStroke === "dashed" }
+              { "ring-[1px] ring-teal": currentStroke === "dashed" },
             )}
           >
             <Maximize className="h-5 w-5 opacity-80" />
@@ -158,7 +158,7 @@ export default function EdgeDropdown({ selectedShapes }: EdgeDropdownProps) {
             onClick={() => handleSelectStroke("dotted")}
             className={cn(
               "flex justify-center items-center h-8 w-8 cursor-pointer rounded-md bg-midnight-100",
-              { "ring-[1px] ring-teal": currentStroke === "dotted" }
+              { "ring-[1px] ring-teal": currentStroke === "dotted" },
             )}
           >
             <SquareDashed className="h-5 w-5 opacity-90" />
@@ -175,7 +175,7 @@ export default function EdgeDropdown({ selectedShapes }: EdgeDropdownProps) {
               {currentColor === color.hash && (
                 <Check
                   className={cn(
-                    currentColor === null ? "border-black" : "border-#2b2b2b"
+                    currentColor === null ? "border-black" : "border-#2b2b2b",
                   )}
                 />
               )}
@@ -188,7 +188,7 @@ export default function EdgeDropdown({ selectedShapes }: EdgeDropdownProps) {
           onClick={() => handleSelectStrokeWidth(0.2)}
           className={cn(
             "flex items-center gap-5 hover:bg-midnight-100/80",
-            currentStrokeWidth === 0.2 && "bg-teal hover:bg-teal"
+            currentStrokeWidth === 0.2 && "bg-teal hover:bg-teal",
           )}
         >
           <span className="text-sm text-white w-3">S</span>
@@ -199,7 +199,7 @@ export default function EdgeDropdown({ selectedShapes }: EdgeDropdownProps) {
           onClick={() => handleSelectStrokeWidth(0.5)}
           className={cn(
             "flex items-center gap-5 hover:bg-midnight-100/80",
-            currentStrokeWidth === 0.5 && "bg-teal hover:bg-teal"
+            currentStrokeWidth === 0.5 && "bg-teal hover:bg-teal",
           )}
         >
           <span className="text-sm text-white w-3">M</span>
@@ -210,7 +210,7 @@ export default function EdgeDropdown({ selectedShapes }: EdgeDropdownProps) {
           onClick={() => handleSelectStrokeWidth(1)}
           className={cn(
             "flex items-center gap-5 hover:bg-midnight-100/80",
-            currentStrokeWidth === 1 && "bg-teal hover:bg-teal"
+            currentStrokeWidth === 1 && "bg-teal hover:bg-teal",
           )}
         >
           <span className="text-sm text-white w-3">L</span>
@@ -221,7 +221,7 @@ export default function EdgeDropdown({ selectedShapes }: EdgeDropdownProps) {
           onClick={() => handleSelectStrokeWidth(2)}
           className={cn(
             "flex items-center gap-5 hover:bg-midnight-100/80",
-            currentStrokeWidth === 2 && "bg-teal hover:bg-teal"
+            currentStrokeWidth === 2 && "bg-teal hover:bg-teal",
           )}
         >
           <span className="text-sm text-white w-3">XL</span>

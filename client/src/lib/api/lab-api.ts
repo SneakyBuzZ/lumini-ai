@@ -2,7 +2,7 @@ import { api } from "@/lib/config/axios-config";
 import axios from "axios";
 import { DBShape, Lab, LabWithMembers } from "@/lib/types/lab-type";
 import { Answer } from "@/lib/types/answer.type";
-import { CreateLab, GetSnapshot } from "@/lib/api/dto";
+import { BatchUpdateShapes, CreateLab, GetSnapshot } from "@/lib/api/dto";
 
 export const create = async (data: CreateLab) => {
   const response = await api.post("/lab/", data);
@@ -14,7 +14,7 @@ export const create = async (data: CreateLab) => {
       { repo_url: data.githubUrl },
       {
         withCredentials: true,
-      }
+      },
     );
   }
 };
@@ -25,7 +25,7 @@ export const getAllLabs = async (workspaceId: string): Promise<Lab[]> => {
 };
 
 export const getLabsByWorkspaceId = async (
-  workspaceId: string
+  workspaceId: string,
 ): Promise<LabWithMembers[]> => {
   const response = await api.get(`/lab/${workspaceId}`);
 
@@ -34,7 +34,7 @@ export const getLabsByWorkspaceId = async (
 
 export const getAnswer = async (
   query: string,
-  labId: string
+  labId: string,
 ): Promise<Answer | null> => {
   const response = await api.post(`/lab/ask/${labId}`, {
     query,
@@ -86,9 +86,27 @@ export const createShape = async (labId: string, shape: DBShape) => {
 export const updateShape = async (
   labId: string,
   shapeId: string,
-  patch: Partial<DBShape>
+  patch: Partial<DBShape>,
 ) => {
   const response = await api.put(`/lab/${labId}/shapes/${shapeId}`, patch);
+  return response.data.payload;
+};
+
+export const batchUpdateShapes = async (
+  data: BatchUpdateShapes,
+): Promise<{
+  applied: {
+    shapeId: string;
+    commitVersion: number;
+  }[];
+  rejected: {
+    shapeId: string;
+    reason: string;
+  }[];
+}> => {
+  console.log("REQUEST BODY: ", data);
+  const response = await api.post(`/lab/${data.labId}/shapes/batch`, data);
+  console.log("RESPONSE DATA: ", response.data);
   return response.data.payload;
 };
 

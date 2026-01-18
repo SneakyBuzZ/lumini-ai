@@ -72,6 +72,7 @@ export type State = {
 
   //* --- Server Sync ---
   hasHydrated: boolean;
+  isRestoringFromHistory: boolean;
 };
 
 export type Actions = {
@@ -98,7 +99,6 @@ export type Actions = {
     remove: (shapeId: string) => void;
     batchUpdate: (shapes: Record<string, Partial<CanvasShape>>) => void;
     batchDelete: (shapes: CanvasShape[]) => void;
-    clearSelectedShapes: () => void;
     commitShape: (id: string, type?: "new" | "updated") => void;
   };
   // --- Selection ---

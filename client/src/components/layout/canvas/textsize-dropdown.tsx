@@ -32,7 +32,7 @@ export default function TextSizeDropdown({
 
   useEffect(() => {
     const initialShapes = Object.fromEntries(
-      selectedShapes.map((shape) => [shape.id, shape])
+      selectedShapes.map((shape) => [shape.id, shape]),
     );
     setShapes(initialShapes);
   }, [selectedShapes]);
@@ -40,7 +40,7 @@ export default function TextSizeDropdown({
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open);
     if (!open) {
-      store.shapesActions.clearSelectedShapes();
+      store.selection.clear();
     }
   };
 
@@ -115,7 +115,7 @@ export default function TextSizeDropdown({
           onClick={() => handleSelectFontSize(12)}
           className={cn(
             "flex items-center gap-5 hover:bg-midnight-100/80",
-            currentFontSize === 12 && "bg-teal hover:bg-teal"
+            currentFontSize === 12 && "bg-teal hover:bg-teal",
           )}
         >
           Small
@@ -125,7 +125,7 @@ export default function TextSizeDropdown({
           onClick={() => handleSelectFontSize(16)}
           className={cn(
             "flex items-center gap-5 hover:bg-midnight-100/80",
-            currentFontSize === 16 && "bg-teal hover:bg-teal"
+            currentFontSize === 16 && "bg-teal hover:bg-teal",
           )}
         >
           Medium
@@ -135,7 +135,7 @@ export default function TextSizeDropdown({
           onClick={() => handleSelectFontSize(20)}
           className={cn(
             "flex items-center gap-5 hover:bg-midnight-100/80",
-            currentFontSize === 20 && "bg-teal hover:bg-teal"
+            currentFontSize === 20 && "bg-teal hover:bg-teal",
           )}
         >
           Large
@@ -145,7 +145,7 @@ export default function TextSizeDropdown({
           onClick={() => handleSelectFontSize(24)}
           className={cn(
             "flex items-center gap-5 hover:bg-midnight-100/80",
-            currentFontSize === 24 && "bg-teal hover:bg-teal"
+            currentFontSize === 24 && "bg-teal hover:bg-teal",
           )}
         >
           X-Large

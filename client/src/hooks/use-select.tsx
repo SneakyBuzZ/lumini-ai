@@ -10,10 +10,10 @@ export const useSelect = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
   const initialShapePositionsRef = useRef<
     Record<string, { x: number; y: number }>
   >({});
-
   const altDragRef = useRef<{ originalId: string; copyId: string } | null>(
     null,
   );
+  const didDragRef = useRef(false);
 
   const [selectionBoxStart, setSelectionBoxStart] = useState<{
     x: number;
@@ -26,8 +26,11 @@ export const useSelect = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
 
   /** --- Mouse down --- */
   const onMouseDown = (e: React.MouseEvent) => {
+    didDragRef.current = false;
     if (e.button !== 0) return;
     if (!canvasRef.current || store.mode !== "select") return;
+
+    console.log("MOUSE IS CLIKCED");
 
     const { x, y } = getCursorCoords(
       canvasRef.current,
@@ -66,6 +69,8 @@ export const useSelect = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
       .reverse()
       .find((s) => isPointInsideShape(s, x, y));
 
+    console.log("CLICKED ON THE SHAPE: ", shape?.type);
+
     const selectedShapes = allShapes.filter((s) => s.isSelected);
     let draggingShapeIds: string[] = [];
 
@@ -91,6 +96,7 @@ export const useSelect = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
       y <= groupBox.y + groupBox.height;
 
     if (shape) {
+      console.log("CLICKED ON SHAPE:", shape.type);
       const isAlreadySelected = selectedShapes.some((s) => s.id === shape.id);
 
       if (!isAlreadySelected || !e.shiftKey) {
@@ -182,6 +188,10 @@ export const useSelect = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
         const dx = x - dragStartRef.current.x;
         const dy = y - dragStartRef.current.y;
 
+        if (!didDragRef.current && (Math.abs(dx) > 2 || Math.abs(dy) > 2)) {
+          didDragRef.current = true;
+        }
+
         store.selectedShapeIds.forEach((id) => {
           const shape = store.shapes[id];
           const initial = initialShapePositionsRef.current[id];
@@ -250,7 +260,7 @@ export const useSelect = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
       return;
     }
 
-    if (dragStartRef.current) {
+    if (dragStartRef.current && didDragRef.current) {
       store.selectedShapeIds.forEach((id) => {
         store.shapesActions.commitShape(id, "updated");
       });
