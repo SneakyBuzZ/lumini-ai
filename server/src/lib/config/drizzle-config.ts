@@ -10,6 +10,7 @@ export default defineConfig({
     "./src/_user/models/user-model.ts",
     "./src/_workspace/models/workspace-model.ts",
     "./src/_lab/models/lab-table.ts",
+    "./src/_lab/models/shape-table.ts",
   ],
   dialect: "postgresql",
   dbCredentials: {

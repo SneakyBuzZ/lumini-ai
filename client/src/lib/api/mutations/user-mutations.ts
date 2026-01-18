@@ -18,15 +18,10 @@ export const useRegister = () => {
 };
 
 export const useLogin = (setError: (error: string | null) => void) => {
-  const navigate = useNavigate();
   return useMutation({
     mutationFn: (payload: LoginType) => login(payload),
-    onSuccess: () => {
-      navigate({ to: "/" });
-    },
     onError: (err) => {
       if (err instanceof AxiosError) {
-        console.log(err.response);
         setError(err.response?.data?.messages || "Login failed");
       }
     },

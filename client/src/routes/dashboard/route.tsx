@@ -2,8 +2,6 @@ import { getIsAuthenticated } from "@/lib/api/user-api";
 import AppNavbar from "@/components/layout/app-navbar";
 import AppSidebar from "@/components/layout/sidebar/app.sidebar";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
-import { useGetUser } from "@/lib/api/queries/user-queries";
-import { useGetWorkspaces } from "@/lib/api/queries/app-queries";
 
 export const Route = createFileRoute("/dashboard")({
   beforeLoad: async () => {
@@ -14,8 +12,6 @@ export const Route = createFileRoute("/dashboard")({
 });
 
 function DashboardLayout() {
-  useGetUser();
-  useGetWorkspaces();
   return (
     <section className="w-full h-screen flex overflow-hidden">
       <AppSidebar />

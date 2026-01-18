@@ -1,8 +1,12 @@
 import { useMutation } from "@tanstack/react-query";
-import { CreateLab } from "@/lib/api/dto";
+import { CreateInvite, CreateLab } from "@/lib/api/dto";
 import { create } from "@/lib/api/lab-api";
 import { AxiosError } from "axios";
-import { createWorkspace } from "@/lib/api/workspace-api";
+import {
+  acceptWorkspaceInvite,
+  createWorkspace,
+  createWorkspaceInvite,
+} from "@/lib/api/workspace-api";
 
 export const useCreateLab = (setError: (error: string | null) => void) => {
   return useMutation({
@@ -26,6 +30,32 @@ export const useCreateWorksace = (setError: (error: string) => void) => {
       name: string;
       plan: "free" | "pro" | "enterprise";
     }) => createWorkspace(payload),
+    onError: (error) => {
+      if (error instanceof AxiosError) {
+        setError(error.response?.data.messages);
+      }
+    },
+  });
+};
+
+export const useCreateInvite = (
+  workspaceId: string,
+  setError: (error: string) => void
+) => {
+  return useMutation({
+    mutationFn: (payload: CreateInvite) =>
+      createWorkspaceInvite(workspaceId, payload.email, payload.role),
+    onError: (error) => {
+      if (error instanceof AxiosError) {
+        setError(error.response?.data.messages);
+      }
+    },
+  });
+};
+
+export const useAcceptInvite = (setError: (error: string) => void) => {
+  return useMutation({
+    mutationFn: (token: string) => acceptWorkspaceInvite(token),
     onError: (error) => {
       if (error instanceof AxiosError) {
         setError(error.response?.data.messages);

@@ -1,3 +1,5 @@
+import { DBShape } from "@/lib/types/lab-type";
+
 export type RegisterType = {
   name: string;
   email: string;
@@ -19,4 +21,17 @@ export type CreateLab = {
 export type CreateWorkspace = {
   name: string;
   plan: "free" | "pro" | "enterprise";
+};
+
+export type CreateInvite = {
+  email: string;
+  role: string;
+};
+
+export type GetSnapshot = {
+  labId: string;
+  data: {
+    shapes: Record<string, DBShape>;
+  };
+  version: number;
 };

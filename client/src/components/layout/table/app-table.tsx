@@ -37,14 +37,11 @@ export function AppTable<TData>({ columns, data }: DataTableProps<TData>) {
               key={headerGroup.id}
               className="w-full flex bg-midnight-200/50"
             >
-              {headerGroup.headers.map((header, index) => (
+              {headerGroup.headers.map((header) => (
                 <TableHead
                   key={header.id}
                   className={cn(
-                    "w-full px-4 flex justify-start items-center cursor-pointer h-12",
-                    {
-                      "border-r": index < headerGroup.headers.length - 1,
-                    }
+                    "w-full px-4 flex justify-start items-center h-10"
                   )}
                 >
                   {flexRender(
@@ -61,17 +58,14 @@ export function AppTable<TData>({ columns, data }: DataTableProps<TData>) {
             <TableRow
               key={row.id}
               className={cn("bg-midnight-200 w-full flex", {
-                " rounded-b-xl": index === table.getRowModel().rows.length - 1,
+                " rounded-b-lg": index === table.getRowModel().rows.length - 1,
               })}
             >
-              {row.getVisibleCells().map((cell, index) => (
+              {row.getVisibleCells().map((cell) => (
                 <TableCell
                   key={cell.id}
                   className={cn(
-                    "w-full px-4 flex justify-start items-center cursor-pointer h-12",
-                    {
-                      "border-r": index < row.getVisibleCells().length - 1,
-                    }
+                    "w-full px-4 flex justify-start items-center cursor-pointer"
                   )}
                 >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}

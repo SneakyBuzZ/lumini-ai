@@ -2,8 +2,6 @@ import { LabRepository } from "@/_lab/repositories/lab-repository";
 import { CreateLabDTO } from "@/_lab/dto";
 import { WorkspaceRepository } from "@/_workspace/repositories/workspace-repository";
 import { AppError } from "@/utils/error";
-import axios from "axios";
-import { AI_SERVER_URL } from "@/utils/constants";
 
 export class LabService {
   private labRepository: LabRepository;
@@ -15,15 +13,13 @@ export class LabService {
   }
 
   async create(data: CreateLabDTO, creatorId: string) {
-    const membership = await this.workspaceRepository.findMemberRoleById(
-      creatorId
+    const role = await this.workspaceRepository.findMemberRoleById(
+      creatorId,
+      data.workspaceId
     );
+    if (!role) throw new AppError(403, "Unauthorized");
 
-    if (!membership) {
-      throw new AppError(403, "You are not a member of this workspace");
-    }
-
-    if (membership.role !== "administrator" && membership.role !== "owner") {
+    if (role !== "administrator" && role !== "owner") {
       throw new AppError(
         403,
         "You are not allowed to create labs in this workspace"
@@ -31,7 +27,6 @@ export class LabService {
     }
 
     const config = this.workspaceRepository.workspaceConfig[data.plan];
-
     const labCount = await this.labRepository.countLabs(data.workspaceId);
 
     if (labCount >= config.labsLimit)
@@ -41,7 +36,11 @@ export class LabService {
     return labId;
   }
 
-  async findAll(workspaceId: string, userId: string) {
-    return await this.labRepository.findAll(workspaceId, userId);
+  async findAll(workspaceId: string) {
+    return await this.labRepository.findAll(workspaceId);
+  }
+
+  async findById(labId: string) {
+    return await this.labRepository.findById(labId);
   }
 }

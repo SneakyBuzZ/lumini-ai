@@ -5,8 +5,10 @@ export default {
 	theme: {
 		extend: {
 			fontFamily: {
-				spline: ["Spline Sans", "sans-serif"],
-				poppins: ["Poppins", "sans-serif"]
+				audiowide: ["Audiowide", "sans-serif"],
+				rubik: ["Rubik Mono One", "sans-serif"],
+				manrope: ["Manrope", "sans-serif"],
+				"dm-sans": ["DM Sans", "sans-serif"]
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -65,7 +67,7 @@ export default {
 					ring: 'hsl(var(--sidebar-ring))'
 				},
 				teal: "#006D9C",
-				cyan: "#3FF2FF",
+				cyan: "#4AF0FF",
 				midnight: {
 					// "100": "#0C0F16",
 					// "200": "#080A0F",

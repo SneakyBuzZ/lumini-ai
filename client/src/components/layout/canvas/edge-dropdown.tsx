@@ -6,7 +6,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import useCanvasStore from "@/lib/store/canvas-store";
-import { Shape } from "@/lib/types/canvas-type";
+import { CanvasShape } from "@/lib/types/canvas-type";
 import { cn } from "@/utils/cn.util";
 import { DropdownMenuLabel } from "@radix-ui/react-dropdown-menu";
 import { Check, Maximize, Square, SquareDashed } from "lucide-react";
@@ -56,12 +56,12 @@ const colors = [
 ];
 
 interface EdgeDropdownProps {
-  selectedShapes: Shape[];
+  selectedShapes: CanvasShape[];
 }
 
 export default function EdgeDropdown({ selectedShapes }: EdgeDropdownProps) {
   const store = useCanvasStore();
-  const [shapes, setShapes] = useState<Record<string, Shape>>({});
+  const [shapes, setShapes] = useState<Record<string, CanvasShape>>({});
   const [isOpen, setIsOpen] = useState(false);
   const [currentColor, setCurrentColor] = useState<string | null>(null);
   const [currentStroke, setCurrentStroke] = useState<
@@ -94,7 +94,7 @@ export default function EdgeDropdown({ selectedShapes }: EdgeDropdownProps) {
   };
 
   const handleSelectColor = (colorHash: string) => {
-    const updates: Record<string, Partial<Shape>> = {};
+    const updates: Record<string, Partial<CanvasShape>> = {};
     Object.entries(shapes).forEach(([id, shape]) => {
       updates[id] = {
         ...shape,
@@ -106,7 +106,7 @@ export default function EdgeDropdown({ selectedShapes }: EdgeDropdownProps) {
   };
 
   const handleSelectStroke = (strokeType: "solid" | "dashed" | "dotted") => {
-    const updates: Record<string, Partial<Shape>> = {};
+    const updates: Record<string, Partial<CanvasShape>> = {};
     Object.entries(shapes).forEach(([id, shape]) => {
       updates[id] = {
         ...shape,
@@ -118,7 +118,7 @@ export default function EdgeDropdown({ selectedShapes }: EdgeDropdownProps) {
   };
 
   const handleSelectStrokeWidth = (width: number) => {
-    const updates: Record<string, Partial<Shape>> = {};
+    const updates: Record<string, Partial<CanvasShape>> = {};
     Object.entries(shapes).forEach(([id, shape]) => {
       updates[id] = {
         ...shape,

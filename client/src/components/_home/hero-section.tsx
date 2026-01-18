@@ -1,32 +1,31 @@
 import { Button } from "@/components/ui/button";
-import { MoveUpRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 
 export default function HeroSection() {
   return (
-    <div className="flex flex-col justify-center items-center -translate-y-16">
-      <Button
-        variant={"outline"}
-        className="rounded-full text-white border-neutral-600 px-8 h-7  mb-4"
-        size={"sm"}
-        disabled
-      >
-        Welcome to Lumini AI
-      </Button>
-      <div className="flex flex-col justify-center items-center text-center mb-8">
-        <h1 className="text-5xl font-medium text-white">
-          Reimagine Code Collaboration
+    <div className="flex flex-col justify-center items-center">
+      <span className="rounded-full text-sm text-neutral-400 bg-midnight-200 border border-midnight-100 mb-4 px-5 p-1">
+        Welcome to Lumini AI Beta!
+      </span>
+      <div className="flex flex-col justify-center items-center text-center gap-4 mb-6">
+        <h1 className="text-5xl font-medium text-neutral-200 font-audiowide">
+          Reimagine Code Collaboration <br /> with{" "}
+          <span className="text-cyan/70">Lumini AI</span>
         </h1>
-        <p className="mt-4 text-xl text-neutral-500">
-          Collaborate, Code, and Commit - All in Real-Time. Powered by AI.
-          Integrated with GitHub
+        <p className="text-md font-extralight text-neutral-500">
+          Collaborate seamlessly, code efficiently, and commit with confidence -
+          all happening live, in real-time.
+          <br />
+          Powered by AI, Built for Developers trying to explore unknown
+          codebases.
         </p>
-      </div>
-      <div className="flex justify-center items-center gap-2">
-        <Button variant={"outline"}>Get Started</Button>
-        <Button>
-          Learn More
-          <MoveUpRight size={16} />
-        </Button>
+        <div className="flex justify-center items-center gap-2">
+          <Button>Learn More</Button>
+          <Button variant={"primary"}>
+            Get Started
+            <ChevronRight size={16} />
+          </Button>
+        </div>
       </div>
     </div>
   );

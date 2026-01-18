@@ -1,8 +1,8 @@
-import { DrawOptions, Shape } from "@/lib/types/canvas-type";
+import { DrawOptions, CanvasShape } from "@/lib/types/canvas-type";
 import { snapLine } from "@/lib/canvas/utils";
 
 export const renderShapes = (
-  shapes: Record<string, Shape>,
+  shapes: Record<string, CanvasShape>,
   ctx: CanvasRenderingContext2D,
   options: DrawOptions,
   editingText: {
@@ -10,35 +10,35 @@ export const renderShapes = (
     x: number;
     y: number;
     value: string;
-  } | null = null
+  } | null = null,
 ) => {
   const { scale, offsetX, offsetY } = options;
   const canvas = ctx.canvas;
 
-  // Clear canvas
+  //* --- Clear canvas ---
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.save();
   ctx.translate(offsetX, offsetY);
   ctx.scale(scale, scale);
 
+  //* --- Prepare shapes ---
   const allShapes = Object.values(shapes);
   const selectedShapes = allShapes.filter((s) => s.isSelected);
   const multipleSelected = selectedShapes.length > 1;
 
-  // --- Draw all shapes ---
+  //* --- Draw all shapes ---
   allShapes.forEach((shape) => {
     if (shape.strokeType === "dashed") ctx.setLineDash([6, 4]);
     else if (shape.strokeType === "dotted") ctx.setLineDash([2, 3]);
     else ctx.setLineDash([]);
 
-    const strokeColor = shape.strokeColor ?? "#d6d6d6";
-    const fillColor = shape.fillColor ?? "transparent";
-    const strokeWidth = Number(shape.strokeWidth ?? 2);
+    const strokeColor = shape.strokeColor;
+    const fillColor = shape.fillColor;
+    const strokeWidth = shape.strokeWidth;
     const safeScale = Number(scale);
 
+    //* --- Set styles ---
     ctx.lineWidth = (strokeWidth / safeScale) * 2;
-
-    // Shadow effect
     if (shape.isDragging || shape.isHovered) {
       ctx.shadowColor = "rgba(0,0,0,0.2)";
       ctx.shadowBlur = 8;
@@ -75,7 +75,7 @@ export const renderShapes = (
       if (!(editingText && editingText.id === shape.id)) {
         drawText(
           ctx,
-          shape.type === "text" ? shape : { ...shape, type: "text" }
+          shape.type === "text" ? shape : { ...shape, type: "text" },
         );
       }
     }
@@ -112,7 +112,7 @@ export const drawRoundedRect = (
   y: number,
   width: number,
   height: number,
-  radius: number
+  radius: number,
 ) => {
   const w = Math.abs(width);
   const h = Math.abs(height);
@@ -135,7 +135,10 @@ export const drawRoundedRect = (
   ctx.stroke();
 };
 
-export const drawEllipse = (ctx: CanvasRenderingContext2D, shape: Shape) => {
+export const drawEllipse = (
+  ctx: CanvasRenderingContext2D,
+  shape: CanvasShape,
+) => {
   ctx.beginPath();
   ctx.ellipse(
     shape.x + shape.width / 2,
@@ -144,7 +147,7 @@ export const drawEllipse = (ctx: CanvasRenderingContext2D, shape: Shape) => {
     Math.abs(shape.height / 2),
     0,
     0,
-    Math.PI * 2
+    Math.PI * 2,
   );
   ctx.fill();
   ctx.stroke();
@@ -152,8 +155,8 @@ export const drawEllipse = (ctx: CanvasRenderingContext2D, shape: Shape) => {
 
 export const drawLine = (
   ctx: CanvasRenderingContext2D,
-  shape: Shape,
-  enableSnap: boolean = false
+  shape: CanvasShape,
+  enableSnap: boolean = false,
 ) => {
   const { x, y, width, height } = shape;
   let x2 = x + width;
@@ -173,8 +176,8 @@ export const drawLine = (
 
 export const drawArrow = (
   ctx: CanvasRenderingContext2D,
-  shape: Shape,
-  enableSnap: boolean = false
+  shape: CanvasShape,
+  enableSnap: boolean = false,
 ) => {
   const { x, y } = shape;
   let { width, height } = shape;
@@ -199,21 +202,21 @@ export const drawArrow = (
   ctx.moveTo(x2, y2);
   ctx.lineTo(
     x2 - headlen * Math.cos(angle - 0.4),
-    y2 - headlen * Math.sin(angle - 0.4)
+    y2 - headlen * Math.sin(angle - 0.4),
   );
   ctx.lineTo(
     x2 - headlen * Math.cos(angle + 0.4),
-    y2 - headlen * Math.sin(angle + 0.4)
+    y2 - headlen * Math.sin(angle + 0.4),
   );
   ctx.closePath();
   ctx.fill();
 };
 
-export const drawText = (ctx: CanvasRenderingContext2D, shape: Shape) => {
+export const drawText = (ctx: CanvasRenderingContext2D, shape: CanvasShape) => {
   if (!shape.text || shape.text.trim() === "") return;
 
   ctx.save();
-  ctx.fillStyle = shape.textColor ?? "#e0e0e0";
+  ctx.fillStyle = shape.textColor ?? "#ebebeb";
   ctx.font = `${shape.fontWeight ?? "normal"} ${shape.fontSize ?? 16}px ${shape.fontFamily ?? "sans-serif"}`;
   ctx.textAlign = shape.textAlign ?? "center";
   ctx.textBaseline = "middle";
@@ -229,9 +232,9 @@ export const drawText = (ctx: CanvasRenderingContext2D, shape: Shape) => {
 
 function drawSelectionOutline(
   ctx: CanvasRenderingContext2D,
-  shape: Shape,
+  shape: CanvasShape,
   multipleSelected: boolean,
-  scale: number = 1
+  scale: number = 1,
 ) {
   ctx.save();
   ctx.strokeStyle = "rgba(0, 120, 215, 0.5)";
@@ -249,7 +252,7 @@ function drawSelectionOutline(
       shape.x - 6,
       shape.y - 6,
       shape.width + 12,
-      shape.height + 12
+      shape.height + 12,
     );
   }
 

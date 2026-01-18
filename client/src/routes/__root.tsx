@@ -1,10 +1,15 @@
 // __root.tsx
 
-import { createRootRoute, Outlet } from "@tanstack/react-router";
+import { Outlet, createRootRouteWithContext } from "@tanstack/react-router";
+import type { QueryClient } from "@tanstack/react-query";
 
-export const Route = createRootRoute({
+export interface RouterContext {
+  queryClient: QueryClient;
+}
+
+export const Route = createRootRouteWithContext<RouterContext>()({
   component: () => (
-    <section className="w-full min-h-screen flex flex-col font-poppins overflow-x-clip">
+    <section className="w-full min-h-screen flex flex-col justify-center items-center font-dm-sans overflow-x-clip">
       <Outlet />
     </section>
   ),

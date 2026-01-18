@@ -1,6 +1,6 @@
 import { authenticateJwt } from "@/middlewares/authenticate-middleware";
 import { Router } from "express";
-import { createLabDTO } from "@/_lab/dto";
+import { createLabDTO, shapeDTO, shapeType } from "@/_lab/dto";
 import { LabController } from "@/_lab/controllers/lab-controller";
 import { validateData } from "@/middlewares/validate-middleware";
 
@@ -8,25 +8,24 @@ const labRouter = Router();
 
 const labController = new LabController();
 
+labRouter.post("/", validateData(createLabDTO), labController.create);
+
+labRouter.get("/:workspaceId", labController.getAll);
+
 labRouter.post(
-  "/",
-  authenticateJwt(),
-  validateData(createLabDTO),
-  labController.create
+  "/:labId/shapes",
+  validateData(shapeDTO),
+  labController.createShape
 );
 
-labRouter.get("/:workspaceId", authenticateJwt(), labController.getAll);
+labRouter.put(
+  "/:labId/shapes/:shapeId",
+  validateData(shapeDTO.partial()),
+  labController.updateShape
+);
 
-// labRouter.get(
-//   "/:workspaceId",
-//   authenticateJwt(),
-//   labController.getLabsByWorkspaceId
-// );
+labRouter.get("/:labId/shapes", labController.getAllShapes);
 
-// labRouter.post(
-//   "/ask/:labId",
-//   authenticateJwt(),
-//   labController.getAnswerToQuery
-// );
+labRouter.delete("/:labId/shapes/:shapeId", labController.deleteShape);
 
 export default labRouter;

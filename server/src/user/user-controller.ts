@@ -65,7 +65,6 @@ const register = async (req: Request, res: Response) => {
       .json(new DataResponse(201, "Account created successfully."));
     return;
   } catch (error) {
-    console.log("REGISTER ERROR: ", error);
     res.status(500).json(new ErrorResponse(500, "Something went wrong"));
     return;
   }
@@ -128,7 +127,6 @@ const login = async (req: Request, res: Response) => {
 
     res.status(200).json(new DataResponse(200, "Login successful."));
   } catch (error) {
-    console.log("LOGIN ERROR: ", error);
     res.status(500).json(new ErrorResponse(500, "Something went wrong"));
     return;
   }
@@ -182,7 +180,6 @@ const renewAccessToken = async (req: Request, res: Response) => {
       .status(200)
       .json(new DataResponse(200, "Access token refreshed"));
   } catch (err) {
-    console.log("ACCESS TOKEN REFRESH ERROR: ", err);
     return res.status(500).json(new ErrorResponse(500, "Something went wrong"));
   }
 };
@@ -220,7 +217,6 @@ const logout = async (req: Request, res: Response) => {
     res.status(200).json(new DataResponse(200, "Logged out successfully."));
     return;
   } catch (error) {
-    console.log("LOGOUT ERROR:", error);
     res.status(500).json(new ErrorResponse(500, "Something went wrong"));
     return;
   }
@@ -316,7 +312,6 @@ const loginWithGoogle = async (req: Request, res: Response) => {
       .status(201)
       .json(new DataResponse(201, "Account created successfully."));
   } catch (error) {
-    console.log("GOOGLE LOGIN ERROR: ", error);
     res.status(500).json(new ErrorResponse(500, "Something went wrong"));
     return;
   }
@@ -412,7 +407,6 @@ const loginWithGithub = async (req: Request, res: Response) => {
       .status(201)
       .json(new DataResponse(201, "Account created successfully."));
   } catch (error) {
-    console.log("GOOGLE LOGIN ERROR: ", error);
     res.status(500).json(new ErrorResponse(500, "Something went wrong"));
     return;
   }
@@ -420,8 +414,6 @@ const loginWithGithub = async (req: Request, res: Response) => {
 
 const getUser = async (req: Request, res: Response) => {
   const userId = req.user?.id;
-
-  console.log("userId", userId);
 
   if (!userId) {
     res.status(401).json(new ErrorResponse(401, "Unauthorized"));
@@ -448,7 +440,6 @@ const getUser = async (req: Request, res: Response) => {
       .json(new DataResponse(200, user, "User fetched successfully"));
     return;
   } catch (error) {
-    console.log("GET USER ERROR: ", error);
     res.status(500).json(new ErrorResponse(500, "Something went wrong"));
     return;
   }

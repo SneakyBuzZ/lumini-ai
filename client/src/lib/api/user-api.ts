@@ -1,14 +1,11 @@
 import { api } from "@/lib/config/axios-config";
 import { LoginType, RegisterType } from "@/lib/api/dto";
-import useAuthStore from "@/lib/store/auth-store";
 import { User } from "@/lib/types/user-type";
 
 export const getIsAuthenticated = async () => {
   try {
-    const { setAuthenticated } = useAuthStore.getState();
-    const response = await api.get("/auth/status");
-    setAuthenticated(response.status === 200);
-    return response.status === 200;
+    await api.get("/auth/status");
+    return true;
   } catch {
     return false;
   }

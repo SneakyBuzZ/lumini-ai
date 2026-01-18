@@ -22,3 +22,31 @@ export type Workspace = {
   slug: string;
   createdAt: string;
 };
+
+export type WorkspaceSettingsGeneral = {
+  name: string;
+  description: string | null;
+  logoUrl: string | null;
+  slug: string | null;
+  settings: {
+    defaultLanguage: string;
+    notificationsEnabled: boolean;
+    visibility: string;
+  };
+};
+
+export type WorkspaceSettingsMap = {
+  general: WorkspaceSettingsGeneral;
+  integrations: unknown;
+  usage: unknown;
+};
+
+export type WorkspaceMember = {
+  id: string;
+  name: string;
+  email: string;
+  image: string | null;
+  role: string;
+  status: "active" | "pending";
+  joinedAt: string;
+};

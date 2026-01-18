@@ -4,8 +4,10 @@ import { Link, useLocation } from "@tanstack/react-router";
 
 const ContentSidebar = () => {
   const { pathname } = useLocation();
-  const labId = pathname.split("/")[3];
-  const LIST = labId ? LAB_SIDEBAR_LIST(labId) : SIDEBAR_LIST;
+  const segements = pathname.split("/");
+  const type = segements[2];
+  const id = segements[3];
+  const LIST = type == "space" ? SIDEBAR_LIST(id) : LAB_SIDEBAR_LIST(id);
   return (
     <>
       <ul className="z-20 w-full flex flex-1 flex-col justify-start items-start gap-6 px-6 py-6">
