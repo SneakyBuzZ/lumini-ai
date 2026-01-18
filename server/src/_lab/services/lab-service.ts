@@ -13,7 +13,10 @@ export class LabService {
   }
 
   async create(data: CreateLabDTO, creatorId: string) {
-    const role = await this.workspaceRepository.findMemberRoleById(creatorId);
+    const role = await this.workspaceRepository.findMemberRoleById(
+      creatorId,
+      data.workspaceId
+    );
     if (!role) throw new AppError(403, "Unauthorized");
 
     if (role !== "administrator" && role !== "owner") {
@@ -35,5 +38,9 @@ export class LabService {
 
   async findAll(workspaceId: string) {
     return await this.labRepository.findAll(workspaceId);
+  }
+
+  async findById(labId: string) {
+    return await this.labRepository.findById(labId);
   }
 }

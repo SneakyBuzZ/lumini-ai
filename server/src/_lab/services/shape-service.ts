@@ -1,4 +1,7 @@
-import { ShapeRepository } from "@/_lab/repositories/shape-repository";
+import {
+  ShapeRepository,
+  SnapshotRepository,
+} from "@/_lab/repositories/shape-repository";
 import { ShapeDTO, UpdateShapeDTO } from "@/_lab/dto";
 import { WorkspaceRepository } from "@/_workspace/repositories/workspace-repository";
 import { LabRepository } from "../repositories/lab-repository";
@@ -9,12 +12,16 @@ export class ShapeService {
   private shapeRepository: ShapeRepository;
   private workspaceRepository: WorkspaceRepository;
   private labRepository: LabRepository;
+  private snapshotRepository: SnapshotRepository;
 
   constructor() {
     this.shapeRepository = new ShapeRepository();
     this.workspaceRepository = new WorkspaceRepository();
     this.labRepository = new LabRepository();
+    this.snapshotRepository = new SnapshotRepository();
   }
+
+  //! --- SHAPE METHODS ---
 
   async create(data: ShapeDTO, labId: string, userId: string) {
     const lab = await this.labRepository.findById(labId);
@@ -22,14 +29,14 @@ export class ShapeService {
 
     const isValid = await this.workspaceRepository.findIsWorkspaceMember(
       lab.workspaceId,
-      userId
+      userId,
     );
     if (!isValid)
       throw new AppError(403, "You are not a member of this workspace");
 
     return await db.transaction(async (tx) => {
       const shape = await this.shapeRepository.save(data, labId, tx);
-      await this.shapeRepository.saveToSnapshot(shape, labId, tx);
+      await this.snapshotRepository.saveToSnapshot(shape, labId, tx);
       return shape;
     });
   }
@@ -38,14 +45,14 @@ export class ShapeService {
     shapeId: string,
     labId: string,
     data: UpdateShapeDTO,
-    userId: string
+    userId: string,
   ) {
     const lab = await this.labRepository.findById(labId);
     if (!lab) throw new AppError(404, "Lab not found");
 
     const isValid = await this.workspaceRepository.findIsWorkspaceMember(
       lab.workspaceId,
-      userId
+      userId,
     );
     if (!isValid)
       throw new AppError(403, "You are not a member of this workspace");
@@ -61,15 +68,55 @@ export class ShapeService {
         shapeId,
         labId,
         data,
-        tx
+        tx,
       );
 
-      await this.shapeRepository.saveToSnapshot(updatedShape, labId, tx);
+      await this.snapshotRepository.saveToSnapshot(updatedShape, labId, tx);
       return updatedShape;
     });
   }
 
+  async delete(shapeId: string, labId: string, userId: string) {
+    const lab = await this.labRepository.findById(labId);
+    if (!lab) throw new AppError(404, "Lab not found");
+
+    const isMember = await this.workspaceRepository.findIsWorkspaceMember(
+      lab.workspaceId,
+      userId,
+    );
+    if (!isMember)
+      throw new AppError(403, "You are not a member of this workspace");
+
+    return await this.shapeRepository.delete(shapeId, labId);
+  }
+
   async findAll(labId: string) {
     return await this.shapeRepository.findAll(labId);
+  }
+
+  //! --- SNAPSHOT METHODS ---
+
+  async findSnapshot(labId: string, userId: string) {
+    const lab = await this.labRepository.findById(labId);
+    if (!lab) throw new AppError(404, "Lab not found");
+
+    const isMember = await this.workspaceRepository.findIsWorkspaceMember(
+      lab.workspaceId,
+      userId,
+    );
+    if (!isMember)
+      throw new AppError(403, "You are not a member of this workspace");
+
+    let snapshot = await this.snapshotRepository.findByLabId(labId);
+
+    if (!snapshot) {
+      snapshot = await this.snapshotRepository.rebuildFromShapes(labId);
+    }
+
+    return {
+      labId,
+      snapshot: snapshot.data,
+      version: snapshot.version,
+    };
   }
 }

@@ -24,7 +24,7 @@ export const shapeDTO = z.object({
   opacity: z.number().min(0).max(1).default(1),
 
   // -- Text --
-  text: z.string().min(2).max(256).optional(),
+  text: z.string().min(0).max(256).optional(),
   textColor: z.string().min(2).max(32).default("#ebebeb"),
   fontSize: z.number().min(1).max(256).default(16),
   fontFamily: z.string().min(2).max(64).default("sans-serif"),
@@ -43,12 +43,20 @@ export const shapeDTO = z.object({
   version: z.number().default(1),
 });
 
-// add id to shape dto
-export const ShapeType = shapeDTO.extend({
+export const shapeType = shapeDTO.extend({
   id: z.string().cuid(),
+});
+
+export const snapshotDTO = z.object({
+  labId: z.string().cuid(),
+  data: z.object({
+    shapes: z.record(shapeType),
+  }),
+  version: z.number().default(1),
 });
 
 export type CreateLabDTO = z.infer<typeof createLabDTO>;
 export type ShapeDTO = z.infer<typeof shapeDTO>;
-export type ShapeType = z.infer<typeof ShapeType>;
+export type ShapeType = z.infer<typeof shapeType>;
 export type UpdateShapeDTO = Partial<ShapeDTO>;
+export type SnapshotDTO = z.infer<typeof snapshotDTO>;

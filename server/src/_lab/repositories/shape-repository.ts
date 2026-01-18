@@ -2,11 +2,15 @@ import { db, DbExecutor } from "@/lib/config/db-config";
 import { shapesTable, snapshotsTable } from "@/_lab/models/shape-table";
 import { ShapeDTO, ShapeType, UpdateShapeDTO } from "@/_lab/dto";
 import { and, eq, sql } from "drizzle-orm";
+import { AppError } from "@/utils/error";
 
 export class ShapeRepository {
   public shapeDefaults = shapeDefaults;
+  private snapshotRepository: SnapshotRepository;
 
-  //! --- SHAPE METHODS ---
+  constructor() {
+    this.snapshotRepository = new SnapshotRepository();
+  }
 
   //* --- Save a single shape ---
   async save(data: ShapeDTO, labId: string, tx?: DbExecutor) {
@@ -37,7 +41,7 @@ export class ShapeRepository {
     shapeId: string,
     labId: string,
     patch: UpdateShapeDTO,
-    tx?: DbExecutor
+    tx?: DbExecutor,
   ) {
     const queryBuilder = tx || db;
     const [updated] = await queryBuilder
@@ -110,15 +114,45 @@ export class ShapeRepository {
     });
   }
 
-  //! --- SNAPSHOT METHODS ---
+  //* --- Soft delete a shape ---
+  async softDelete(shapeId: string, labId: string, tx?: DbExecutor) {
+    const queryBuilder = tx || db;
+    const [deleted] = await queryBuilder
+      .update(shapesTable)
+      .set({
+        isDeleted: true,
+        version: sql`${shapesTable.version} + 1`,
+        updatedAt: new Date(),
+      })
+      .where(and(eq(shapesTable.id, shapeId), eq(shapesTable.labId, labId)))
+      .returning();
 
+    return deleted;
+  }
+
+  //* --- Delete a shape ---
+
+  async delete(shapeId: string, labId: string) {
+    return await db.transaction(async (tx) => {
+      const shape = await this.findById(shapeId, labId, tx);
+      if (!shape || shape.isDeleted) throw new AppError(404, "Shape not found");
+
+      if (shape.isLocked)
+        throw new AppError(403, "Shape is locked and cannot be deleted");
+
+      const deletedShape = await this.softDelete(shapeId, labId, tx);
+      await this.snapshotRepository.removeFromSnapshot(shapeId, labId, tx);
+
+      return deletedShape;
+    });
+  }
+}
+
+export class SnapshotRepository {
+  //* --- Save or update a shape in snapshot ---
   async saveToSnapshot(shape: ShapeType, labId: string, tx?: DbExecutor) {
     const queryBuilder = tx || db;
-    const [snapshot] = await queryBuilder
-      .select()
-      .from(snapshotsTable)
-      .where(eq(snapshotsTable.labId, labId))
-      .limit(1);
+    const snapshot = await this.findByLabId(labId, queryBuilder);
 
     if (!snapshot) {
       await queryBuilder.insert(snapshotsTable).values({
@@ -148,6 +182,68 @@ export class ShapeRepository {
         updatedAt: new Date(),
       })
       .where(eq(snapshotsTable.labId, labId));
+  }
+
+  //* --- Remove a shape from snapshot ---
+  async removeFromSnapshot(shapeId: string, labId: string, tx?: DbExecutor) {
+    const queryBuilder = tx || db;
+    const [snapshot] = await queryBuilder
+      .select()
+      .from(snapshotsTable)
+      .where(eq(snapshotsTable.labId, labId))
+      .limit(1);
+
+    if (!snapshot) return;
+
+    const { [shapeId]: _, ...remainingShapes } = snapshot.data.shapes ?? {};
+
+    await queryBuilder
+      .update(snapshotsTable)
+      .set({
+        data: {
+          ...snapshot.data,
+          shapes: remainingShapes,
+        },
+        updatedAt: new Date(),
+      })
+      .where(eq(snapshotsTable.labId, labId));
+  }
+
+  //* --- Find snapshot by labId ---
+  async findByLabId(labId: string, tx?: DbExecutor) {
+    const queryBuilder = tx || db;
+    const [snapshot] = await queryBuilder
+      .select()
+      .from(snapshotsTable)
+      .where(eq(snapshotsTable.labId, labId))
+      .limit(1);
+    return snapshot;
+  }
+
+  //* --- Rebuild snapshot from existing shapes ---
+  async rebuildFromShapes(labId: string, tx?: DbExecutor) {
+    const queryBuilder = tx || db;
+    const shapes = await queryBuilder
+      .select()
+      .from(shapesTable)
+      .where(
+        and(eq(shapesTable.labId, labId), eq(shapesTable.isDeleted, false)),
+      );
+
+    const snapShotData = {
+      shapes: Object.fromEntries(shapes.map((shape) => [shape.id, shape])),
+    };
+
+    const [snapshot] = await queryBuilder
+      .insert(snapshotsTable)
+      .values({
+        labId,
+        data: snapShotData,
+        version: 1,
+      })
+      .returning();
+
+    return snapshot;
   }
 }
 

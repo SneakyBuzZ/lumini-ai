@@ -1,6 +1,6 @@
 import { authenticateJwt } from "@/middlewares/authenticate-middleware";
 import { Router } from "express";
-import { createLabDTO, shapeDTO } from "@/_lab/dto";
+import { createLabDTO, shapeDTO, shapeType } from "@/_lab/dto";
 import { LabController } from "@/_lab/controllers/lab-controller";
 import { validateData } from "@/middlewares/validate-middleware";
 
@@ -17,6 +17,15 @@ labRouter.post(
   validateData(shapeDTO),
   labController.createShape
 );
+
+labRouter.put(
+  "/:labId/shapes/:shapeId",
+  validateData(shapeDTO.partial()),
+  labController.updateShape
+);
+
 labRouter.get("/:labId/shapes", labController.getAllShapes);
+
+labRouter.delete("/:labId/shapes/:shapeId", labController.deleteShape);
 
 export default labRouter;
