@@ -4,7 +4,7 @@ import { WebSocketServer } from "ws";
 import { validateSocketConnection } from "@/lib/ws/validation";
 import { joinLab, leaveLab } from "@/lib/ws/ws-room";
 import { broadcastPresenceUpdate, broadcastToLab } from "@/lib/ws/ws-events";
-import { PresenceJoinEvent, PresenceLeaveEvent } from "@/lib/types/ws-type";
+import { PresenceJoinEvent, WSEvent } from "@/lib/types/ws-type";
 
 export const initWebSocketServer = (server: Server) => {
   const wss = new WebSocketServer({
@@ -38,12 +38,46 @@ export const initWebSocketServer = (server: Server) => {
       return;
     }
 
+    socket.on("message", (raw) => {
+      let data: any;
+      try {
+        data = JSON.parse(raw.toString());
+      } catch {
+        return;
+      }
+
+      const labId = (socket as any).labId;
+      const user = (socket as any).user;
+      if (!labId || !user) return;
+
+      if (data.type === "cursor:move") {
+        //^ ---- BROADCAST CURSOR MOVE EVENT ----
+        const event: WSEvent = {
+          type: "cursor:move",
+          userId: user.id,
+          x: data.x,
+          y: data.y,
+        };
+        broadcastToLab(labId, event, socket);
+      }
+    });
+
     socket.on("close", () => {
       const { labId, user } = socket as any;
-      if (labId) leaveLab(labId, socket);
+      if (!labId || !user) return;
+
+      //^ ---- LEAVE LAB ----
+      leaveLab(labId, socket);
+
+      //^ ---- BROADCAST CURSOR LEAVE EVENT ----
+      const leaveData: WSEvent = {
+        type: "cursor:leave",
+        userId: user.id,
+      };
+      broadcastToLab(labId, leaveData, socket);
 
       //^ ---- BROADCAST LEAVE EVENT ----
-      const data: PresenceLeaveEvent = {
+      const data: WSEvent = {
         type: "presence:leave",
         userId: user.id,
       };

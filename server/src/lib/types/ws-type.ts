@@ -18,7 +18,21 @@ export type PresenceSnapshotEvent = {
   users: PresenceUser[];
 };
 
+export type CursorMoveEvent = {
+  type: "cursor:move";
+  userId: string;
+  x: number;
+  y: number;
+};
+
+export type CursorLeaveEvent = {
+  type: "cursor:leave";
+  userId: string;
+};
+
 export type WSEvent =
   | PresenceJoinEvent
   | PresenceLeaveEvent
-  | PresenceSnapshotEvent;
+  | PresenceSnapshotEvent
+  | CursorMoveEvent
+  | CursorLeaveEvent;
