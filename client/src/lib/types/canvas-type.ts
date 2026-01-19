@@ -120,6 +120,7 @@ export type Actions = {
     setDoubleClickLock: (lock: boolean) => void;
     setCursor: (cursor: CanvasCusor) => void;
     hydrateView: (view: UpsertView) => void;
+    reset: () => void;
   };
 
   // --- Pan Actions ---

@@ -9,6 +9,8 @@ import { Route } from "@/routes/dashboard/lab/$id/canvas";
 import { getView } from "@/lib/api/lab-api";
 import useCanvasStore from "@/lib/store/canvas-store";
 import { useCanvasViewPersistence } from "@/hooks/use-canvas-view-persistence";
+import { computeZoomToFit } from "@/lib/canvas/view";
+import { ResetViewButton } from "./reset-view-button";
 
 interface CanvasProps {
   snapshot: GetSnapshot;
@@ -17,6 +19,7 @@ interface CanvasProps {
 export function Canvas({ snapshot }: CanvasProps) {
   const { id: labId } = Route.useParams();
   const textareaRef = useRef<HTMLInputElement>(null);
+  const didAutoFitRef = useRef(false);
 
   useCanvasPersistence(labId);
   useCanvasViewPersistence(labId);
@@ -53,20 +56,38 @@ export function Canvas({ snapshot }: CanvasProps) {
   // --- hydrate view ---
   useEffect(() => {
     if (!hasHydrated) return;
+    if (didAutoFitRef.current) return;
 
     let cancelled = false;
     const activeLab = labId;
+
     (async () => {
       const view = await getView(activeLab);
-      if (!view || cancelled || activeLab !== labId) return;
+      if (activeLab !== labId || cancelled) return;
 
-      hydrateView(view);
+      //saved view wins
+      if (view) {
+        hydrateView(view);
+        didAutoFitRef.current = true;
+        return;
+      }
+
+      //no saved view, auto-fit
+      const canvas = canvasRef.current;
+      const shapesArray = Object.values(store.shapes);
+      if (!canvas || shapesArray.length === 0) return;
+
+      const rect = canvas.getBoundingClientRect();
+      const fit = computeZoomToFit(shapesArray, rect.width, rect.height);
+
+      hydrateView(fit);
+      didAutoFitRef.current = true;
     })();
 
     return () => {
       cancelled = true;
     };
-  }, [labId, hasHydrated, hydrateView]);
+  }, [labId, hasHydrated, hydrateView, store.shapes, canvasRef]);
 
   // --- redraw with proper cursor ---
   const redraw = useCallback(() => {
@@ -222,7 +243,10 @@ export function Canvas({ snapshot }: CanvasProps) {
             />
           </div>
         )}
-        <ZoomDropdown scale={scale} />
+        <div className="absolute top-3 right-3 flex gap-2">
+          <ResetViewButton />
+          <ZoomDropdown scale={scale} />
+        </div>
       </div>
     </>
   );

@@ -16,8 +16,8 @@ interface TextSizeDropdownProps {
 export default function ZoomDropdown({ scale = 100 }: TextSizeDropdownProps) {
   const { view } = useCanvasStore();
   const zoomPercent = Math.round(scale * 100);
-  const MIN_ZOOM = 0.1; // 10%
-  const MAX_ZOOM = 2; // 200%
+  const MIN_ZOOM = 0.1;
+  const MAX_ZOOM = 2;
 
   const handleIncrementZoom = () => {
     const newScale = scale + 0.1;
@@ -31,8 +31,8 @@ export default function ZoomDropdown({ scale = 100 }: TextSizeDropdownProps) {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="absolute top-2 right-2 p-1 px-2 flex items-center justify-center gap-2 hover:bg-midnight-100 border-0 rounded-lg">
-        <span className="text-white text-sm">{zoomPercent}%</span>
+      <DropdownMenuTrigger className="h-8 p-1 px-2 flex items-center justify-center gap-2 bg-midnight-100 hover:bg-neutral-800/70 border border-neutral-800 rounded-lg">
+        <span className="text-white text-[14px]">{zoomPercent}%</span>
         <img
           className="w-[5.5px] h-[5.5px] rotate-180"
           src={"/assets/icons/chevron-up.svg"}

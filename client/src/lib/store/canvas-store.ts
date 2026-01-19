@@ -244,6 +244,7 @@ const useCanvasStore = create<State & Actions>()(
           offsetX: view.offsetX,
           offsetY: view.offsetY,
         }),
+      reset: () => set({ scale: 1, offsetX: 0, offsetY: 0 }),
     },
 
     // --- Pan ---
