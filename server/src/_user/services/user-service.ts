@@ -34,4 +34,9 @@ export class UserService {
     }
     return user;
   }
+
+  async findByIds(ids: string[]) {
+    const users = await this.userRepository.findByIds(ids);
+    return users || [];
+  }
 }

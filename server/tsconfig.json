@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES6",
+    "lib": ["ES2020"],
     "moduleResolution": "node",
     "module": "commonjs",
     "esModuleInterop": true,
@@ -19,6 +20,10 @@
     },
     "types": ["node"]
   },
-  "include": ["src/**/*.ts", "src/lib/config/drizzle.config.ts"],
+  "include": [
+    "src/**/*.ts",
+    "src/lib/config/drizzle.config.ts",
+    "src/**/*.d.ts"
+  ],
   "exclude": ["node_modules"]
 }

@@ -10,6 +10,8 @@ import { errorMiddleware } from "./middlewares/error-middleware";
 import authRouter from "@/_user/routes/auth-route";
 import labRouter from "@/_lab/routes/lab-route";
 import { authenticateJwt } from "./middlewares/authenticate-middleware";
+import http from "http";
+import { initWebSocketServer } from "./ws";
 
 const app = express();
 
@@ -30,6 +32,9 @@ app.use("/api/workspace", authenticateJwt(), workspaceRouter);
 
 app.use(errorMiddleware);
 
-app.listen(PORT, () => {
+const server = http.createServer(app);
+initWebSocketServer(server);
+
+server.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });

@@ -12,18 +12,11 @@ const userController = new UserController();
 userRouter.post(
   "/",
   validateData(RegisterUserDTO),
-  catchAsync(userController.register)
+  catchAsync(userController.register),
 );
 
 userRouter.get("/", authenticateJwt(), catchAsync(userController.getUser));
 
-// userRouter.get("/login/google", catchAsync(userController.));
-// userRouter.get("/login/github", catchAsync(userController.loginWithGithub));
-
-// userRouter.get(
-//   "/is-authenticated",
-//   authenticateJwt(),
-//   catchAsync(userController.getIsAuthenticated)
-// );
+userRouter.get("/all", catchAsync(userController.getUsersByIds));
 
 export default userRouter;

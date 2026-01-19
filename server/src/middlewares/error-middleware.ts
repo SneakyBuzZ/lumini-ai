@@ -6,7 +6,7 @@ export const errorMiddleware: ErrorRequestHandler = (
   err: any,
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): void => {
   console.error("❌ Error:", err);
 
