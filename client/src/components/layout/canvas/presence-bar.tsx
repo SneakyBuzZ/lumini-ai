@@ -13,7 +13,7 @@ type PresenceUser = {
 
 type Props = {
   users: PresenceUser[];
-  user: User;
+  user: User | null;
 };
 
 export function PresenceBar({ users, user }: Props) {
@@ -26,13 +26,17 @@ export function PresenceBar({ users, user }: Props) {
     }
 
     // current user (ensure present + colored)
-    map.set(user.id, {
-      ...user,
-      color: "#2563eb",
-    });
+    if (user) {
+      map.set(user.id, {
+        ...user,
+        color: "#2563eb",
+      });
+    }
 
     return Array.from(map.values());
   }, [users, user]);
+
+  if (!user) return null;
   return (
     <div className="flex items-center h-11 p-1 pr-[2px] rounded-full -space-x-5">
       {allUsers.map((user) => (

@@ -20,37 +20,41 @@ export function usePresenceProfiles(presence: PresenceUser[]) {
   const [profiles, setProfiles] = useState<UserProfile[]>([]);
 
   useEffect(() => {
-    const missingIds = presence
-      .map((u) => u.id)
-      .filter((id) => !cacheRef.current.has(id));
+    const ids = presence.map((u) => u.id);
 
-    if (missingIds.length === 0) {
-      setProfiles(
-        presence.map((u) => ({
-          ...cacheRef.current.get(u.id)!,
-          color: u.color,
-        })),
-      );
+    const missingIds = ids.filter((id) => !cacheRef.current.has(id));
+
+    if (missingIds.length > 0) {
+      api
+        .get("/user/all", {
+          params: { ids: missingIds.join(",") },
+        })
+        .then((res) => {
+          for (const user of res.data.payload) {
+            cacheRef.current.set(user.id, user);
+          }
+
+          setProfiles(
+            presence
+              .map((u) => {
+                const profile = cacheRef.current.get(u.id);
+                return profile ? { ...profile, color: u.color } : null;
+              })
+              .filter(Boolean) as UserProfile[],
+          );
+        });
+
       return;
     }
 
-    api
-      .get("/user/all", {
-        params: { ids: missingIds.join(",") },
-      })
-      .then((res) => {
-        const data = res.data.payload;
-        for (const user of data) {
-          cacheRef.current.set(user.id, user);
-        }
-
-        setProfiles(
-          presence.map((u) => ({
-            ...cacheRef.current.get(u.id)!,
-            color: u.color,
-          })),
-        );
-      });
+    setProfiles(
+      presence
+        .map((u) => {
+          const profile = cacheRef.current.get(u.id);
+          return profile ? { ...profile, color: u.color } : null;
+        })
+        .filter(Boolean) as UserProfile[],
+    );
   }, [presence]);
 
   return profiles;

@@ -15,22 +15,16 @@ import { usePresence } from "@/hooks/use-presence";
 import { PresenceBar } from "./presence-bar";
 import { usePresenceProfiles } from "@/hooks/use-presence-profiles";
 import { useGetUser } from "@/lib/api/queries/user-queries";
+import { useSocket } from "@/hooks/use-socket";
+import { useCursorBroadcast } from "@/hooks/use-cursor-broadcast";
+import { RemoteCursors } from "./remote-cursors";
+import useRemoteCursors from "@/hooks/use-remote-cursors";
 
 interface CanvasProps {
   snapshot: GetSnapshot;
 }
 
 export function Canvas({ snapshot }: CanvasProps) {
-  const { id: labId } = Route.useParams();
-  const textareaRef = useRef<HTMLInputElement>(null);
-  const didAutoFitRef = useRef(false);
-
-  useCanvasPersistence(labId);
-  useCanvasViewPersistence(labId);
-  const presenceUsers = usePresence(labId);
-  const userProfiles = usePresenceProfiles(presenceUsers);
-  const { data: userProfile } = useGetUser();
-
   const {
     canvasRef,
     onMouseDown,
@@ -44,6 +38,25 @@ export function Canvas({ snapshot }: CanvasProps) {
     onTextChange,
     onTextBlur,
   } = useCanvas();
+
+  const { id: labId } = Route.useParams();
+  const textareaRef = useRef<HTMLInputElement>(null);
+  const didAutoFitRef = useRef(false);
+
+  useCanvasPersistence(labId);
+  useCanvasViewPersistence(labId);
+
+  const wsRef = useSocket(labId);
+  const ws = wsRef.current;
+  const remoteCursors = useRemoteCursors(ws);
+  useCursorBroadcast(editingText ? null : ws, canvasRef, {
+    scale: store.scale,
+    offsetX: store.offsetX,
+    offsetY: store.offsetY,
+  });
+  const presenceUsers = usePresence(wsRef);
+  const userProfiles = usePresenceProfiles(presenceUsers);
+  const { data: userProfile } = useGetUser();
 
   const { data } = snapshot;
   const { shapes, scale, offsetX, offsetY, mode, cursor } = store;
@@ -186,6 +199,13 @@ export function Canvas({ snapshot }: CanvasProps) {
           onMouseUp={onMouseUp}
           onDoubleClick={onDoubleClick}
         />
+
+        <RemoteCursors
+          cursors={remoteCursors}
+          users={userProfiles}
+          transform={{ scale, offsetX, offsetY }}
+        />
+
         {editingText && (
           <div
             style={{
@@ -259,9 +279,7 @@ export function Canvas({ snapshot }: CanvasProps) {
             Online
             <div className="h-2 w-2 rounded-full bg-green-500" />
           </span>
-          {userProfile && (
-            <PresenceBar users={userProfiles} user={userProfile} />
-          )}
+          <PresenceBar users={userProfiles} user={userProfile ?? null} />
         </div>
       </div>
     </>

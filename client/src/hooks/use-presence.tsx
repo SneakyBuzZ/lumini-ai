@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 type PresenceUser = {
   id: string;
@@ -10,15 +10,13 @@ type PresenceEvent =
   | { type: "presence:join"; user: PresenceUser }
   | { type: "presence:leave"; userId: string };
 
-export function usePresence(labId: string) {
-  const wsRef = useRef<WebSocket | null>(null);
+export function usePresence(wsRef: React.RefObject<WebSocket | null>) {
   const [users, setUsers] = useState<Map<string, PresenceUser>>(new Map());
 
   useEffect(() => {
-    const ws = new WebSocket(`http://localhost:5000/ws?labId=${labId}`);
-    wsRef.current = ws;
-
-    ws.onmessage = (event) => {
+    if (!wsRef.current) return;
+    const ws = wsRef.current;
+    function onMessage(event: MessageEvent) {
       const data = JSON.parse(event.data) as PresenceEvent;
 
       setUsers((prev) => {
@@ -41,14 +39,14 @@ export function usePresence(labId: string) {
 
         return next;
       });
-    };
+    }
+
+    ws.addEventListener("message", onMessage);
 
     return () => {
-      ws.close();
+      ws.removeEventListener("message", onMessage);
     };
-  }, [labId]);
+  }, [wsRef]);
 
-  const usersArray = useMemo(() => Array.from(users.values()), [users]);
-
-  return usersArray;
+  return useMemo(() => Array.from(users.values()), [users]);
 }
