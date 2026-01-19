@@ -1,46 +1,81 @@
-import { createShape, deleteShape, updateShape } from "@/lib/api/lab-api";
+import { BatchUpdateShapes } from "@/lib/api/dto";
+import { batchUpdateShapes } from "@/lib/api/lab-api";
+import { scheduleFlush, shapeToOperation } from "@/lib/canvas/persistence";
 import useCanvasStore from "@/lib/store/canvas-store";
-import { useEffect, useRef } from "react";
+import { Actions, State } from "@/lib/types/canvas-type";
+import { useCallback, useEffect, useRef } from "react";
+
+const selectCommitSignal = (state: State & Actions) => {
+  return Object.values(state.shapes)
+    .sort((a, b) => a.id.localeCompare(b.id))
+    .map((s) => `${s.id}:${s.commitVersion}:${s.lastPersistedVersion}`)
+    .join("|");
+};
 
 export default function useCanvasPersistence(labId: string) {
   const isPersistingRef = useRef(false);
+  const lastFlushedSignatureRef = useRef<string | null>(null);
 
-  useEffect(() => {
-    const unsubscribe = useCanvasStore.subscribe(async (state) => {
-      if (isPersistingRef.current) return;
+  const flush = useCallback(async () => {
+    if (isPersistingRef.current) return;
 
-      const shapes = Object.values(state.shapes);
-      for (const shape of shapes) {
-        if (shape.commitVersion <= shape.lastPersistedVersion) continue;
+    const store = useCanvasStore.getState();
+    if (store.drawingInProgress || store.isRestoringFromHistory) return;
 
-        try {
-          isPersistingRef.current = true;
+    const shapes = Object.values(store.shapes);
 
-          if (
-            shape.persistStatus === "new" &&
-            !useCanvasStore.getState().drawingInProgress
-          ) {
-            await createShape(labId, shape);
-          }
+    const pending = shapes.filter(
+      (s) => s.commitVersion > s.lastPersistedVersion,
+    );
+    if (pending.length === 0) return;
 
-          if (shape.persistStatus === "updated") {
-            await updateShape(labId, shape.id, shape);
-          }
+    const signature = pending
+      .sort((a, b) => a.id.localeCompare(b.id))
+      .map((s) => `${s.id}:${s.commitVersion}`)
+      .join("|");
 
-          if (shape.persistStatus === "deleted") {
-            await deleteShape(labId, shape.id);
-            useCanvasStore.getState().shapesActions.remove(shape.id);
-          }
+    if (lastFlushedSignatureRef.current === signature) return;
+    lastFlushedSignatureRef.current = signature;
 
-          useCanvasStore.getState().markAsSynced(shape.id, shape.commitVersion);
-        } catch (error) {
-          console.error("Error persisting shape: ", error);
-        } finally {
-          isPersistingRef.current = false;
+    const operations = pending
+      .map(shapeToOperation)
+      .filter((op): op is NonNullable<typeof op> => op !== null);
+    if (operations.length === 0) return;
+
+    const requestBody: BatchUpdateShapes = {
+      labId,
+      operations,
+    };
+
+    try {
+      isPersistingRef.current = true;
+      const res = await batchUpdateShapes(requestBody);
+
+      for (const { shapeId, commitVersion } of res.applied) {
+        store.markAsSynced(shapeId, commitVersion);
+
+        const shape = store.shapes[shapeId];
+        if (shape?.persistStatus === "deleted") {
+          store.shapesActions.remove(shapeId);
         }
       }
+
+      lastFlushedSignatureRef.current = null;
+    } catch (error) {
+      lastFlushedSignatureRef.current = null;
+      console.error("Error persisting shapes:", error);
+    } finally {
+      isPersistingRef.current = false;
+    }
+  }, [labId]);
+
+  useEffect(() => {
+    const unsubscribe = useCanvasStore.subscribe(selectCommitSignal, () => {
+      const store = useCanvasStore.getState();
+      if (!store.hasHydrated) return;
+      scheduleFlush(flush);
     });
 
     return unsubscribe;
-  }, [labId]);
+  }, [flush]);
 }

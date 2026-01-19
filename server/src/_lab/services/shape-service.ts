@@ -1,8 +1,9 @@
 import {
   ShapeRepository,
   SnapshotRepository,
+  ViewRepository,
 } from "@/_lab/repositories/shape-repository";
-import { ShapeDTO, UpdateShapeDTO } from "@/_lab/dto";
+import { ShapeDTO, UpdateBatchDTO, UpdateShapeDTO, ViewDTO } from "@/_lab/dto";
 import { WorkspaceRepository } from "@/_workspace/repositories/workspace-repository";
 import { LabRepository } from "../repositories/lab-repository";
 import { AppError } from "@/utils/error";
@@ -13,12 +14,14 @@ export class ShapeService {
   private workspaceRepository: WorkspaceRepository;
   private labRepository: LabRepository;
   private snapshotRepository: SnapshotRepository;
+  private viewRepository: ViewRepository;
 
   constructor() {
     this.shapeRepository = new ShapeRepository();
     this.workspaceRepository = new WorkspaceRepository();
     this.labRepository = new LabRepository();
     this.snapshotRepository = new SnapshotRepository();
+    this.viewRepository = new ViewRepository();
   }
 
   //! --- SHAPE METHODS ---
@@ -94,6 +97,10 @@ export class ShapeService {
     return await this.shapeRepository.findAll(labId);
   }
 
+  async batchUpdate(data: UpdateBatchDTO) {
+    return await this.shapeRepository.batchUpdate(data);
+  }
+
   //! --- SNAPSHOT METHODS ---
 
   async findSnapshot(labId: string, userId: string) {
@@ -118,5 +125,15 @@ export class ShapeService {
       snapshot: snapshot.data,
       version: snapshot.version,
     };
+  }
+
+  //! --- VIEW METHODS ---
+
+  async upsertView(data: ViewDTO, userId: string, labId: string) {
+    return await this.viewRepository.upsert({ ...data, userId, labId });
+  }
+
+  async findView(labId: string, userId: string) {
+    return await this.viewRepository.find(labId, userId);
   }
 }

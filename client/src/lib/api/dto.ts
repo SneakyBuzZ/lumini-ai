@@ -35,3 +35,29 @@ export type GetSnapshot = {
   };
   version: number;
 };
+
+export type CreateOrUpdateOp = {
+  op: "create" | "update";
+  shapeId: string;
+  commitVersion: number;
+  payload: DBShape;
+};
+
+export type DeleteOp = {
+  op: "delete";
+  shapeId: string;
+  commitVersion: number;
+  payload: null;
+};
+
+export type ShapeBatchOperation = CreateOrUpdateOp | DeleteOp;
+export interface BatchUpdateShapes {
+  labId: string;
+  operations: ShapeBatchOperation[];
+}
+
+export type UpsertView = {
+  scale: number;
+  offsetX: number;
+  offsetY: number;
+};

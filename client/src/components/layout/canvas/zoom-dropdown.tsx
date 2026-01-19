@@ -16,8 +16,8 @@ interface TextSizeDropdownProps {
 export default function ZoomDropdown({ scale = 100 }: TextSizeDropdownProps) {
   const { view } = useCanvasStore();
   const zoomPercent = Math.round(scale * 100);
-  const MIN_ZOOM = 0.1; // 10%
-  const MAX_ZOOM = 2; // 200%
+  const MIN_ZOOM = 0.1;
+  const MAX_ZOOM = 2;
 
   const handleIncrementZoom = () => {
     const newScale = scale + 0.1;
@@ -31,8 +31,8 @@ export default function ZoomDropdown({ scale = 100 }: TextSizeDropdownProps) {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="absolute top-2 right-2 p-1 px-2 flex items-center justify-center gap-2 hover:bg-midnight-100 border-0 rounded-lg">
-        <span className="text-white text-sm">{zoomPercent}%</span>
+      <DropdownMenuTrigger className="h-11 px-3 flex items-center justify-center gap-1.5 rounded-r-full bg-midnight-200 hover:bg-neutral-900/70 border border-neutral-800/60 ">
+        <span className="text-white text-[12px]">{zoomPercent}%</span>
         <img
           className="w-[5.5px] h-[5.5px] rotate-180"
           src={"/assets/icons/chevron-up.svg"}
@@ -41,7 +41,7 @@ export default function ZoomDropdown({ scale = 100 }: TextSizeDropdownProps) {
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        className="w-[6rem] bg-midnight-200/70 border-midnight-100 backdrop-blur-md"
+        className="w-[7rem] bg-midnight-200/70 border-midnight-100 backdrop-blur-md translate-x-1.5 -translate-y-2"
       >
         <DropdownMenuLabel className="flex items-center justify-start w-full p-1">
           <button

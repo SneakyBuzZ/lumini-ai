@@ -71,7 +71,7 @@ export default function FillDropdown({ selectedShapes }: FillDropdownProps) {
 
   useEffect(() => {
     const initialShapes = Object.fromEntries(
-      selectedShapes.map((shape) => [shape.id, shape])
+      selectedShapes.map((shape) => [shape.id, shape]),
     );
     setShapes(initialShapes);
   }, [selectedShapes]);
@@ -79,7 +79,7 @@ export default function FillDropdown({ selectedShapes }: FillDropdownProps) {
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open);
     if (!open) {
-      store.shapesActions.clearSelectedShapes();
+      store.selection.clear();
     }
   };
 
@@ -106,7 +106,7 @@ export default function FillDropdown({ selectedShapes }: FillDropdownProps) {
             onSelect={(e) => e.preventDefault()}
             className={cn(
               "w-full h-7 rounded-md border flex justify-center items-center",
-              color.class
+              color.class,
             )}
             key={color.name}
             onClick={() => handleFillColorChange(color.hash)}

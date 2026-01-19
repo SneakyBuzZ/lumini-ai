@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { CanvasMode, Shape, ShapeType } from "@/lib/types/canvas-type";
+import { CanvasMode, CanvasShape } from "@/lib/types/canvas-type";
 import {
   ALargeSmall,
   Circle,
@@ -14,6 +14,7 @@ import { useEffect, useState, useCallback } from "react";
 import EdgeDropdown from "./edge-dropdown";
 import TextSizeDropdown from "./textsize-dropdown";
 import FillDropdown from "./fill-dropdown";
+import { ShapeKind } from "@/lib/types/lab-type";
 
 const tools = [
   {
@@ -39,19 +40,19 @@ const tools = [
 export function Toolbar() {
   const { store } = useCanvas();
   const [currentMode, setCurrentMode] = useState(store.mode);
-  const [selectedShapes, setSelectedShapes] = useState<Shape[]>([]);
+  const [selectedShapes, setSelectedShapes] = useState<CanvasShape[]>([]);
 
   useEffect(() => {
     setCurrentMode(store.mode);
   }, [store.mode]);
 
   const handleSelectTool = useCallback(
-    (type: ShapeType | null, mode: CanvasMode) => {
+    (type: ShapeKind | null, mode: CanvasMode) => {
       store.selection.setMode(mode);
       store.setShapeType(type);
       setCurrentMode(mode);
     },
-    [store]
+    [store],
   );
 
   // Keyboard shortcut support
@@ -62,8 +63,8 @@ export function Toolbar() {
       const tool = tools.find((t) => t.key === key);
       if (tool) {
         handleSelectTool(
-          tool.type as ShapeType | null,
-          tool.mode as CanvasMode
+          tool.type as ShapeKind | null,
+          tool.mode as CanvasMode,
         );
       }
     };
@@ -82,24 +83,24 @@ export function Toolbar() {
   }, [store.shapes]);
 
   return (
-    <div className="flex items-center justify-center p-1 bg-midnight-200/70 z-50 absolute bottom-4 backdrop-blur-sm rounded-xl border border-midnight-100/80 transition-all duration-300">
+    <div className="flex items-center justify-center h-14 p-[3px] bg-midnight-200/70 z-50 absolute bottom-4 backdrop-blur-sm rounded-xl border border-midnight-100/80 transition-all duration-300">
       {tools.map((tool) => (
         <Button
           key={tool.key}
           className={cn(
-            "w-10 h-10 flex items-center justify-center border hover:bg-midnight-100 rounded-lg mx-[2px]",
+            "w-11 h-11 flex items-center justify-center border hover:bg-midnight-100 rounded-[8px] mx-[2px]",
             {
               "bg-teal/30 border-teal/70 hover:bg-teal/50":
                 store.shapeType === tool.type && currentMode === tool.mode,
-              "bg-transparent border-0": !(
+              "bg-transparent border-transparent": !(
                 store.shapeType === tool.type && currentMode === tool.mode
               ),
-            }
+            },
           )}
           onClick={() =>
             handleSelectTool(
-              tool.type as ShapeType | null,
-              tool.mode as CanvasMode
+              tool.type as ShapeKind | null,
+              tool.mode as CanvasMode,
             )
           }
           title={`${tool.name} (${tool.key})`}
@@ -112,7 +113,7 @@ export function Toolbar() {
           "flex items-center overflow-hidden transition-all duration-300 ease-in-out",
           selectedShapes.length > 0
             ? "max-w-[300px] opacity-100"
-            : "gap-0 max-w-0 opacity-0"
+            : "gap-0 max-w-0 opacity-0",
         )}
       >
         <div className="h-7 bg-neutral-800 p-[0.6px] mx-[6px]"></div>

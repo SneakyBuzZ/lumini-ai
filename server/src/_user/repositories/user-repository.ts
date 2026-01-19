@@ -1,6 +1,6 @@
 import { usersTable } from "@/_user/models/user-model";
 import { db, DbExecutor } from "@/lib/config/db-config";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { RegisterUserDTOType } from "../dto";
 
 export class UserRepository {
@@ -30,5 +30,20 @@ export class UserRepository {
       .from(usersTable)
       .where(eq(usersTable.id, id));
     return user;
+  }
+
+  async findByIds(ids: string[], tx?: DbExecutor) {
+    if (!ids.length) return [];
+    const qb = tx ?? db;
+    return qb
+      .select({
+        id: usersTable.id,
+        name: usersTable.name,
+        email: usersTable.email,
+        image: usersTable.image,
+        createdAt: usersTable.createdAt,
+      })
+      .from(usersTable)
+      .where(inArray(usersTable.id, ids));
   }
 }

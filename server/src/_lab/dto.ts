@@ -10,8 +10,8 @@ export const createLabDTO = z.object({
 export const shapeDTO = z.object({
   // -- Geometry --
   type: z.string().min(2).max(32),
-  x: z.number().min(0),
-  y: z.number().min(0),
+  x: z.number(),
+  y: z.number(),
   width: z.number().min(0),
   height: z.number().min(0),
   rotation: z.number().default(0),
@@ -55,8 +55,48 @@ export const snapshotDTO = z.object({
   version: z.number().default(1),
 });
 
+const shapeOperationDTO = z.discriminatedUnion("op", [
+  z.object({
+    op: z.literal("create"),
+    shapeId: z.string(),
+    commitVersion: z.number().int().min(1),
+    payload: shapeDTO,
+  }),
+  z.object({
+    op: z.literal("update"),
+    shapeId: z.string(),
+    commitVersion: z.number().int().min(1),
+    payload: shapeDTO,
+  }),
+  z.object({
+    op: z.literal("delete"),
+    shapeId: z.string(),
+    commitVersion: z.number().int().min(1),
+    payload: z.null(),
+  }),
+]);
+
+export const updateBatchDTo = z.object({
+  labId: z.string().cuid(),
+  operations: z.array(shapeOperationDTO).min(1),
+});
+
+export const viewDTO = z.object({
+  scale: z.number().default(1),
+  offsetX: z.number().default(0),
+  offsetY: z.number().default(0),
+});
+
+export const viewStateDTO = viewDTO.extend({
+  userId: z.string().cuid(),
+  labId: z.string().cuid(),
+});
+
 export type CreateLabDTO = z.infer<typeof createLabDTO>;
 export type ShapeDTO = z.infer<typeof shapeDTO>;
 export type ShapeType = z.infer<typeof shapeType>;
 export type UpdateShapeDTO = Partial<ShapeDTO>;
 export type SnapshotDTO = z.infer<typeof snapshotDTO>;
+export type UpdateBatchDTO = z.infer<typeof updateBatchDTo>;
+export type ViewDTO = z.infer<typeof viewDTO>;
+export type ViewStateDTO = z.infer<typeof viewStateDTO>;

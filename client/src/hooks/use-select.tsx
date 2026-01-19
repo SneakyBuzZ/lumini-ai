@@ -10,10 +10,10 @@ export const useSelect = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
   const initialShapePositionsRef = useRef<
     Record<string, { x: number; y: number }>
   >({});
-
   const altDragRef = useRef<{ originalId: string; copyId: string } | null>(
     null,
   );
+  const didDragRef = useRef(false);
 
   const [selectionBoxStart, setSelectionBoxStart] = useState<{
     x: number;
@@ -26,6 +26,7 @@ export const useSelect = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
 
   /** --- Mouse down --- */
   const onMouseDown = (e: React.MouseEvent) => {
+    didDragRef.current = false;
     if (e.button !== 0) return;
     if (!canvasRef.current || store.mode !== "select") return;
 
@@ -182,6 +183,10 @@ export const useSelect = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
         const dx = x - dragStartRef.current.x;
         const dy = y - dragStartRef.current.y;
 
+        if (!didDragRef.current && (Math.abs(dx) > 2 || Math.abs(dy) > 2)) {
+          didDragRef.current = true;
+        }
+
         store.selectedShapeIds.forEach((id) => {
           const shape = store.shapes[id];
           const initial = initialShapePositionsRef.current[id];
@@ -250,7 +255,7 @@ export const useSelect = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
       return;
     }
 
-    if (dragStartRef.current) {
+    if (dragStartRef.current && didDragRef.current) {
       store.selectedShapeIds.forEach((id) => {
         store.shapesActions.commitShape(id, "updated");
       });

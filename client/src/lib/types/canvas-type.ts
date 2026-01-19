@@ -1,3 +1,4 @@
+import { UpsertView } from "../api/dto";
 import { DBShape, ShapeKind } from "./lab-type";
 
 export type CanvasShape = DBShape & {
@@ -72,6 +73,7 @@ export type State = {
 
   //* --- Server Sync ---
   hasHydrated: boolean;
+  isRestoringFromHistory: boolean;
 };
 
 export type Actions = {
@@ -98,7 +100,6 @@ export type Actions = {
     remove: (shapeId: string) => void;
     batchUpdate: (shapes: Record<string, Partial<CanvasShape>>) => void;
     batchDelete: (shapes: CanvasShape[]) => void;
-    clearSelectedShapes: () => void;
     commitShape: (id: string, type?: "new" | "updated") => void;
   };
   // --- Selection ---
@@ -118,6 +119,8 @@ export type Actions = {
     setOffset: (x: number, y: number) => void;
     setDoubleClickLock: (lock: boolean) => void;
     setCursor: (cursor: CanvasCusor) => void;
+    hydrateView: (view: UpsertView) => void;
+    reset: () => void;
   };
 
   // --- Pan Actions ---
