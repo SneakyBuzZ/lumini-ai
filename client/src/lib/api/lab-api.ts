@@ -113,9 +113,7 @@ export const batchUpdateShapes = async (
     reason: string;
   }[];
 }> => {
-  console.log("REQUEST BODY: ", data);
   const response = await api.post(`/lab/${data.labId}/shapes/batch`, data);
-  console.log("RESPONSE DATA: ", response.data);
   return response.data.payload;
 };
 

@@ -8,9 +8,9 @@ export function ResetViewButton() {
   return (
     <Button
       onClick={resetView}
-      className="h-8 w-8 bg-midnight-100 hover:bg-neutral-800/70 border-neutral-800"
+      className="h-11 w-11 flex justify-center items-center rounded-l-full bg-neutral-800/50 hover:bg-neutral-800/70 border border-neutral-800/60 "
     >
-      <RotateCcw size={9} />
+      <RotateCcw size={14} className="text-neutral-200" />
     </Button>
   );
 }

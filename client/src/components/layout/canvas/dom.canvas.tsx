@@ -11,6 +11,10 @@ import useCanvasStore from "@/lib/store/canvas-store";
 import { useCanvasViewPersistence } from "@/hooks/use-canvas-view-persistence";
 import { computeZoomToFit } from "@/lib/canvas/view";
 import { ResetViewButton } from "./reset-view-button";
+import { usePresence } from "@/hooks/use-presence";
+import { PresenceBar } from "./presence-bar";
+import { usePresenceProfiles } from "@/hooks/use-presence-profiles";
+import { useGetUser } from "@/lib/api/queries/user-queries";
 
 interface CanvasProps {
   snapshot: GetSnapshot;
@@ -23,6 +27,9 @@ export function Canvas({ snapshot }: CanvasProps) {
 
   useCanvasPersistence(labId);
   useCanvasViewPersistence(labId);
+  const presenceUsers = usePresence(labId);
+  const userProfiles = usePresenceProfiles(presenceUsers);
+  const { data: userProfile } = useGetUser();
 
   const {
     canvasRef,
@@ -243,9 +250,18 @@ export function Canvas({ snapshot }: CanvasProps) {
             />
           </div>
         )}
-        <div className="absolute top-3 right-3 flex gap-2">
+        <div className="absolute bottom-4 right-4 flex justify-center items-center gap-1.5 p-1.5 bg-midnight-200/70 h-14 border rounded-full">
           <ResetViewButton />
           <ZoomDropdown scale={scale} />
+        </div>
+        <div className="absolute bottom-4 left-4 flex justify-center items-center gap-1.5 p-1.5 bg-midnight-200/70 h-14 rounded-full border border-neutral-800/60">
+          <span className="h-11 px-3 text-sm flex justify-center items-center gap-2 rounded-full bg-neutral-800/50 border border-neutral-800/60">
+            Online
+            <div className="h-2 w-2 rounded-full bg-green-500" />
+          </span>
+          {userProfile && (
+            <PresenceBar users={userProfiles} user={userProfile} />
+          )}
         </div>
       </div>
     </>

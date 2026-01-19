@@ -30,8 +30,6 @@ export const useSelect = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
     if (e.button !== 0) return;
     if (!canvasRef.current || store.mode !== "select") return;
 
-    console.log("MOUSE IS CLIKCED");
-
     const { x, y } = getCursorCoords(
       canvasRef.current,
       e as unknown as MouseEvent,
@@ -69,8 +67,6 @@ export const useSelect = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
       .reverse()
       .find((s) => isPointInsideShape(s, x, y));
 
-    console.log("CLICKED ON THE SHAPE: ", shape?.type);
-
     const selectedShapes = allShapes.filter((s) => s.isSelected);
     let draggingShapeIds: string[] = [];
 
@@ -96,7 +92,6 @@ export const useSelect = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
       y <= groupBox.y + groupBox.height;
 
     if (shape) {
-      console.log("CLICKED ON SHAPE:", shape.type);
       const isAlreadySelected = selectedShapes.some((s) => s.id === shape.id);
 
       if (!isAlreadySelected || !e.shiftKey) {
