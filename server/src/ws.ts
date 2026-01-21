@@ -4,7 +4,7 @@ import { WebSocketServer } from "ws";
 import { validateSocketConnection } from "@/lib/ws/validation";
 import { joinLab, leaveLab } from "@/lib/ws/ws-room";
 import { broadcastPresenceUpdate, broadcastToLab } from "@/lib/ws/ws-events";
-import { PresenceJoinEvent, WSEvent } from "@/lib/types/ws-type";
+import { EventType, PresenceJoinEvent, WSEvent } from "@/lib/types/ws-type";
 
 export const initWebSocketServer = (server: Server) => {
   const wss = new WebSocketServer({
@@ -52,13 +52,30 @@ export const initWebSocketServer = (server: Server) => {
       const user = socket.user;
       if (!labId || !user) return;
 
-      if (data.type === "cursor:move") {
+      const eventType: EventType = data.type;
+
+      if (eventType === "cursor:move") {
         //^ ---- BROADCAST CURSOR MOVE EVENT ----
         const event: WSEvent = {
           type: "cursor:move",
           userId: user.id,
           x: data.x,
           y: data.y,
+        };
+        broadcastToLab(labId, event, socket);
+      } else if (eventType === "selection:update") {
+        //^ ---- BROADCAST SELECTION UPDATE EVENT ----
+        const event: WSEvent = {
+          type: "selection:update",
+          userId: user.id,
+          shapeIds: data.shapeIds,
+        };
+        broadcastToLab(labId, event, socket);
+      } else if (eventType === "selection:clear") {
+        //^ ---- BROADCAST SELECTION CLEAR EVENT ----
+        const event: WSEvent = {
+          type: "selection:clear",
+          userId: user.id,
         };
         broadcastToLab(labId, event, socket);
       }

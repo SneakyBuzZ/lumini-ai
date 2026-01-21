@@ -3,6 +3,15 @@ export type PresenceUser = {
   color: string;
 };
 
+export type EventType =
+  | "presence:join"
+  | "presence:leave"
+  | "presence:snapshot"
+  | "cursor:move"
+  | "cursor:leave"
+  | "selection:update"
+  | "selection:clear";
+
 export type PresenceJoinEvent = {
   type: "presence:join";
   user: PresenceUser;
@@ -30,9 +39,22 @@ export type CursorLeaveEvent = {
   userId: string;
 };
 
+export type SelectionUpdate = {
+  type: "selection:update";
+  userId: string;
+  shapeIds: string[];
+};
+
+export type SelectionClear = {
+  type: "selection:clear";
+  userId: string;
+};
+
 export type WSEvent =
   | PresenceJoinEvent
   | PresenceLeaveEvent
   | PresenceSnapshotEvent
   | CursorMoveEvent
-  | CursorLeaveEvent;
+  | CursorLeaveEvent
+  | SelectionUpdate
+  | SelectionClear;
