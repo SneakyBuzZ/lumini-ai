@@ -131,6 +131,8 @@ export function Canvas({ snapshot }: CanvasProps) {
       canvas.style.cursor = "crosshair";
     } else if (mode === "select") {
       canvas.style.cursor = cursor || "default";
+    } else {
+      canvas.style.cursor = cursor;
     }
   }, [
     canvasRef,
@@ -189,7 +191,7 @@ export function Canvas({ snapshot }: CanvasProps) {
 
   return (
     <>
-      <div className="relative w-full h-full">
+      <div className="relative w-full h-full canvas-cursor">
         <canvas
           ref={canvasRef}
           tabIndex={0}

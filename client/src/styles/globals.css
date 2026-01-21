@@ -206,6 +206,10 @@ canvas {
   z-index: 1;
 }
 
+.canvas-cursor {
+  cursor: url("/assets/images/lumini-cursor.png") auto;
+}
+
 img {
   @apply pointer-events-none select-none
 }

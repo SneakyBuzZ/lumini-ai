@@ -18,17 +18,7 @@ export type DrawOptions = {
 
 export type CanvasMode = "draw" | "select" | "pan" | "text";
 
-export type CanvasCusor =
-  | "default"
-  | "grab"
-  | "grabbing"
-  | "crosshair"
-  | "pointer"
-  | "nwse-resize"
-  | "nesw-resize"
-  | "ns-resize"
-  | "ew-resize"
-  | "text";
+export type CanvasCusor = CSSStyleDeclaration["cursor"];
 
 export type CanvasSnapshot = {
   shapes: Record<string, CanvasShape>;

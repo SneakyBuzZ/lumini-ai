@@ -3,6 +3,7 @@ import { useRef, useCallback } from "react";
 import useCanvasStore from "@/lib/store/canvas-store";
 import { getCursorCoords } from "@/lib/canvas/utils";
 import { CanvasCusor, CanvasShape } from "@/lib/types/canvas-type";
+import { CURSORS } from "@/lib/canvas/cursor";
 
 type HandleName =
   | "tl"
@@ -214,38 +215,40 @@ export const useResize = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
         store.offsetY,
       );
 
-      let cursor: CanvasCusor = "default";
+      let cursor: CanvasCusor = CURSORS.select;
       const selected = Object.values(store.shapes).filter((s) => s.isSelected);
       const isLineOrArrow =
         selected.length === 1 &&
         (selected[0].type === "line" || selected[0].type === "arrow");
 
       if (resizingRef.current) {
-        const activeHandle = resizingRef.current.handle;
-        if (
-          isLineOrArrow &&
-          (activeHandle === "start" || activeHandle === "end")
-        ) {
-          cursor = "pointer";
-        } else if (["tl", "br"].includes(activeHandle)) cursor = "nwse-resize";
-        else if (["tr", "bl"].includes(activeHandle)) cursor = "nesw-resize";
-        else if (["t", "b"].includes(activeHandle)) cursor = "ns-resize";
-        else if (["l", "r"].includes(activeHandle)) cursor = "ew-resize";
+        const h = resizingRef.current.handle;
+
+        if (isLineOrArrow && (h === "start" || h === "end")) {
+          cursor = CURSORS.lineEndpoint;
+        } else if (["tl", "br"].includes(h)) {
+          cursor = CURSORS.resizeNWSE;
+        } else if (["tr", "bl"].includes(h)) {
+          cursor = CURSORS.resizeNESW;
+        } else if (["t", "b"].includes(h)) {
+          cursor = CURSORS.resizeNS;
+        } else if (["l", "r"].includes(h)) {
+          cursor = CURSORS.resizeEW;
+        }
       } else {
-        const hoveredHandle = getHandleAtPoint(x, y);
-        if (
-          isLineOrArrow &&
-          (hoveredHandle === "start" || hoveredHandle === "end")
-        ) {
-          cursor = "pointer";
-        } else if (hoveredHandle && ["tl", "br"].includes(hoveredHandle))
-          cursor = "nwse-resize";
-        else if (hoveredHandle && ["tr", "bl"].includes(hoveredHandle))
-          cursor = "nesw-resize";
-        else if (hoveredHandle && ["t", "b"].includes(hoveredHandle))
-          cursor = "ns-resize";
-        else if (hoveredHandle && ["l", "r"].includes(hoveredHandle))
-          cursor = "ew-resize";
+        const hovered = getHandleAtPoint(x, y);
+
+        if (isLineOrArrow && (hovered === "start" || hovered === "end")) {
+          cursor = CURSORS.lineEndpoint;
+        } else if (hovered && ["tl", "br"].includes(hovered)) {
+          cursor = CURSORS.resizeNWSE;
+        } else if (hovered && ["tr", "bl"].includes(hovered)) {
+          cursor = CURSORS.resizeNESW;
+        } else if (hovered && ["t", "b"].includes(hovered)) {
+          cursor = CURSORS.resizeNS;
+        } else if (hovered && ["l", "r"].includes(hovered)) {
+          cursor = CURSORS.resizeEW;
+        }
       }
 
       store.view.setCursor(cursor);
