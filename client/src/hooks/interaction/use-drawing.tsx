@@ -25,13 +25,7 @@ export const useDrawing = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
     if (!canvasRef.current) return;
     if (store.mode !== "draw" || !currentTool || !store.shapeType) return;
 
-    const { x, y } = getCursorCoords(
-      canvasRef.current,
-      e,
-      store.scale,
-      store.offsetX,
-      store.offsetY,
-    );
+    const { x, y } = getCursorCoords(canvasRef.current, e, store);
 
     const shape = createShape(currentTool, x, y);
     store.drawing.start(shape, x, y);
@@ -42,13 +36,7 @@ export const useDrawing = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
     if (!canvasRef.current) return;
     if (store.mode !== "draw" || !store.drawingInProgress) return;
 
-    const { x, y } = getCursorCoords(
-      canvasRef.current,
-      e,
-      store.scale,
-      store.offsetX,
-      store.offsetY,
-    );
+    const { x, y } = getCursorCoords(canvasRef.current, e, store);
 
     //* --- Shift for proportional shapes ---
     if (e.shiftKey) {
@@ -86,13 +74,7 @@ export const useDrawing = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
   const onDoubleClick = (e: React.MouseEvent) => {
     if (!canvasRef.current) return;
 
-    const { x, y } = getCursorCoords(
-      canvasRef.current,
-      e,
-      store.scale,
-      store.offsetX,
-      store.offsetY,
-    );
+    const { x, y } = getCursorCoords(canvasRef.current, e, store);
 
     //* --- Check if clicking on existing text shape ---
     const shape = Object.values(store.shapes)

@@ -1,4 +1,7 @@
-import { getCursorsSnapshot, handleCursorEvent } from "@/lib/canvas/cursor";
+import {
+  getCursorsSnapshot,
+  handleCursorEvent,
+} from "@/lib/canvas/remote-cursor";
 import { useEffect, useState } from "react";
 
 export default function useRemoteCursors(ws: WebSocket | null) {

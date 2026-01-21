@@ -3,7 +3,7 @@ import { useRef, useCallback } from "react";
 import useCanvasStore from "@/lib/store/canvas-store";
 import { getCursorCoords } from "@/lib/canvas/utils";
 import { CanvasCusor, CanvasShape } from "@/lib/types/canvas-type";
-import { CURSORS } from "@/lib/canvas/cursor";
+import { CURSORS } from "@/lib/canvas/remote-cursor";
 
 type HandleName =
   | "tl"
@@ -176,9 +176,7 @@ export const useResize = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
     const { x, y } = getCursorCoords(
       canvasRef.current,
       e as unknown as MouseEvent,
-      store.scale,
-      store.offsetX,
-      store.offsetY,
+      store,
     );
 
     const handle = getHandleAtPoint(x, y);
@@ -210,9 +208,7 @@ export const useResize = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
       const { x, y } = getCursorCoords(
         canvas,
         e as unknown as MouseEvent,
-        store.scale,
-        store.offsetX,
-        store.offsetY,
+        store,
       );
 
       let cursor: CanvasCusor = CURSORS.select;
@@ -419,7 +415,7 @@ export const useResize = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
     }
 
     // Otherwise, 4 handles (rectangle/ellipse/multi-selection)
-    const handleOffset = 6;
+    const handleOffset = (7 * scale) / scale;
     const handles = [
       { x: box.x - handleOffset, y: box.y - handleOffset },
       { x: box.x + box.width + handleOffset, y: box.y - handleOffset },

@@ -1,30 +1,42 @@
-import { useEffect, useCallback, useRef } from "react";
+import { useEffect, useCallback, useRef, useMemo } from "react";
 import { renderShapes } from "@/lib/canvas/drawing";
 import { initialiseCanvas } from "@/lib/canvas/utils";
 import { useCanvas } from "@/hooks/use-canvas";
 import ZoomDropdown from "./zoom-dropdown";
 import { GetSnapshot } from "@/lib/api/dto";
-import useCanvasPersistence from "@/hooks/use-canvas-persistence";
+import useCanvasPersistence from "@/hooks/persistence/use-canvas-persistence";
 import { Route } from "@/routes/dashboard/lab/$id/canvas";
 import { getView } from "@/lib/api/lab-api";
 import useCanvasStore from "@/lib/store/canvas-store";
-import { useCanvasViewPersistence } from "@/hooks/use-canvas-view-persistence";
+import { useCanvasViewPersistence } from "@/hooks/persistence/use-canvas-view-persistence";
 import { computeZoomToFit } from "@/lib/canvas/view";
 import { ResetViewButton } from "./reset-view-button";
-import { usePresence } from "@/hooks/use-presence";
+import { usePresence } from "@/hooks/collaboration/use-presence";
 import { PresenceBar } from "./presence-bar";
-import { usePresenceProfiles } from "@/hooks/use-presence-profiles";
+import { usePresenceProfiles } from "@/hooks/collaboration/use-presence-profiles";
 import { useGetUser } from "@/lib/api/queries/user-queries";
-import { useSocket } from "@/hooks/use-socket";
-import { useCursorBroadcast } from "@/hooks/use-cursor-broadcast";
+import { useSocket } from "@/hooks/collaboration/use-socket";
+import { useCursorBroadcast } from "@/hooks/collaboration/use-cursor-broadcast";
 import { RemoteCursors } from "./remote-cursors";
-import useRemoteCursors from "@/hooks/use-remote-cursors";
+import useRemoteCursors from "@/hooks/collaboration/use-remote-cursors";
+import { RemoteSelections } from "./remote-selection";
+import { useRemoteSelect } from "@/hooks/collaboration/use-remote-select";
 
 interface CanvasProps {
   snapshot: GetSnapshot;
 }
 
 export function Canvas({ snapshot }: CanvasProps) {
+  const { id: labId } = Route.useParams();
+  const textareaRef = useRef<HTMLInputElement>(null);
+  const didAutoFitRef = useRef(false);
+
+  useCanvasPersistence(labId);
+  useCanvasViewPersistence(labId);
+
+  const wsRef = useSocket(labId);
+  const ws = wsRef.current;
+
   const {
     canvasRef,
     onMouseDown,
@@ -37,18 +49,10 @@ export function Canvas({ snapshot }: CanvasProps) {
     drawResizeHandles,
     onTextChange,
     onTextBlur,
-  } = useCanvas();
+  } = useCanvas(ws);
 
-  const { id: labId } = Route.useParams();
-  const textareaRef = useRef<HTMLInputElement>(null);
-  const didAutoFitRef = useRef(false);
-
-  useCanvasPersistence(labId);
-  useCanvasViewPersistence(labId);
-
-  const wsRef = useSocket(labId);
-  const ws = wsRef.current;
   const remoteCursors = useRemoteCursors(ws);
+  const remoteSelections = useRemoteSelect(ws);
   useCursorBroadcast(editingText ? null : ws, canvasRef, {
     scale: store.scale,
     offsetX: store.offsetX,
@@ -189,6 +193,18 @@ export function Canvas({ snapshot }: CanvasProps) {
     }
   }, [editingText]);
 
+  const userColorMap = useMemo(() => {
+    const map = new Map<string, string>();
+
+    for (const user of userProfiles) {
+      if (user.color) {
+        map.set(user.id, user.color);
+      }
+    }
+
+    return map;
+  }, [userProfiles]);
+
   return (
     <>
       <div className="relative w-full h-full canvas-cursor">
@@ -272,6 +288,12 @@ export function Canvas({ snapshot }: CanvasProps) {
             />
           </div>
         )}
+        <RemoteSelections
+          selections={remoteSelections}
+          shapes={shapes}
+          userColorMap={userColorMap}
+          transform={{ scale, offsetX, offsetY }}
+        />
         <div className="absolute bottom-4 right-4 flex justify-center items-center gap-1.5 p-1.5 bg-midnight-200/70 h-14 border rounded-full">
           <ResetViewButton />
           <ZoomDropdown scale={scale} />

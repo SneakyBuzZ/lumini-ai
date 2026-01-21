@@ -1,20 +1,19 @@
 import useCanvasStore from "@/lib/store/canvas-store";
 import { useRef, useCallback, useEffect } from "react";
-import { useDrawing } from "@/hooks/use-drawing";
-import { useSelect } from "@/hooks/use-select";
-import { usePanZoom } from "@/hooks/use-panzoom";
-import { useResize } from "./use-resize";
-import { useUndoRedo } from "./use-undo-redo";
+import { useDrawing } from "@/hooks/interaction/use-drawing";
+import { useSelect } from "@/hooks/interaction/use-select";
+import { usePanZoom } from "@/hooks/interaction/use-panzoom";
+import { useResize } from "@/hooks/interaction/use-resize";
+import { useUndoRedo } from "@/hooks/interaction/use-undo-redo";
 
-export const useCanvas = () => {
+export const useCanvas = (ws: WebSocket | null) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const store = useCanvasStore();
 
   const drawingHandlers = useDrawing(canvasRef);
-  const selectHandlers = useSelect(canvasRef);
+  const selectHandlers = useSelect(canvasRef, ws);
   const panZoomHandlers = usePanZoom(canvasRef);
   const resizeHandlers = useResize(canvasRef);
-
   useUndoRedo();
 
   useEffect(() => {
@@ -22,7 +21,7 @@ export const useCanvas = () => {
       if ((e.ctrlKey || e.metaKey) && e.key === "x") {
         e.preventDefault();
         const selectedShapes = Object.values(store.shapes).filter((shape) =>
-          store.selectedShapeIds.includes(shape.id)
+          store.selectedShapeIds.includes(shape.id),
         );
         if (selectedShapes.length > 0) {
           store.shapesActions.batchDelete(selectedShapes);
@@ -65,7 +64,7 @@ export const useCanvas = () => {
       // --- Finally pan (optional) ---
       panZoomHandlers.onMouseDown(e);
     },
-    [store, drawingHandlers, selectHandlers, resizeHandlers, panZoomHandlers]
+    [store, drawingHandlers, selectHandlers, resizeHandlers, panZoomHandlers],
   );
 
   const onMouseMove = useCallback(
@@ -82,7 +81,7 @@ export const useCanvas = () => {
       // --- Pan ---
       panZoomHandlers.onMouseMove?.(e);
     },
-    [drawingHandlers, selectHandlers, resizeHandlers, panZoomHandlers]
+    [drawingHandlers, selectHandlers, resizeHandlers, panZoomHandlers],
   );
 
   const onMouseUp = useCallback(() => {

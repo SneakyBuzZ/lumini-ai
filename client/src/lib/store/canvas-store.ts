@@ -199,18 +199,64 @@ const useCanvasStore = create<State & Actions>()(
 
     // --- Selection ---
     selection: {
-      select: (ids) => set({ selectedShapeIds: ids ?? [] }),
-      addId: (id) =>
+      select: (ids) => {
+        const allShapes = get().shapes;
+        const previousSelectedIds = get().selectedShapeIds;
+        previousSelectedIds.forEach((id) => {
+          const shape = allShapes[id];
+          if (!shape) return;
+          get().shapesActions.update({
+            ...shape,
+            isSelected: false,
+            isDragging: false,
+          });
+        });
+        if (ids) {
+          ids.forEach((id) => {
+            const shape = allShapes[id];
+            if (!shape) return;
+            get().shapesActions.update({
+              ...shape,
+              isSelected: true,
+            });
+          });
+        }
+        set({ selectedShapeIds: ids ?? [] });
+      },
+      addId: (id) => {
+        get().shapesActions.update({
+          ...get().shapes[id],
+          isSelected: true,
+        });
         set((state) => ({
           selectedShapeIds: state.selectedShapeIds.includes(id)
             ? state.selectedShapeIds
             : [...state.selectedShapeIds, id],
-        })),
-      removeId: (id) =>
+        }));
+      },
+      removeId: (id) => {
+        get().shapesActions.update({
+          ...get().shapes[id],
+          isSelected: false,
+        });
         set((state) => ({
           selectedShapeIds: state.selectedShapeIds.filter((s) => s !== id),
-        })),
-      clear: () => set({ selectedShapeIds: [] }),
+        }));
+      },
+      clear: () => {
+        const allShapes = get().shapes;
+        const selectedIds = get().selectedShapeIds;
+        const selectedShapes = selectedIds.map((id) => allShapes[id]);
+        selectedShapes.forEach((shape) => {
+          if (!shape) return;
+          get().shapesActions.update({
+            ...shape,
+            isSelected: false,
+            isDragging: false,
+          });
+        });
+        set({ selectedShapeIds: [] });
+      },
       move: (id, dx, dy) => {
         const shape = get().shapes[id];
         if (!shape) return;

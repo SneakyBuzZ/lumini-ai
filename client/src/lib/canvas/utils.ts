@@ -1,4 +1,4 @@
-import { CanvasShape } from "@/lib/types/canvas-type";
+import { Actions, CanvasShape, State } from "@/lib/types/canvas-type";
 import { DBShape } from "../types/lab-type";
 
 /**
@@ -6,7 +6,7 @@ import { DBShape } from "../types/lab-type";
  */
 export const initialiseCanvas = (
   ctx: CanvasRenderingContext2D,
-  canvas: HTMLCanvasElement
+  canvas: HTMLCanvasElement,
 ) => {
   const dpr = window.devicePixelRatio || 1;
   const rect = canvas.getBoundingClientRect();
@@ -39,10 +39,9 @@ export const getLocation = (e: React.MouseEvent, canvas: HTMLCanvasElement) => {
 export const getCursorCoords = (
   canvas: HTMLCanvasElement,
   e: MouseEvent | React.MouseEvent,
-  scale: number,
-  offsetX: number,
-  offsetY: number
+  store: Actions & State,
 ) => {
+  const { scale, offsetX, offsetY } = store;
   const rect = canvas.getBoundingClientRect();
   const clientX = "clientX" in e ? e.clientX : 0;
   const clientY = "clientY" in e ? e.clientY : 0;
@@ -61,7 +60,7 @@ export function snapLine(
   y1: number,
   x2: number,
   y2: number,
-  thresholdDeg = 7
+  thresholdDeg = 7,
 ) {
   const dx = x2 - x1;
   const dy = y2 - y1;
@@ -90,7 +89,7 @@ export function snapLine(
 export function isPointInsideShape(
   shape: CanvasShape,
   px: number,
-  py: number
+  py: number,
 ): boolean {
   const { x, y, width, height, type } = shape;
   const left = Math.min(x, x + width);
@@ -147,7 +146,7 @@ export function drawHighlight(
   ctx: CanvasRenderingContext2D,
   scale: number,
   offsetX: number,
-  offsetY: number
+  offsetY: number,
 ) {
   const { x, y, width, height } = shape;
   ctx.save();
@@ -158,7 +157,7 @@ export function drawHighlight(
     (x + offsetX) * scale,
     (y + offsetY) * scale,
     width * scale,
-    height * scale
+    height * scale,
   );
   ctx.restore();
 }
