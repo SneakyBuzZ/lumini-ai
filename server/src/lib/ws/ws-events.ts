@@ -19,15 +19,15 @@ export function broadcastToLab(
   }
 }
 
-export function broadcastPresenceUpdate(socket: WebSocket) {
-  const snapshot = getSocketsArray((socket as any).labId);
+export function broadcastPresenceUpdate(socket: WebSocket, labId: string) {
+  const snapshot = getSocketsArray(labId);
 
   const data: PresenceSnapshotEvent = {
     type: "presence:snapshot",
-    users: snapshot.map((s) => ({
-      id: (s as any).user.id,
-      color: (s as any).color,
-    })),
+    users: snapshot.map((s) => {
+      if (!s.user || !s.color) throw new Error("Socket user or color missing");
+      return { id: s.user.id, color: s.color };
+    }),
   };
 
   socket.send(JSON.stringify(data));

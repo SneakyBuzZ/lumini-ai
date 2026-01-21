@@ -15,21 +15,23 @@ export const initWebSocketServer = (server: Server) => {
   wss.on("connection", async (socket: WebSocket, req) => {
     try {
       //^ ---- VALIDATION ----
-      await validateSocketConnection(socket, req);
+      const response = await validateSocketConnection(socket, req);
+      const { labId, user, color } = response || {};
+      if (!labId || !user || !color)
+        throw new Error("labId or user missing after validation");
 
       //^ ---- PRESENCE JOIN ----
-      broadcastPresenceUpdate(socket);
+      broadcastPresenceUpdate(socket, labId);
 
       //^ ---- JOIN LAB ----
-      const { labId } = socket as any;
       joinLab(labId, socket);
 
       //^ ---- BROADCAST JOIN EVENT ----
       const data: PresenceJoinEvent = {
         type: "presence:join",
         user: {
-          id: (socket as any).user.id,
-          color: (socket as any).color,
+          id: user.id,
+          color: color,
         },
       };
       broadcastToLab(labId, data, socket);
@@ -46,8 +48,8 @@ export const initWebSocketServer = (server: Server) => {
         return;
       }
 
-      const labId = (socket as any).labId;
-      const user = (socket as any).user;
+      const labId = socket.labId;
+      const user = socket.user;
       if (!labId || !user) return;
 
       if (data.type === "cursor:move") {

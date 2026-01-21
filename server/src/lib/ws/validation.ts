@@ -32,8 +32,12 @@ export async function validateSocketConnection(
   if (!socket) throw new Error("WebSocket connection failed");
 
   const user = authenticateWS(req);
-  (socket as any).user = user;
+  if (!user) {
+    socket.close(1008, "Authentication Failed");
+    return;
+  }
 
+  socket.user = user;
   const url = new URL(req.url!, "http://localhost");
   const labId = url.searchParams.get("labId");
 
@@ -43,6 +47,8 @@ export async function validateSocketConnection(
   }
 
   await assertLabAccess(user.id, labId);
-  (socket as any).labId = labId;
-  (socket as any).color = getUserColor(user.id);
+  socket.labId = labId;
+  socket.color = getUserColor(user.id);
+
+  return { labId, user, color: socket.color };
 }
