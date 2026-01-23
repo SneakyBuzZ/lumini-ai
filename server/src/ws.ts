@@ -2,8 +2,12 @@ import type { WebSocket } from "ws";
 import type { Server } from "http";
 import { WebSocketServer } from "ws";
 import { validateSocketConnection } from "@/lib/ws/validation";
-import { joinLab, leaveLab } from "@/lib/ws/ws-room";
-import { broadcastPresenceUpdate, broadcastToLab } from "@/lib/ws/ws-events";
+import {
+  broadcastPresenceUpdate,
+  broadcastToLab,
+  joinLab,
+  leaveLab,
+} from "@/lib/ws/ws-room";
 import { EventType, PresenceJoinEvent, WSEvent } from "@/lib/types/ws-type";
 
 export const initWebSocketServer = (server: Server) => {
@@ -21,7 +25,7 @@ export const initWebSocketServer = (server: Server) => {
         throw new Error("labId or user missing after validation");
 
       //^ ---- PRESENCE JOIN ----
-      broadcastPresenceUpdate(socket, labId);
+      broadcastPresenceUpdate(labId, socket);
 
       //^ ---- JOIN LAB ----
       joinLab(labId, socket);
@@ -34,7 +38,7 @@ export const initWebSocketServer = (server: Server) => {
           color: color,
         },
       };
-      broadcastToLab(labId, data, socket);
+      broadcastToLab(labId, data);
     } catch (error) {
       socket.close(1008, "Authentication Failed");
       return;
@@ -62,7 +66,7 @@ export const initWebSocketServer = (server: Server) => {
           x: data.x,
           y: data.y,
         };
-        broadcastToLab(labId, event, socket);
+        broadcastToLab(labId, event);
       } else if (eventType === "selection:update") {
         //^ ---- BROADCAST SELECTION UPDATE EVENT ----
         const event: WSEvent = {
@@ -70,14 +74,14 @@ export const initWebSocketServer = (server: Server) => {
           userId: user.id,
           shapeIds: data.shapeIds,
         };
-        broadcastToLab(labId, event, socket);
+        broadcastToLab(labId, event);
       } else if (eventType === "selection:clear") {
         //^ ---- BROADCAST SELECTION CLEAR EVENT ----
         const event: WSEvent = {
           type: "selection:clear",
           userId: user.id,
         };
-        broadcastToLab(labId, event, socket);
+        broadcastToLab(labId, event);
       }
     });
 
@@ -93,14 +97,14 @@ export const initWebSocketServer = (server: Server) => {
         type: "cursor:leave",
         userId: user.id,
       };
-      broadcastToLab(labId, leaveData, socket);
+      broadcastToLab(labId, leaveData);
 
       //^ ---- BROADCAST LEAVE EVENT ----
       const data: WSEvent = {
         type: "presence:leave",
         userId: user.id,
       };
-      broadcastToLab(labId, data, socket);
+      broadcastToLab(labId, data);
     });
   });
 

@@ -1,3 +1,5 @@
+import { ShapeDTO, ShapeType } from "@/_lab/dto";
+
 export type PresenceUser = {
   id: string;
   color: string;
@@ -10,7 +12,8 @@ export type EventType =
   | "cursor:move"
   | "cursor:leave"
   | "selection:update"
-  | "selection:clear";
+  | "selection:clear"
+  | "shape:commit";
 
 export type PresenceJoinEvent = {
   type: "presence:join";
@@ -50,6 +53,18 @@ export type SelectionClear = {
   userId: string;
 };
 
+export type ShapeCommitBatchEvent = {
+  type: "shape:commit";
+  labId: string;
+  authorId: string;
+  commits: Array<{
+    shapeId: string;
+    commitType: "new" | "updated" | "deleted";
+    commitVersion: number;
+    shape: Partial<ShapeDTO>;
+  }>;
+};
+
 export type WSEvent =
   | PresenceJoinEvent
   | PresenceLeaveEvent
@@ -57,4 +72,5 @@ export type WSEvent =
   | CursorMoveEvent
   | CursorLeaveEvent
   | SelectionUpdate
-  | SelectionClear;
+  | SelectionClear
+  | ShapeCommitBatchEvent;

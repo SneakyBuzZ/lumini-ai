@@ -1,4 +1,5 @@
 import { WebSocket } from "ws";
+import { PresenceSnapshotEvent, WSEvent } from "../types/ws-type";
 
 export type LabId = string;
 const labRooms = new Map<LabId, Set<WebSocket>>();
@@ -31,4 +32,31 @@ export function getSocketsArray(labId: string) {
   const room = labRooms.get(labId);
   if (!room) return [];
   return Array.from(room.values());
+}
+
+export function broadcastToLab(labId: string, data: WSEvent, ws?: WebSocket) {
+  const sockets = labRooms.get(labId);
+  if (!sockets) return;
+
+  const payload = JSON.stringify(data);
+
+  for (const socket of sockets) {
+    if (ws && socket === ws) continue;
+    if (socket.readyState === WebSocket.OPEN) {
+      socket.send(payload);
+    }
+  }
+}
+
+export function broadcastPresenceUpdate(labId: string, ws: WebSocket) {
+  const snapshot = getSocketsArray(labId);
+
+  const data: PresenceSnapshotEvent = {
+    type: "presence:snapshot",
+    users: snapshot.map((s) => {
+      if (!s.user || !s.color) throw new Error("Socket user or color missing");
+      return { id: s.user.id, color: s.color };
+    }),
+  };
+  ws.send(JSON.stringify(data));
 }

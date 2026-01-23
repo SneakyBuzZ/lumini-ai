@@ -4,6 +4,7 @@ import { AppError } from "@/utils/error";
 import { Request, Response } from "express";
 import { ShapeService } from "../services/shape-service";
 import { SnapshotRepository } from "../repositories/shape-repository";
+import { broadcastToLab } from "@/lib/ws/ws-room";
 
 export class LabController {
   private labService: LabService;
@@ -66,11 +67,50 @@ export class LabController {
     const labId = req.params.labId;
     if (!labId) throw new AppError(400, "Lab ID is required");
 
+    const userId = req.user?.id;
+    if (!userId) throw new AppError(403, "Unauthorized");
+
     const data = req.body;
     if (data.labId !== labId)
       throw new AppError(400, "Lab ID in body does not match URL parameter");
 
     const result = await this.shapeService.batchUpdate(data);
+
+    const appliedSet = new Set(
+      result.applied.map((a) => `${a.shapeId}:${a.commitVersion}`),
+    );
+
+    const commits = data.operations
+      .filter((op: { shapeId: any; commitVersion: any }) =>
+        appliedSet.has(`${op.shapeId}:${op.commitVersion}`),
+      )
+      .map(
+        (op: {
+          shapeId: any;
+          op: string;
+          commitVersion: any;
+          payload: any;
+        }) => ({
+          shapeId: op.shapeId,
+          commitType:
+            op.op === "create"
+              ? "new"
+              : op.op === "update"
+                ? "updated"
+                : "deleted",
+          commitVersion: op.commitVersion,
+          shape: op.payload,
+        }),
+      );
+
+    if (commits.length > 0) {
+      broadcastToLab(labId, {
+        type: "shape:commit",
+        labId,
+        authorId: userId,
+        commits,
+      });
+    }
 
     res
       .status(200)
