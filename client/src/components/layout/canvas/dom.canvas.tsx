@@ -21,6 +21,7 @@ import { RemoteCursors } from "./remote-cursors";
 import useRemoteCursors from "@/hooks/collaboration/use-remote-cursors";
 import { RemoteSelections } from "./remote-selection";
 import { useRemoteSelect } from "@/hooks/collaboration/use-remote-select";
+import useRemoteShapeCommits from "@/hooks/collaboration/use-remote-shape-commits";
 
 interface CanvasProps {
   snapshot: GetSnapshot;
@@ -58,6 +59,7 @@ export function Canvas({ snapshot }: CanvasProps) {
     offsetX: store.offsetX,
     offsetY: store.offsetY,
   });
+  useRemoteShapeCommits(ws);
   const presenceUsers = usePresence(wsRef);
   const userProfiles = usePresenceProfiles(presenceUsers);
   const { data: userProfile } = useGetUser();
@@ -288,6 +290,7 @@ export function Canvas({ snapshot }: CanvasProps) {
             />
           </div>
         )}
+
         <RemoteSelections
           selections={remoteSelections}
           shapes={shapes}
@@ -298,13 +301,7 @@ export function Canvas({ snapshot }: CanvasProps) {
           <ResetViewButton />
           <ZoomDropdown scale={scale} />
         </div>
-        <div className="absolute bottom-4 left-4 flex justify-center items-center gap-1.5 p-1.5 bg-midnight-200/70 h-14 rounded-full border border-neutral-800/60">
-          <span className="h-11 px-3 text-sm flex justify-center items-center gap-2 rounded-full bg-neutral-800/50 border border-neutral-800/60">
-            Online
-            <div className="h-2 w-2 rounded-full bg-green-500" />
-          </span>
-          <PresenceBar users={userProfiles} user={userProfile ?? null} />
-        </div>
+        <PresenceBar users={userProfiles} user={userProfile ?? null} />
       </div>
     </>
   );

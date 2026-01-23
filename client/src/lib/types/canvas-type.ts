@@ -26,6 +26,25 @@ export type CanvasSnapshot = {
   selectedShapeIds: string[];
 };
 
+export type ShapeCommitBatchEvent = {
+  type: "shape:commit";
+  labId: string;
+  authorId: string;
+  commits: Array<{
+    shapeId: string;
+    commitType: "new" | "updated" | "deleted";
+    commitVersion: number;
+    shape: Partial<CanvasShape>;
+  }>;
+};
+
+export type ShapeCommit = {
+  shapeId: string;
+  commitType: "new" | "updated" | "deleted";
+  commitVersion: number;
+  shape: Partial<CanvasShape>;
+};
+
 export type State = {
   //* --- Shapes ---
   shapeType: ShapeKind | null;
@@ -90,7 +109,8 @@ export type Actions = {
     remove: (shapeId: string) => void;
     batchUpdate: (shapes: Record<string, Partial<CanvasShape>>) => void;
     batchDelete: (shapes: CanvasShape[]) => void;
-    commitShape: (id: string, type?: "new" | "updated") => void;
+    commitShape: (id: string, type?: "new" | "updated" | "deleted") => void;
+    applyRemoteShapeCommit: (event: ShapeCommit) => void;
   };
   // --- Selection ---
   selection: {

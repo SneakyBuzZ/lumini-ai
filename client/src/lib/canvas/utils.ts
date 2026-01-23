@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Actions, CanvasShape, State } from "@/lib/types/canvas-type";
 import { DBShape } from "../types/lab-type";
 
@@ -167,5 +168,17 @@ export function toDBShape(shape: CanvasShape): DBShape {
   const { isSelected, isHovered, isDragging, persistStatus, ...dbShape } =
     shape;
 
+  return dbShape;
+}
+
+export function stripUIProperties(shape: CanvasShape) {
+  const {
+    isSelected,
+    isHovered,
+    isDragging,
+    persistStatus,
+    lastPersistedVersion,
+    ...dbShape
+  } = shape;
   return dbShape;
 }
