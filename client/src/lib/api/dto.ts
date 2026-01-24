@@ -61,3 +61,25 @@ export type UpsertView = {
   offsetX: number;
   offsetY: number;
 };
+
+export type GetOverviewResponse = {
+  fullname: string;
+  summary: string;
+  branch: string;
+  visibility: "public" | "private";
+  techstack: string[];
+  files: number;
+  sizeKb: string;
+  lastActivityAt: string;
+  scope: string;
+  languages: {
+    name: string;
+    percentage: number;
+  }[];
+  totalBytes: number;
+  architecture: {
+    name: string;
+    percentage: number;
+  }[];
+  repoCreatedAt: string;
+};

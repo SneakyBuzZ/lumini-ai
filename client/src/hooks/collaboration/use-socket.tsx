@@ -5,7 +5,6 @@ export function useSocket(labId: string) {
 
   useEffect(() => {
     const ws = new WebSocket(`http://localhost:5000/ws?labId=${labId}`);
-
     wsRef.current = ws;
 
     return () => {

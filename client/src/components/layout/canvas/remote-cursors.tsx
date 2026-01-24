@@ -1,4 +1,5 @@
 import { Cursor } from "@/components/ui/cursor";
+import { useGetUser } from "@/lib/api/queries/user-queries";
 
 type Cursor = {
   x: number;
@@ -23,6 +24,7 @@ type Props = {
 
 export function RemoteCursors({ cursors, users, transform }: Props) {
   const userMap = new Map(users.map((u) => [u.id, u]));
+  const { data: me } = useGetUser();
 
   return (
     <>
@@ -32,6 +34,8 @@ export function RemoteCursors({ cursors, users, transform }: Props) {
 
         const screenX = cursor.x * transform.scale + transform.offsetX;
         const screenY = cursor.y * transform.scale + transform.offsetY;
+
+        if (userId === me?.id) return null;
 
         return (
           <Cursor

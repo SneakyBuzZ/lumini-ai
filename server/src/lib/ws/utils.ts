@@ -1,6 +1,5 @@
 const COLORS = [
   "#EF4444", // red
-  "#3B82F6", // blue
   "#22C55E", // green
   "#FACC15", // yellow
   "#A855F7", // purple
@@ -9,12 +8,10 @@ const COLORS = [
   "#10B981", // emerald
   "#E11D48", // rose
   "#6366F1", // indigo
-  "#8B5CF6", // violet
   "#06B6D4", // cyan
   "#34D399", // mint
   "#F59E0B", // amber
   "#EF7C8E", // pink
-  "#2563EB", // royal blue
 ];
 
 export function getUserColor(userId: string): string {

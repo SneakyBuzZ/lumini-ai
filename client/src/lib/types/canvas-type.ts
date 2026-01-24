@@ -18,22 +18,31 @@ export type DrawOptions = {
 
 export type CanvasMode = "draw" | "select" | "pan" | "text";
 
-export type CanvasCusor =
-  | "default"
-  | "grab"
-  | "grabbing"
-  | "crosshair"
-  | "pointer"
-  | "nwse-resize"
-  | "nesw-resize"
-  | "ns-resize"
-  | "ew-resize"
-  | "text";
+export type CanvasCusor = CSSStyleDeclaration["cursor"];
 
 export type CanvasSnapshot = {
   shapes: Record<string, CanvasShape>;
   shapeOrder: string[];
   selectedShapeIds: string[];
+};
+
+export type ShapeCommitBatchEvent = {
+  type: "shape:commit";
+  labId: string;
+  authorId: string;
+  commits: Array<{
+    shapeId: string;
+    commitType: "new" | "updated" | "deleted";
+    commitVersion: number;
+    shape: Partial<CanvasShape>;
+  }>;
+};
+
+export type ShapeCommit = {
+  shapeId: string;
+  commitType: "new" | "updated" | "deleted";
+  commitVersion: number;
+  shape: Partial<CanvasShape>;
 };
 
 export type State = {
@@ -100,7 +109,8 @@ export type Actions = {
     remove: (shapeId: string) => void;
     batchUpdate: (shapes: Record<string, Partial<CanvasShape>>) => void;
     batchDelete: (shapes: CanvasShape[]) => void;
-    commitShape: (id: string, type?: "new" | "updated") => void;
+    commitShape: (id: string, type?: "new" | "updated" | "deleted") => void;
+    applyRemoteShapeCommit: (event: ShapeCommit) => void;
   };
   // --- Selection ---
   selection: {

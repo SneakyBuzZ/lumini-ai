@@ -94,7 +94,7 @@ export const renderShapes = (
     const maxY = Math.max(...selectedShapes.map((s) => s.y + s.height));
 
     ctx.save();
-    ctx.strokeStyle = "rgba(0, 120, 215, 0.5)";
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.7)";
     ctx.setLineDash([4, 2]);
     ctx.lineWidth = 1;
     ctx.strokeRect(minX - 8, minY - 8, maxX - minX + 16, maxY - minY + 16);
@@ -237,7 +237,7 @@ function drawSelectionOutline(
   scale: number = 1,
 ) {
   ctx.save();
-  ctx.strokeStyle = "rgba(0, 120, 215, 0.5)";
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.7)";
   ctx.setLineDash([4, 2]);
   ctx.lineWidth = 1 / scale;
 

@@ -5,6 +5,7 @@ import { Answer } from "@/lib/types/answer.type";
 import {
   BatchUpdateShapes,
   CreateLab,
+  GetOverviewResponse,
   GetSnapshot,
   UpsertView,
 } from "@/lib/api/dto";
@@ -138,5 +139,15 @@ export const getView = async (labId: string) => {
 
 export const upsertView = async (labId: string, viewData: UpsertView) => {
   const response = await api.post(`/lab/${labId}/view`, viewData);
+  return response.data.payload;
+};
+
+//* --- DASHBOARD API CALLS ---
+
+export const getOverview = async (
+  labId: string,
+): Promise<GetOverviewResponse> => {
+  const response = await api.get(`/lab/${labId}/dashboard/overview`);
+  console.log(response.data);
   return response.data.payload;
 };

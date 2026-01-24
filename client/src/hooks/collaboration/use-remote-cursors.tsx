@@ -1,4 +1,7 @@
-import { getCursorsSnapshot, handleCursorEvent } from "@/lib/canvas/cursor";
+import {
+  getCursorsSnapshot,
+  handleCursorEvent,
+} from "@/lib/canvas/remote-cursor";
 import { useEffect, useState } from "react";
 
 export default function useRemoteCursors(ws: WebSocket | null) {
@@ -12,7 +15,7 @@ export default function useRemoteCursors(ws: WebSocket | null) {
 
       if (data.type === "cursor:move" || data.type === "cursor:leave") {
         handleCursorEvent(data);
-        forceRender((x) => x + 1); // 🔑 trigger React update
+        forceRender((x) => x + 1);
       }
     }
 
