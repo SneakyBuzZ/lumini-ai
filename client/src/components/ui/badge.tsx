@@ -16,15 +16,15 @@ const badgeVariants = cva(
           "border-transparent bg-destructive text-destructive-foreground shadow hover:bg-destructive/80",
         outline: "text-foreground",
         free: "border bg-neutral-900 text-free-foreground shadow hover:bg-free/80",
-        pro: "border border-teal/40 bg-teal/30 text-pro-foreground shadow hover:bg-pro/80",
+        pro: "border border-teal/40 bg-teal/30 text-white shadow hover:bg-pro/80",
         enterprise:
-          "border border-cyan/40 bg-cyan/30 text-enterprise-foreground shadow hover:bg-enterprise/80",
+          "border border-cyan/40 bg-cyan/30 text-white shadow hover:bg-enterprise/80",
       },
     },
     defaultVariants: {
       variant: "default",
     },
-  }
+  },
 );
 
 export interface BadgeProps
