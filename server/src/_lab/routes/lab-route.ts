@@ -9,38 +9,52 @@ import {
 } from "@/_lab/dto";
 import { LabController } from "@/_lab/controllers/lab-controller";
 import { validateData } from "@/middlewares/validate-middleware";
+import { DashboardController } from "../controllers/dashboard-controller";
+import { catchAsync } from "@/utils/catch-async";
 
 const labRouter = Router();
 
 const labController = new LabController();
+const dashboardController = new DashboardController();
 
+//^ --- Lab Routes ---
 labRouter.post("/", validateData(createLabDTO), labController.create);
-
 labRouter.get("/:workspaceId", labController.getAll);
 
+//^ --- Shape Routes ---
 labRouter.post(
   "/:labId/shapes",
   validateData(shapeDTO),
-  labController.createShape,
+  catchAsync(labController.createShape),
 );
-
 labRouter.put(
   "/:labId/shapes/:shapeId",
   validateData(shapeDTO.partial()),
-  labController.updateShape,
+  catchAsync(labController.updateShape),
 );
-
-labRouter.get("/:labId/shapes", labController.getAllShapes);
-
-labRouter.delete("/:labId/shapes/:shapeId", labController.deleteShape);
-
+labRouter.get("/:labId/shapes", catchAsync(labController.getAllShapes));
+labRouter.delete(
+  "/:labId/shapes/:shapeId",
+  catchAsync(labController.deleteShape),
+);
 labRouter.post(
   "/:labId/shapes/batch",
   validateData(updateBatchDTo),
-  labController.batchUpdateShapes,
+  catchAsync(labController.batchUpdateShapes),
 );
 
+//^ --- View Routes ---
 labRouter.get("/:labId/view", labController.getView);
-labRouter.post("/:labId/view", validateData(viewDTO), labController.upsertView);
+labRouter.post(
+  "/:labId/view",
+  validateData(viewDTO),
+  catchAsync(labController.upsertView),
+);
+
+//^ --- Dashboard Routes ---
+labRouter.get(
+  "/:labId/dashboard/overview",
+  catchAsync(dashboardController.getOverview),
+);
 
 export default labRouter;

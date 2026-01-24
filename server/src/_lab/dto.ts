@@ -1,3 +1,4 @@
+import { NormalizedLanguage } from "@/lib/types/github.type";
 import z from "zod";
 
 export const createLabDTO = z.object({
@@ -100,3 +101,22 @@ export type SnapshotDTO = z.infer<typeof snapshotDTO>;
 export type UpdateBatchDTO = z.infer<typeof updateBatchDTo>;
 export type ViewDTO = z.infer<typeof viewDTO>;
 export type ViewStateDTO = z.infer<typeof viewStateDTO>;
+
+export type OverviewData = {
+  fullname: string;
+  branch: string;
+  visibility: string;
+  summary: string;
+  techstack: string[];
+  files: number;
+  sizeKb: number;
+  lastActivityAt: Date | null;
+  scope: string;
+  repoCreatedAt: Date | null;
+  architecture: {
+    name: string;
+    percentage: number;
+  }[];
+  languages: NormalizedLanguage[];
+  totalBytes: number;
+};

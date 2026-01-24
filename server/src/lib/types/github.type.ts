@@ -31,3 +31,10 @@ export type SummarizedRepoFileType = {
   content: string;
   summary: string;
 };
+
+export type RawLanguages = Record<string, number>;
+
+export type NormalizedLanguage = {
+  name: string;
+  percentage: number;
+};
