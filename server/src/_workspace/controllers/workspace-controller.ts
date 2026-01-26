@@ -18,16 +18,27 @@ export class WorkspaceController {
       .json(new DataResponse(201, "Workspace created successfully"));
   };
 
+  getBySlug = async (req: Request, res: Response) => {
+    const slug = req.params.slug;
+    const workspace = await this.workspaceService.findBySlug(slug);
+    res
+      .status(200)
+      .json(
+        new DataResponse(200, workspace, "Workspace retrieved successfully"),
+      );
+  };
+
   findGeneralSettings = async (req: Request, res: Response) => {
-    const settings = await this.workspaceService.findGeneralSettings(req);
+    const slug = req.params.slug;
+    const settings = await this.workspaceService.findGeneralSettings(slug);
     res
       .status(200)
       .json(
         new DataResponse(
           200,
           { ...settings },
-          "Workspace general settings retrieved successfully"
-        )
+          "Workspace general settings retrieved successfully",
+        ),
       );
   };
 
@@ -38,22 +49,21 @@ export class WorkspaceController {
     res
       .status(200)
       .json(
-        new DataResponse(200, workspaces, "Workspaces retrieved successfully")
+        new DataResponse(200, workspaces, "Workspaces retrieved successfully"),
       );
   };
 
   findAllMembers = async (req: Request, res: Response) => {
-    const workspaceId = req.params.workspaceId;
-    if (!workspaceId) throw new AppError(400, "Workspace ID is required");
-    const members = await this.workspaceService.findAllMembers(workspaceId);
+    const slug = req.params.slug;
+    const members = await this.workspaceService.findAllMembers(slug);
     res
       .status(200)
       .json(
         new DataResponse(
           200,
           members,
-          "Workspace members retrieved successfully"
-        )
+          "Workspace members retrieved successfully",
+        ),
       );
   };
 
@@ -64,7 +74,7 @@ export class WorkspaceController {
     res
       .status(200)
       .json(
-        new DataResponse(200, {}, "Workspace details updated successfully")
+        new DataResponse(200, {}, "Workspace details updated successfully"),
       );
   };
 
@@ -75,7 +85,7 @@ export class WorkspaceController {
     res
       .status(200)
       .json(
-        new DataResponse(200, {}, "Workspace visibility updated successfully")
+        new DataResponse(200, {}, "Workspace visibility updated successfully"),
       );
   };
 
@@ -86,7 +96,7 @@ export class WorkspaceController {
     res
       .status(200)
       .json(
-        new DataResponse(200, {}, "Workspace language updated successfully")
+        new DataResponse(200, {}, "Workspace language updated successfully"),
       );
   };
 
@@ -100,8 +110,8 @@ export class WorkspaceController {
         new DataResponse(
           200,
           {},
-          "Workspace notifications settings updated successfully"
-        )
+          "Workspace notifications settings updated successfully",
+        ),
       );
   };
 
@@ -124,7 +134,7 @@ export class WorkspaceController {
     res
       .status(200)
       .json(
-        new DataResponse(200, { workspaceId }, "Invite accepted successfully")
+        new DataResponse(200, { workspaceId }, "Invite accepted successfully"),
       );
   };
 }

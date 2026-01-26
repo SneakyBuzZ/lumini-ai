@@ -1,9 +1,8 @@
 import { AppError } from "@/utils/error";
 import { DashboardRepository } from "../repositories/dashboard-repository";
 import { LabService } from "./lab-service";
-import { buildOverview, getLanguages } from "@/lib/github/actions";
+import { buildOverview } from "@/lib/github/actions";
 import { enqueueRefreshRepoOverview } from "@/lib/github/queue";
-import { OverviewData } from "../dto";
 
 export class DashboardService {
   private dashboardRepository: DashboardRepository;
@@ -14,21 +13,24 @@ export class DashboardService {
     this.labService = new LabService();
   }
 
-  async getOverview(labId: string) {
-    const lab = await this.labService.findById(labId);
+  async getOverview(slug: string) {
+    const lab = await this.labService.findBySlug(slug);
     if (!lab) throw new AppError(404, "Lab not found");
 
-    const overview = await this.dashboardRepository.findOverviewByLabId(labId);
+    const overview = await this.dashboardRepository.findOverviewByLabId(lab.id);
     if (!overview) {
       const overviewData = await buildOverview(lab.githubUrl);
-      return await this.dashboardRepository.upsertOverview(labId, overviewData);
+      return await this.dashboardRepository.upsertOverview(
+        lab.id,
+        overviewData,
+      );
     }
 
     const isStale =
       !overview.refreshedAt ||
       Date.now() - overview.refreshedAt.getTime() > 24 * 60 * 60 * 1000;
     if (isStale) {
-      enqueueRefreshRepoOverview(labId, this.refreshOverview.bind(this));
+      enqueueRefreshRepoOverview(lab.id, this.refreshOverview.bind(this));
     }
 
     return overview;

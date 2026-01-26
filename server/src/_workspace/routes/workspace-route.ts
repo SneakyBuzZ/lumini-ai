@@ -12,50 +12,52 @@ const workspaceController = new WorkspaceController();
 workspaceRouter.post(
   "/",
   validateData(SaveWorkspaceDTO),
-  catchAsync(workspaceController.create)
+  catchAsync(workspaceController.create),
 );
 
 workspaceRouter.get("/", catchAsync(workspaceController.findUserWorkspaces));
 
+workspaceRouter.get("/:slug", catchAsync(workspaceController.getBySlug));
+
 workspaceRouter.get(
-  "/:workspaceId/settings/general",
-  catchAsync(workspaceController.findGeneralSettings)
+  "/:slug/settings/general",
+  catchAsync(workspaceController.findGeneralSettings),
 );
 
 workspaceRouter.get(
-  "/:workspaceId/members",
-  catchAsync(workspaceController.findAllMembers)
+  "/:slug/members",
+  catchAsync(workspaceController.findAllMembers),
 );
 
 workspaceRouter.put(
   "/:workspaceId/details",
-  catchAsync(workspaceController.updateDetails)
+  catchAsync(workspaceController.updateDetails),
 );
 
 workspaceRouter.put(
   "/:workspaceId/visibility",
-  catchAsync(workspaceController.updateVisibility)
+  catchAsync(workspaceController.updateVisibility),
 );
 
 workspaceRouter.put(
   "/:workspaceId/language",
-  catchAsync(workspaceController.updateLanguage)
+  catchAsync(workspaceController.updateLanguage),
 );
 
 workspaceRouter.put(
   "/:workspaceId/notifications",
-  catchAsync(workspaceController.updateNotifications)
+  catchAsync(workspaceController.updateNotifications),
 );
 
 workspaceRouter.post(
   "/:workspaceId/invite",
-  catchAsync(workspaceController.inviteMember)
+  catchAsync(workspaceController.inviteMember),
 );
 
 workspaceRouter.post(
   "/invite/accept",
   validateData(AcceptWorkspaceInviteDTO),
-  catchAsync(workspaceController.acceptMember)
+  catchAsync(workspaceController.acceptMember),
 );
 
 export default workspaceRouter;

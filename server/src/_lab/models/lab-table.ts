@@ -41,25 +41,18 @@ export const labsTable = pgTable(
     index("lab_githubUrl_idx").on(labsTable.githubUrl),
     index("lab_createdAt_idx").on(labsTable.createdAt),
     index("lab_updatedAt_idx").on(labsTable.updatedAt),
-  ]
+  ],
 );
 
-export const VectorDBEnum = pgEnum("vector_db", [
-  "postgresql",
-  "pinecone",
-  "chroma",
-  "mongodb",
-  "qdrant",
+export const vectorDBEnum = pgEnum("vector_db", ["postgresql", "qdrant"]);
+
+export const apiServiceEnum = pgEnum("api_service", [
+  "openai",
+  "gemini",
+  "anthropic",
 ]);
 
-export const EmbeddingModel = pgEnum("embedding_model", [
-  "gemini-1.5-flash",
-  "gemini-1.5-pro",
-  "text-embedding-3-small",
-  "text-embedding-3-large",
-]);
-
-export const visibility = pgEnum("visibility", ["public", "private"]);
+export const visibilityEnum = pgEnum("visibility", ["public", "private"]);
 
 export const labSettingsTable = pgTable(
   "lab_settings",
@@ -72,21 +65,39 @@ export const labSettingsTable = pgTable(
       .references(() => labsTable.id, { onDelete: "cascade" })
       .notNull(),
 
-    visibility: visibility("visibility").default("public"),
-    vectorDb: VectorDBEnum("vector_db").default("qdrant"),
-    embeddingModel: varchar("embedding_model", { length: 255 }).default(
-      "gemini-1.5-flash"
-    ),
-    apiKey: varchar("api_key", { length: 255 }).unique(),
+    /* Visibility & access */
+    visibility: varchar("visibility", { length: 20 }).default("public"),
+
+    allowPublicSharing: boolean("allow_public_sharing").default(true).notNull(),
+
     maxLabUsers: integer("max_lab_users").notNull(),
-    temperature: varchar("temperature", { length: 255 }).default("0.5"),
-    allowPublicSharing: boolean("allow_public_sharing").default(true),
+
+    /* Vector DB config */
+    vectorDbService: vectorDBEnum("vector_db_service").default("postgresql"),
+    vectorDbConnectionString: varchar("vector_db_connection_string", {
+      length: 1000,
+    }),
+
+    /* LLM / API config */
+    apiService: apiServiceEnum("api_service").default("gemini"),
+
+    apiBaseUrl: varchar("api_base_url", { length: 1000 }),
+
+    modelName: varchar("model_name", { length: 255 }),
+
+    apiKey: varchar("api_key", { length: 255 }),
+
+    /* Generation controls */
+    temperature: varchar("temperature", { length: 10 })
+      .default("0.5")
+      .notNull(),
   },
-  (labSettingsTable) => [
-    index("lab_labId_idx").on(labSettingsTable.labId),
-    index("lab_visibility_idx").on(labSettingsTable.visibility),
-    index("lab_public_sharing_idx").on(labSettingsTable.allowPublicSharing),
-  ]
+  (table) => [
+    index("lab_settings_lab_id_idx").on(table.labId),
+    index("lab_settings_visibility_idx").on(table.visibility),
+    index("lab_settings_public_idx").on(table.allowPublicSharing),
+    index("lab_settings_api_service_idx").on(table.apiService),
+  ],
 );
 
 export const labFilesTable = pgTable("lab_files", {
@@ -139,7 +150,7 @@ export const labChatSessionsTable = pgTable(
   },
   (labChatSessionsTable) => [
     index("lab_chat_sessions_labId_idx").on(labChatSessionsTable.labId),
-  ]
+  ],
 );
 
 export const role = pgEnum("role", ["user", "assistant", "system"]);
