@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/dashboard/lab/$id")({
+export const Route = createFileRoute("/dashboard/lab/$slug")({
   component: LabLayout,
 });
 

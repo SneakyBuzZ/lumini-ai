@@ -20,7 +20,7 @@ export default function ActionBlock({
 
   const handleAccept = async () => {
     const workspaceId = await acceptInvite(token);
-    navigate({ to: "/dashboard/space/$id", params: { id: workspaceId } });
+    navigate({ to: "/dashboard/space/$slug", params: { slug: workspaceId } });
   };
 
   return (

@@ -17,15 +17,15 @@ import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as AuthRegisterIndexRouteImport } from './routes/auth/register/index'
 import { Route as AuthLoginIndexRouteImport } from './routes/auth/login/index'
 import { Route as DashboardSpaceSlugRouteRouteImport } from './routes/dashboard/space/$slug/route'
-import { Route as DashboardLabSlugRouteRouteImport } from './routes/dashboard/lab/$slug/route'
+import { Route as DashboardLabIdRouteRouteImport } from './routes/dashboard/lab/$id/route'
 import { Route as DashboardSpaceSlugIndexRouteImport } from './routes/dashboard/space/$slug/index'
-import { Route as DashboardLabSlugIndexRouteImport } from './routes/dashboard/lab/$slug/index'
+import { Route as DashboardLabIdIndexRouteImport } from './routes/dashboard/lab/$id/index'
 import { Route as DashboardSpaceSlugTeamIndexRouteImport } from './routes/dashboard/space/$slug/team/index'
 import { Route as DashboardSpaceSlugGeneralIndexRouteImport } from './routes/dashboard/space/$slug/general/index'
 import { Route as DashboardSpaceSlugBillingIndexRouteImport } from './routes/dashboard/space/$slug/billing/index'
-import { Route as DashboardLabSlugSettingsIndexRouteImport } from './routes/dashboard/lab/$slug/settings/index'
-import { Route as DashboardLabSlugCanvasIndexRouteImport } from './routes/dashboard/lab/$slug/canvas/index'
-import { Route as DashboardLabSlugAskIndexRouteImport } from './routes/dashboard/lab/$slug/ask/index'
+import { Route as DashboardLabIdSettingsIndexRouteImport } from './routes/dashboard/lab/$id/settings/index'
+import { Route as DashboardLabIdCanvasIndexRouteImport } from './routes/dashboard/lab/$id/canvas/index'
+import { Route as DashboardLabIdAskIndexRouteImport } from './routes/dashboard/lab/$id/ask/index'
 
 const DashboardRouteRoute = DashboardRouteRouteImport.update({
   id: '/dashboard',
@@ -67,9 +67,9 @@ const DashboardSpaceSlugRouteRoute = DashboardSpaceSlugRouteRouteImport.update({
   path: '/space/$slug',
   getParentRoute: () => DashboardRouteRoute,
 } as any)
-const DashboardLabSlugRouteRoute = DashboardLabSlugRouteRouteImport.update({
-  id: '/lab/$slug',
-  path: '/lab/$slug',
+const DashboardLabIdRouteRoute = DashboardLabIdRouteRouteImport.update({
+  id: '/lab/$id',
+  path: '/lab/$id',
   getParentRoute: () => DashboardRouteRoute,
 } as any)
 const DashboardSpaceSlugIndexRoute = DashboardSpaceSlugIndexRouteImport.update({
@@ -77,10 +77,10 @@ const DashboardSpaceSlugIndexRoute = DashboardSpaceSlugIndexRouteImport.update({
   path: '/',
   getParentRoute: () => DashboardSpaceSlugRouteRoute,
 } as any)
-const DashboardLabSlugIndexRoute = DashboardLabSlugIndexRouteImport.update({
+const DashboardLabIdIndexRoute = DashboardLabIdIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => DashboardLabSlugRouteRoute,
+  getParentRoute: () => DashboardLabIdRouteRoute,
 } as any)
 const DashboardSpaceSlugTeamIndexRoute =
   DashboardSpaceSlugTeamIndexRouteImport.update({
@@ -100,24 +100,23 @@ const DashboardSpaceSlugBillingIndexRoute =
     path: '/billing/',
     getParentRoute: () => DashboardSpaceSlugRouteRoute,
   } as any)
-const DashboardLabSlugSettingsIndexRoute =
-  DashboardLabSlugSettingsIndexRouteImport.update({
+const DashboardLabIdSettingsIndexRoute =
+  DashboardLabIdSettingsIndexRouteImport.update({
     id: '/settings/',
     path: '/settings/',
-    getParentRoute: () => DashboardLabSlugRouteRoute,
+    getParentRoute: () => DashboardLabIdRouteRoute,
   } as any)
-const DashboardLabSlugCanvasIndexRoute =
-  DashboardLabSlugCanvasIndexRouteImport.update({
+const DashboardLabIdCanvasIndexRoute =
+  DashboardLabIdCanvasIndexRouteImport.update({
     id: '/canvas/',
     path: '/canvas/',
-    getParentRoute: () => DashboardLabSlugRouteRoute,
+    getParentRoute: () => DashboardLabIdRouteRoute,
   } as any)
-const DashboardLabSlugAskIndexRoute =
-  DashboardLabSlugAskIndexRouteImport.update({
-    id: '/ask/',
-    path: '/ask/',
-    getParentRoute: () => DashboardLabSlugRouteRoute,
-  } as any)
+const DashboardLabIdAskIndexRoute = DashboardLabIdAskIndexRouteImport.update({
+  id: '/ask/',
+  path: '/ask/',
+  getParentRoute: () => DashboardLabIdRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -125,15 +124,15 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/dashboard/': typeof DashboardIndexRoute
   '/invite': typeof InviteIndexRoute
-  '/dashboard/lab/$slug': typeof DashboardLabSlugRouteRouteWithChildren
+  '/dashboard/lab/$id': typeof DashboardLabIdRouteRouteWithChildren
   '/dashboard/space/$slug': typeof DashboardSpaceSlugRouteRouteWithChildren
   '/auth/login': typeof AuthLoginIndexRoute
   '/auth/register': typeof AuthRegisterIndexRoute
-  '/dashboard/lab/$slug/': typeof DashboardLabSlugIndexRoute
+  '/dashboard/lab/$id/': typeof DashboardLabIdIndexRoute
   '/dashboard/space/$slug/': typeof DashboardSpaceSlugIndexRoute
-  '/dashboard/lab/$slug/ask': typeof DashboardLabSlugAskIndexRoute
-  '/dashboard/lab/$slug/canvas': typeof DashboardLabSlugCanvasIndexRoute
-  '/dashboard/lab/$slug/settings': typeof DashboardLabSlugSettingsIndexRoute
+  '/dashboard/lab/$id/ask': typeof DashboardLabIdAskIndexRoute
+  '/dashboard/lab/$id/canvas': typeof DashboardLabIdCanvasIndexRoute
+  '/dashboard/lab/$id/settings': typeof DashboardLabIdSettingsIndexRoute
   '/dashboard/space/$slug/billing': typeof DashboardSpaceSlugBillingIndexRoute
   '/dashboard/space/$slug/general': typeof DashboardSpaceSlugGeneralIndexRoute
   '/dashboard/space/$slug/team': typeof DashboardSpaceSlugTeamIndexRoute
@@ -145,11 +144,11 @@ export interface FileRoutesByTo {
   '/invite': typeof InviteIndexRoute
   '/auth/login': typeof AuthLoginIndexRoute
   '/auth/register': typeof AuthRegisterIndexRoute
-  '/dashboard/lab/$slug': typeof DashboardLabSlugIndexRoute
+  '/dashboard/lab/$id': typeof DashboardLabIdIndexRoute
   '/dashboard/space/$slug': typeof DashboardSpaceSlugIndexRoute
-  '/dashboard/lab/$slug/ask': typeof DashboardLabSlugAskIndexRoute
-  '/dashboard/lab/$slug/canvas': typeof DashboardLabSlugCanvasIndexRoute
-  '/dashboard/lab/$slug/settings': typeof DashboardLabSlugSettingsIndexRoute
+  '/dashboard/lab/$id/ask': typeof DashboardLabIdAskIndexRoute
+  '/dashboard/lab/$id/canvas': typeof DashboardLabIdCanvasIndexRoute
+  '/dashboard/lab/$id/settings': typeof DashboardLabIdSettingsIndexRoute
   '/dashboard/space/$slug/billing': typeof DashboardSpaceSlugBillingIndexRoute
   '/dashboard/space/$slug/general': typeof DashboardSpaceSlugGeneralIndexRoute
   '/dashboard/space/$slug/team': typeof DashboardSpaceSlugTeamIndexRoute
@@ -161,15 +160,15 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/dashboard/': typeof DashboardIndexRoute
   '/invite/': typeof InviteIndexRoute
-  '/dashboard/lab/$slug': typeof DashboardLabSlugRouteRouteWithChildren
+  '/dashboard/lab/$id': typeof DashboardLabIdRouteRouteWithChildren
   '/dashboard/space/$slug': typeof DashboardSpaceSlugRouteRouteWithChildren
   '/auth/login/': typeof AuthLoginIndexRoute
   '/auth/register/': typeof AuthRegisterIndexRoute
-  '/dashboard/lab/$slug/': typeof DashboardLabSlugIndexRoute
+  '/dashboard/lab/$id/': typeof DashboardLabIdIndexRoute
   '/dashboard/space/$slug/': typeof DashboardSpaceSlugIndexRoute
-  '/dashboard/lab/$slug/ask/': typeof DashboardLabSlugAskIndexRoute
-  '/dashboard/lab/$slug/canvas/': typeof DashboardLabSlugCanvasIndexRoute
-  '/dashboard/lab/$slug/settings/': typeof DashboardLabSlugSettingsIndexRoute
+  '/dashboard/lab/$id/ask/': typeof DashboardLabIdAskIndexRoute
+  '/dashboard/lab/$id/canvas/': typeof DashboardLabIdCanvasIndexRoute
+  '/dashboard/lab/$id/settings/': typeof DashboardLabIdSettingsIndexRoute
   '/dashboard/space/$slug/billing/': typeof DashboardSpaceSlugBillingIndexRoute
   '/dashboard/space/$slug/general/': typeof DashboardSpaceSlugGeneralIndexRoute
   '/dashboard/space/$slug/team/': typeof DashboardSpaceSlugTeamIndexRoute
@@ -182,15 +181,15 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/dashboard/'
     | '/invite'
-    | '/dashboard/lab/$slug'
+    | '/dashboard/lab/$id'
     | '/dashboard/space/$slug'
     | '/auth/login'
     | '/auth/register'
-    | '/dashboard/lab/$slug/'
+    | '/dashboard/lab/$id/'
     | '/dashboard/space/$slug/'
-    | '/dashboard/lab/$slug/ask'
-    | '/dashboard/lab/$slug/canvas'
-    | '/dashboard/lab/$slug/settings'
+    | '/dashboard/lab/$id/ask'
+    | '/dashboard/lab/$id/canvas'
+    | '/dashboard/lab/$id/settings'
     | '/dashboard/space/$slug/billing'
     | '/dashboard/space/$slug/general'
     | '/dashboard/space/$slug/team'
@@ -202,11 +201,11 @@ export interface FileRouteTypes {
     | '/invite'
     | '/auth/login'
     | '/auth/register'
-    | '/dashboard/lab/$slug'
+    | '/dashboard/lab/$id'
     | '/dashboard/space/$slug'
-    | '/dashboard/lab/$slug/ask'
-    | '/dashboard/lab/$slug/canvas'
-    | '/dashboard/lab/$slug/settings'
+    | '/dashboard/lab/$id/ask'
+    | '/dashboard/lab/$id/canvas'
+    | '/dashboard/lab/$id/settings'
     | '/dashboard/space/$slug/billing'
     | '/dashboard/space/$slug/general'
     | '/dashboard/space/$slug/team'
@@ -217,15 +216,15 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/dashboard/'
     | '/invite/'
-    | '/dashboard/lab/$slug'
+    | '/dashboard/lab/$id'
     | '/dashboard/space/$slug'
     | '/auth/login/'
     | '/auth/register/'
-    | '/dashboard/lab/$slug/'
+    | '/dashboard/lab/$id/'
     | '/dashboard/space/$slug/'
-    | '/dashboard/lab/$slug/ask/'
-    | '/dashboard/lab/$slug/canvas/'
-    | '/dashboard/lab/$slug/settings/'
+    | '/dashboard/lab/$id/ask/'
+    | '/dashboard/lab/$id/canvas/'
+    | '/dashboard/lab/$id/settings/'
     | '/dashboard/space/$slug/billing/'
     | '/dashboard/space/$slug/general/'
     | '/dashboard/space/$slug/team/'
@@ -296,11 +295,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardSpaceSlugRouteRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
-    '/dashboard/lab/$slug': {
-      id: '/dashboard/lab/$slug'
-      path: '/lab/$slug'
-      fullPath: '/dashboard/lab/$slug'
-      preLoaderRoute: typeof DashboardLabSlugRouteRouteImport
+    '/dashboard/lab/$id': {
+      id: '/dashboard/lab/$id'
+      path: '/lab/$id'
+      fullPath: '/dashboard/lab/$id'
+      preLoaderRoute: typeof DashboardLabIdRouteRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/space/$slug/': {
@@ -310,12 +309,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardSpaceSlugIndexRouteImport
       parentRoute: typeof DashboardSpaceSlugRouteRoute
     }
-    '/dashboard/lab/$slug/': {
-      id: '/dashboard/lab/$slug/'
+    '/dashboard/lab/$id/': {
+      id: '/dashboard/lab/$id/'
       path: '/'
-      fullPath: '/dashboard/lab/$slug/'
-      preLoaderRoute: typeof DashboardLabSlugIndexRouteImport
-      parentRoute: typeof DashboardLabSlugRouteRoute
+      fullPath: '/dashboard/lab/$id/'
+      preLoaderRoute: typeof DashboardLabIdIndexRouteImport
+      parentRoute: typeof DashboardLabIdRouteRoute
     }
     '/dashboard/space/$slug/team/': {
       id: '/dashboard/space/$slug/team/'
@@ -338,26 +337,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardSpaceSlugBillingIndexRouteImport
       parentRoute: typeof DashboardSpaceSlugRouteRoute
     }
-    '/dashboard/lab/$slug/settings/': {
-      id: '/dashboard/lab/$slug/settings/'
+    '/dashboard/lab/$id/settings/': {
+      id: '/dashboard/lab/$id/settings/'
       path: '/settings'
-      fullPath: '/dashboard/lab/$slug/settings'
-      preLoaderRoute: typeof DashboardLabSlugSettingsIndexRouteImport
-      parentRoute: typeof DashboardLabSlugRouteRoute
+      fullPath: '/dashboard/lab/$id/settings'
+      preLoaderRoute: typeof DashboardLabIdSettingsIndexRouteImport
+      parentRoute: typeof DashboardLabIdRouteRoute
     }
-    '/dashboard/lab/$slug/canvas/': {
-      id: '/dashboard/lab/$slug/canvas/'
+    '/dashboard/lab/$id/canvas/': {
+      id: '/dashboard/lab/$id/canvas/'
       path: '/canvas'
-      fullPath: '/dashboard/lab/$slug/canvas'
-      preLoaderRoute: typeof DashboardLabSlugCanvasIndexRouteImport
-      parentRoute: typeof DashboardLabSlugRouteRoute
+      fullPath: '/dashboard/lab/$id/canvas'
+      preLoaderRoute: typeof DashboardLabIdCanvasIndexRouteImport
+      parentRoute: typeof DashboardLabIdRouteRoute
     }
-    '/dashboard/lab/$slug/ask/': {
-      id: '/dashboard/lab/$slug/ask/'
+    '/dashboard/lab/$id/ask/': {
+      id: '/dashboard/lab/$id/ask/'
       path: '/ask'
-      fullPath: '/dashboard/lab/$slug/ask'
-      preLoaderRoute: typeof DashboardLabSlugAskIndexRouteImport
-      parentRoute: typeof DashboardLabSlugRouteRoute
+      fullPath: '/dashboard/lab/$id/ask'
+      preLoaderRoute: typeof DashboardLabIdAskIndexRouteImport
+      parentRoute: typeof DashboardLabIdRouteRoute
     }
   }
 }
@@ -376,24 +375,22 @@ const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
   AuthRouteRouteChildren,
 )
 
-interface DashboardLabSlugRouteRouteChildren {
-  DashboardLabSlugIndexRoute: typeof DashboardLabSlugIndexRoute
-  DashboardLabSlugAskIndexRoute: typeof DashboardLabSlugAskIndexRoute
-  DashboardLabSlugCanvasIndexRoute: typeof DashboardLabSlugCanvasIndexRoute
-  DashboardLabSlugSettingsIndexRoute: typeof DashboardLabSlugSettingsIndexRoute
+interface DashboardLabIdRouteRouteChildren {
+  DashboardLabIdIndexRoute: typeof DashboardLabIdIndexRoute
+  DashboardLabIdAskIndexRoute: typeof DashboardLabIdAskIndexRoute
+  DashboardLabIdCanvasIndexRoute: typeof DashboardLabIdCanvasIndexRoute
+  DashboardLabIdSettingsIndexRoute: typeof DashboardLabIdSettingsIndexRoute
 }
 
-const DashboardLabSlugRouteRouteChildren: DashboardLabSlugRouteRouteChildren = {
-  DashboardLabSlugIndexRoute: DashboardLabSlugIndexRoute,
-  DashboardLabSlugAskIndexRoute: DashboardLabSlugAskIndexRoute,
-  DashboardLabSlugCanvasIndexRoute: DashboardLabSlugCanvasIndexRoute,
-  DashboardLabSlugSettingsIndexRoute: DashboardLabSlugSettingsIndexRoute,
+const DashboardLabIdRouteRouteChildren: DashboardLabIdRouteRouteChildren = {
+  DashboardLabIdIndexRoute: DashboardLabIdIndexRoute,
+  DashboardLabIdAskIndexRoute: DashboardLabIdAskIndexRoute,
+  DashboardLabIdCanvasIndexRoute: DashboardLabIdCanvasIndexRoute,
+  DashboardLabIdSettingsIndexRoute: DashboardLabIdSettingsIndexRoute,
 }
 
-const DashboardLabSlugRouteRouteWithChildren =
-  DashboardLabSlugRouteRoute._addFileChildren(
-    DashboardLabSlugRouteRouteChildren,
-  )
+const DashboardLabIdRouteRouteWithChildren =
+  DashboardLabIdRouteRoute._addFileChildren(DashboardLabIdRouteRouteChildren)
 
 interface DashboardSpaceSlugRouteRouteChildren {
   DashboardSpaceSlugIndexRoute: typeof DashboardSpaceSlugIndexRoute
@@ -417,13 +414,13 @@ const DashboardSpaceSlugRouteRouteWithChildren =
 
 interface DashboardRouteRouteChildren {
   DashboardIndexRoute: typeof DashboardIndexRoute
-  DashboardLabSlugRouteRoute: typeof DashboardLabSlugRouteRouteWithChildren
+  DashboardLabIdRouteRoute: typeof DashboardLabIdRouteRouteWithChildren
   DashboardSpaceSlugRouteRoute: typeof DashboardSpaceSlugRouteRouteWithChildren
 }
 
 const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
   DashboardIndexRoute: DashboardIndexRoute,
-  DashboardLabSlugRouteRoute: DashboardLabSlugRouteRouteWithChildren,
+  DashboardLabIdRouteRoute: DashboardLabIdRouteRouteWithChildren,
   DashboardSpaceSlugRouteRoute: DashboardSpaceSlugRouteRouteWithChildren,
 }
 

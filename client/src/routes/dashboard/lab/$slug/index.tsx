@@ -6,12 +6,11 @@ import { getOverview } from "@/lib/api/lab-api";
 import { createFileRoute } from "@tanstack/react-router";
 import { Github } from "lucide-react";
 
-export const Route = createFileRoute("/dashboard/lab/$id/")({
+export const Route = createFileRoute("/dashboard/lab/$slug/")({
   loader: async ({ context, params }) => {
-    const labId = params.id;
     const response = await context.queryClient.ensureQueryData({
-      queryKey: ["lab", labId, "dashboard", "overview"],
-      queryFn: () => getOverview(labId),
+      queryKey: ["lab", params.slug, "dashboard", "overview"],
+      queryFn: () => getOverview(params.slug),
     });
     return { data: response };
   },
@@ -21,7 +20,6 @@ export const Route = createFileRoute("/dashboard/lab/$id/")({
 
 function RouteComponent() {
   const { data } = Route.useLoaderData();
-  console.log(data);
 
   return (
     <div className="bg-midnight-300/70 w-full h-full p-5">

@@ -13,7 +13,8 @@ import { Input } from "@/components/ui/input";
 import { useGetWorkspaces } from "@/lib/api/queries/app-queries";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { Workspace } from "@/lib/types/workspace-type";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { getWorkspaceIdByLabSlug } from "@/lib/api/workspace-api";
 
 const HeaderSidebar = () => {
   const navigate = useNavigate();
@@ -21,30 +22,74 @@ const HeaderSidebar = () => {
   const { data: workspaces = [] } = useGetWorkspaces();
 
   const [search, setSearch] = useState("");
-  const [, , , workspaceId, section = ""] = pathname.split("/");
-
-  const currentWorkspace = useMemo(
-    () => workspaces.find((w) => w.id === workspaceId),
-    [workspaces, workspaceId]
+  const [resolvedWorkspace, setResolvedWorkspace] = useState<Workspace | null>(
+    null,
   );
+
+  /**
+   * URL patterns:
+   * /dashboard/space/:workspaceSlug
+   * /dashboard/lab/:labSlug
+   */
+  const [, , scope, slug] = pathname.split("/");
+
+  /**
+   * Resolve workspace context
+   */
+  useEffect(() => {
+    if (!workspaces.length || !slug) return;
+
+    // Case 1: explicit workspace route
+    if (scope === "space") {
+      const ws = workspaces.find((w) => w.slug === slug);
+      setResolvedWorkspace(ws ?? null);
+      return;
+    }
+
+    // Case 2: lab route → resolve via backend
+    if (scope === "lab") {
+      let cancelled = false;
+
+      (async () => {
+        try {
+          const workspaceId = await getWorkspaceIdByLabSlug(slug);
+          const ws = workspaces.find((w) => w.id === workspaceId);
+          if (!cancelled) setResolvedWorkspace(ws ?? null);
+        } catch {
+          if (!cancelled) setResolvedWorkspace(null);
+        }
+      })();
+
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    // Fallback
+    setResolvedWorkspace(null);
+  }, [scope, slug, workspaces]);
 
   const filteredWorkspaces = useMemo(
     () =>
       workspaces.filter((w) =>
-        w.name.toLowerCase().includes(search.toLowerCase())
+        w.name.toLowerCase().includes(search.toLowerCase()),
       ),
-    [workspaces, search]
+    [workspaces, search],
   );
 
-  const handleWorkspaceChange = (newWorkspaceId: string) => {
-    if (newWorkspaceId === workspaceId) return;
+  const handleWorkspaceChange = (newWorkspaceSlug: string) => {
+    if (!resolvedWorkspace) return;
+    if (newWorkspaceSlug === resolvedWorkspace.slug) return;
 
+    // Supabase-style UX:
+    // switching workspace exits current lab
     navigate({
-      to: `/dashboard/space/${newWorkspaceId}/${section}`,
+      to: `/dashboard/space/${newWorkspaceSlug}`,
     });
   };
 
-  if (workspaces.length === 0) {
+  // Loading / unresolved state
+  if (!resolvedWorkspace || workspaces.length === 0) {
     return (
       <div className="h-[50px] px-3 flex items-center">
         <Logo withText />
@@ -58,10 +103,11 @@ const HeaderSidebar = () => {
         <Logo imgClassName="h-5" />
         <Slash className="-rotate-[20deg] text-neutral-400 h-3" />
 
-        <Select value={workspaceId} onValueChange={handleWorkspaceChange}>
-          {currentWorkspace && (
-            <WorkspaceSelectTrigger workspace={currentWorkspace} />
-          )}
+        <Select
+          value={resolvedWorkspace.slug}
+          onValueChange={handleWorkspaceChange}
+        >
+          <WorkspaceSelectTrigger workspace={resolvedWorkspace} />
 
           <WorkspaceSelectContent
             workspaces={filteredWorkspaces}
@@ -105,7 +151,7 @@ function WorkspaceSelectContent({
           workspaces.map((workspace) => (
             <SelectItem
               key={workspace.id}
-              value={workspace.id}
+              value={workspace.slug}
               className="text-neutral-400 focus:text-white"
             >
               {workspace.name}

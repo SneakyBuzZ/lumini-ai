@@ -1,7 +1,6 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Lab } from "@/lib/types/lab-type";
 import { useNavigate } from "@tanstack/react-router";
-import useAppStore from "@/lib/store/project-store";
 
 interface ClickableLabNameCellProps {
   lab: Lab;
@@ -9,11 +8,8 @@ interface ClickableLabNameCellProps {
 
 function ClickableLabNameCell({ lab }: ClickableLabNameCellProps) {
   const navigate = useNavigate();
-  const setLab = useAppStore((state) => state.setCurrentLab);
-
   const handleClick = () => {
-    setLab(lab);
-    navigate({ to: "/dashboard/lab/$id", params: { id: lab.id } });
+    navigate({ to: "/dashboard/lab/$slug", params: { slug: lab.slug } });
   };
 
   return (

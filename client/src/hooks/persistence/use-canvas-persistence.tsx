@@ -12,7 +12,7 @@ const selectCommitSignal = (state: State & Actions) => {
     .join("|");
 };
 
-export default function useCanvasPersistence(labId: string) {
+export default function useCanvasPersistence(labSlug: string) {
   const isPersistingRef = useRef(false);
   const lastFlushedSignatureRef = useRef<string | null>(null);
 
@@ -43,7 +43,7 @@ export default function useCanvasPersistence(labId: string) {
     if (operations.length === 0) return;
 
     const requestBody: BatchUpdateShapes = {
-      labId,
+      labSlug,
       operations,
     };
 
@@ -67,7 +67,7 @@ export default function useCanvasPersistence(labId: string) {
     } finally {
       isPersistingRef.current = false;
     }
-  }, [labId]);
+  }, [labSlug]);
 
   useEffect(() => {
     const unsubscribe = useCanvasStore.subscribe(selectCommitSignal, () => {

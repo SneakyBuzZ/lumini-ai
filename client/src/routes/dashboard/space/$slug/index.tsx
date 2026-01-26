@@ -8,19 +8,19 @@ import { useGetLabs } from "@/lib/api/queries/app-queries";
 import { Lab } from "@/lib/types/lab-type";
 import { createFileRoute } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/dashboard/space/$id/")({
+export const Route = createFileRoute("/dashboard/space/$slug/")({
   loader: async ({ params, context }) => {
     await context.queryClient.ensureQueryData({
-      queryKey: ["labs", params.id],
-      queryFn: () => getAllLabs(params.id),
+      queryKey: ["labs", params.slug],
+      queryFn: () => getAllLabs(params.slug),
     });
   },
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const { id } = Route.useParams();
-  const { data: labs, isPending } = useGetLabs(id);
+  const { slug } = Route.useParams();
+  const { data: labs, isPending } = useGetLabs(slug);
   return (
     <div className="w-full flex flex-col justify-start items-center bg-midnight-300/70 h-full space-y-8 p-10 overflow-y-auto">
       <div className="space-y-5 w-full">

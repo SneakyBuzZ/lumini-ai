@@ -5,11 +5,11 @@ import { getSnapshot } from "@/lib/api/lab-api";
 import { delay } from "@/utils/delay";
 import Loading from "@/components/shared/loading";
 
-export const Route = createFileRoute("/dashboard/lab/$id/canvas/")({
+export const Route = createFileRoute("/dashboard/lab/$slug/canvas/")({
   loader: async ({ context, params }) => {
     const snapshot = await context.queryClient.ensureQueryData({
-      queryKey: ["lab-snapshot", params.id],
-      queryFn: () => getSnapshot(params.id),
+      queryKey: ["lab-snapshot", params.slug],
+      queryFn: () => getSnapshot(params.slug),
     });
     await delay(1000);
     return snapshot;

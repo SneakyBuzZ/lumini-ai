@@ -25,11 +25,13 @@ export const Route = createFileRoute("/dashboard/")({
     }
 
     const recentWorkspaceId = loadRecentWorkspaceId();
-    const workspaceId =
-      workspaces.find((w) => w.id === recentWorkspaceId)?.id ??
-      workspaces[0].id;
+    const workspace =
+      workspaces.find((w) => w.id === recentWorkspaceId) ?? workspaces[0];
 
-    throw redirect({ to: "/dashboard/space/$id", params: { id: workspaceId } });
+    throw redirect({
+      to: "/dashboard/space/$slug",
+      params: { slug: workspace.slug },
+    });
   },
   component: RouteComponent,
 });

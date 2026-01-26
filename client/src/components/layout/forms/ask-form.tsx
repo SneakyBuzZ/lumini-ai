@@ -23,6 +23,7 @@ interface AskFormProps {
   setStreaming: React.Dispatch<React.SetStateAction<boolean>>;
   sessionId: string;
   className?: string;
+  isError?: boolean;
 }
 
 const AskForm = ({
@@ -31,6 +32,7 @@ const AskForm = ({
   isStreaming,
   setStreaming,
   sessionId,
+  isError,
 }: AskFormProps) => {
   const { user } = useAuthStore();
   const { pathname } = useLocation();
@@ -98,7 +100,7 @@ const AskForm = ({
         onSubmit={form.handleSubmit(onSubmit)}
         className={cn(
           "w-full flex flex-col justify-start items-start gap-2 p-3 border bg-midnight-200/95 backdrop-blur-md border-neutral-800/50 rounded-2xl shadow-md",
-          className
+          className,
         )}
       >
         <FormField
@@ -134,7 +136,12 @@ const AskForm = ({
               <span className="text-sm text-neutral-600">Search Web</span>
             </Button>
           </div>
-          <Button variant={"secondary"} type="submit" className="w-10">
+          <Button
+            variant={"secondary"}
+            disabled={isError}
+            type="submit"
+            className="w-10"
+          >
             {isStreaming ? (
               <Square className="bg-white rounded-sm" />
             ) : (

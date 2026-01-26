@@ -52,7 +52,7 @@ export type DeleteOp = {
 
 export type ShapeBatchOperation = CreateOrUpdateOp | DeleteOp;
 export interface BatchUpdateShapes {
-  labId: string;
+  labSlug: string;
   operations: ShapeBatchOperation[];
 }
 

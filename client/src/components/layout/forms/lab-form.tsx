@@ -22,9 +22,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import Spinner from "@/components/shared/spinner";
-import useAppStore from "@/lib/store/project-store";
 import { useState } from "react";
 import { useCreateLab } from "@/lib/api/mutations/app-mutations";
+import { useGetWorkspaces } from "@/lib/api/queries/app-queries";
+import { Route } from "@/routes/dashboard/space/$slug";
 
 const labSchema = z.object({
   name: z.string().min(2).max(100, {
@@ -40,25 +41,29 @@ const labSchema = z.object({
 
 const LabForm = () => {
   const [error, setError] = useState<string | null>(null);
-  const { workspaces, currentWorkspace } = useAppStore();
+  const { data: workspaces } = useGetWorkspaces();
+
   const { mutateAsync: createLab, isPending } = useCreateLab(setError);
+  const { id: currentWorkspaceId } = Route.useParams();
+  const currentWorkspace = workspaces?.find((w) => w.id === currentWorkspaceId);
+
   const form = useForm<z.infer<typeof labSchema>>({
     resolver: zodResolver(labSchema),
     defaultValues: {
       name: "",
       githubUrl: "",
-      workspaceId: currentWorkspace?.id,
+      workspaceId: currentWorkspaceId || "",
     },
   });
 
   async function onSubmit(values: z.infer<typeof labSchema>) {
-    if (!currentWorkspace) {
+    if (!values.workspaceId) {
       setError("No workspace selected");
       return;
     }
     await createLab({
       ...values,
-      plan: currentWorkspace.plan,
+      plan: currentWorkspace?.plan || "free",
     });
     form.reset();
   }
