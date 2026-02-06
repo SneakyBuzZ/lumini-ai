@@ -59,7 +59,6 @@ export class WorkspaceService {
   async findAllMembers(slug: string | undefined) {
     if (!slug) throw new AppError(400, "Workspace slug is required");
     const workspace = await this.workspaceRepository.findBySlug(slug);
-    console.log("Workspace in service:", workspace.id);
     if (!workspace) throw new AppError(404, "Workspace not found");
     const members = await this.workspaceRepository.findAllMembers(workspace.id);
     const invitedMembers = await this.workspaceRepository.findAllInvitedMembers(

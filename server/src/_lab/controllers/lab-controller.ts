@@ -5,7 +5,7 @@ import { Request, Response } from "express";
 import { ShapeService } from "../services/shape-service";
 import { SnapshotRepository } from "../repositories/shape-repository";
 import { broadcastToLab } from "@/lib/ws/ws-room";
-import { UpdateBatchDTO } from "../dto";
+import { UpdateBatchType } from "../dto";
 
 export class LabController {
   private labService: LabService;
@@ -114,7 +114,7 @@ export class LabController {
     const lab = await this.labService.findBySlug(slug);
     if (!lab) throw new AppError(404, "Lab not found");
 
-    const batchData: UpdateBatchDTO = {
+    const batchData: UpdateBatchType = {
       labId: lab.id,
       operations: data.operations,
     };

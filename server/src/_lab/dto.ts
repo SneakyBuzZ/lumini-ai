@@ -78,7 +78,7 @@ const shapeOperationDTO = z.discriminatedUnion("op", [
 ]);
 
 export const updateBatchDTo = z.object({
-  labId: z.string().cuid(),
+  labSlug: z.string(),
   operations: z.array(shapeOperationDTO).min(1),
 });
 
@@ -101,6 +101,7 @@ export type SnapshotDTO = z.infer<typeof snapshotDTO>;
 export type UpdateBatchDTO = z.infer<typeof updateBatchDTo>;
 export type ViewDTO = z.infer<typeof viewDTO>;
 export type ViewStateDTO = z.infer<typeof viewStateDTO>;
+export type ShapeOperationDTO = z.infer<typeof shapeOperationDTO>;
 
 export type OverviewData = {
   fullname: string;
@@ -119,4 +120,9 @@ export type OverviewData = {
   }[];
   languages: NormalizedLanguage[];
   totalBytes: number;
+};
+
+export type UpdateBatchType = {
+  labId: string;
+  operations: ShapeOperationDTO[];
 };
