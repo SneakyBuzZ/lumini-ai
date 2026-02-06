@@ -1,122 +1,73 @@
-# Lumini.ai: Your AI-Powered Developer Hub 🚀
+# Lumini AI — AI-Powered Developer Workspace
 
-<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/177be56c-3d2e-4c39-ad52-b9e5d83d92bb" />
-
----
-
-## ✨ Core Features
-
-### 1. Repo Whisperer: Conversational AI for Codebases
-
-_Bring your repositories to life!_
-
-- Chat with your GitHub repos using powerful AI retrieval.
-- Ask natural language questions, navigate code, generate explanations, and receive smart suggestions.
-- Indexed issues, PRs, and documentation included in every answer.
-
-### 2. LiveCanvas Collab: Real-Time Developer Whiteboarding
-
-_Architect, visualize, and brainstorm together—live._
-
-- Draw, diagram, and connect ideas with real-time multi-user whiteboarding.
-- Link shapes/flows to actual code, branches, or issues for living documentation.
-- Export diagrams to markdown/GitHub issues with a single click.
-
-### 3. InsightPulse Dashboard: GitHub Analytics at a Glance
-
-_A bird’s-eye view of your productivity._
-
-- Visualize contributions, PRs, code review patterns, and team progress.
-- Personal and team dashboards with actionable metrics.
-- Security, code quality, and bottleneck insights powered by AI.
-
-### 4. CodeSync Review Rooms: Live Interactive Code Reviews
-
-_Reinvent the review experience._
-
-- Join real-time code review sessions with inline comments, live diffs, and chat/video.
-- Synchronized editing and instant GitHub PR updates.
-- Smart suggestions from your AI co-pilot during sessions.
+<img width="1919" height="1079" alt="Screenshot 2026-02-06 190143" src="https://github.com/user-attachments/assets/e911314f-1980-4e68-9759-d3832dcf89f2" />
 
 ---
 
-## 💡 Why Lumini.ai?
+## Overview
 
-- Cut down context-switching with integrated chat, dashboard, and whiteboard features.
-- Understand complex codebases fast—ask and get instant AI-powered replies.
-- Collaborate dynamically: real-time code review, architecture drawing, and data insight together.
-- Automate routine tasks, never miss critical updates or review opportunities.
+Lumini is a developer workspace that combines AI-assisted repository understanding with a realtime collaborative canvas.
 
----
-
-## 🛠 Requirements
-
-- Node.js (v14 or higher)
-- npm or Yarn
-- (Optional) WebSocket server for live features
+It helps developers understand complex codebases, reason visually, and collaborate in real time — without switching tools.
 
 ---
 
-## 🚧 Installation & Running
+## Core Features
 
-**Clone the repository:**
+### Ask Your Repo
 
-```bash
-git clone [YOUR-REPO-URL]
-cd lumini-ai
-```
-
-**Install backend:**
-
-```bash
-cd server
-npm install
-```
-
-**Install frontend:**
-
-```bash
-cd client
-npm install
-```
-
-**Start the backend server:**
-
-```bash
-cd server
-npm run start
-```
-
-_Backend runs on http://localhost:8000 (or configured port)._
-
-**Start the frontend server:**
-
-```bash
-cd client
-npm run start
-```
-
-_Frontend runs on http://localhost:3000 (or configured port)._
-
-**Start the WebSocket server (if required):**
-
-```bash
-cd websocket
-npm run start
-```
-
-_WebSocket runs on http://localhost:8080 (or configured port)._
+- Query GitHub repositories using natural language
+- Answers grounded in actual code, PRs, issues, and documentation
+- Navigate files, understand logic, and generate explanations
 
 ---
 
-## ✨ Decorate Your Workspace
+### Collaborative Canvas
 
-- Homepage features living glassmorphic cards with Lottie animations next to each core feature.
-- Repo Whisperer chat window with pulse/typing effects.
-- Whiteboard with multi-cursor colors and “save to repo” badges.
-- Metrics rings, gradient progress bars, and streak counters in the dashboard.
-- Review rooms open with sliding panel transitions, celebratory icons for completed reviews.
+- Custom-built canvas engine (no third-party canvas frameworks)
+- Realtime collaboration:
+  - live cursors
+  - remote selections
+  - live shape movement and resizing
+- Preview vs commit model for efficient syncing
+- Optimised, batched persistence with versioned updates
+
+Used for:
+- architecture diagrams
+- system flows
+- living documentation linked to real code
 
 ---
 
-Let Lumini.ai reshape your developer experience—blending creativity, analytics, and AI into one powerful platform. Happy coding! ✨
+### GitHub Insights
+
+- Visualise repository activity and contribution patterns
+- Track PR flow, review velocity, and team progress
+- Identify trends and bottlenecks using AI-driven analysis
+
+---
+
+### Realtime Review Rooms
+
+- Live collaborative code reviews
+- Inline comments and synced diffs
+- AI-assisted suggestions during review sessions
+
+---
+
+## Why Lumini
+
+- Reduces context switching
+- Makes large codebases easier to understand
+- Enables realtime collaboration with production-grade state handling
+- Designed for developer workflows
+
+---
+
+## Tech Stack
+
+- Node.js
+- React
+- Custom Canvas Engine
+- WebSockets for realtime collaboration
+- Batched persistence and conflict-aware updates
