@@ -33,6 +33,14 @@ const initialState: State = {
   selectionBoxEnd: null,
   hasHydrated: false,
   isRestoringFromHistory: false,
+  previewShapes: {},
+  toolPreferences: {
+    strokeColor: "#a0a0a0",
+    strokeType: "solid",
+    strokeWidth: 0.5,
+    fillColor: "transparent",
+    fontSize: 16,
+  },
 };
 
 const useCanvasStore = create<State & Actions>()(
@@ -526,6 +534,35 @@ const useCanvasStore = create<State & Actions>()(
       finish: () => set({ selectionBoxStart: null, selectionBoxEnd: null }),
     },
 
+    // --- Tool Preferences ---
+    toolPreferencesActions: {
+      set: (key, value) =>
+        set((state) => ({
+          toolPreferences: {
+            ...state.toolPreferences,
+            [key]: value,
+          },
+        })),
+    },
+
+    // --- Remote Preview ---
+    preview: {
+      set: (shapeId, patch) =>
+        set((state) => ({
+          previewShapes: {
+            ...state.previewShapes,
+            [shapeId]: { ...(state.previewShapes[shapeId] ?? {}), ...patch },
+          },
+        })),
+      clear: (shapeId) =>
+        set((state) => {
+          const newPreviews = { ...state.previewShapes };
+          delete newPreviews[shapeId];
+          return { previewShapes: newPreviews };
+        }),
+      clearAll: () => set({ previewShapes: {} }),
+    },
+
     // --- Server Sync ---
     hydrateCanvas: (snapshot) => {
       set((state) => {
@@ -551,6 +588,10 @@ const useCanvasStore = create<State & Actions>()(
         return {
           shapes: shapes,
           shapeOrder: Object.values(shapes)
+            .filter(
+              (s): s is CanvasShape & { id: string } =>
+                typeof s.id === "string",
+            )
             .sort((a, b) =>
               a.zIndex === b.zIndex
                 ? a.id.localeCompare(b.id)

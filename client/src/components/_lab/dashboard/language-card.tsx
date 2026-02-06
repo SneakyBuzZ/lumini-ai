@@ -96,6 +96,7 @@ const LANGUAGE_COLORS: Record<string, string> = {
   CPlusPlus: "#f34b7d", // pink-ish
   C: "#555555", // gray
   Shell: "#89e051", // light green
+  Solidity: "#14b8a6", // teal
 };
 
 const LANGUAGE_BG_COLORS: Record<string, string> = {
@@ -113,6 +114,7 @@ const LANGUAGE_BG_COLORS: Record<string, string> = {
   CPlusPlus: "bg-[#f34b7d]",
   C: "bg-[#555555]",
   Shell: "bg-[#89e051]",
+  Solidity: "bg-[#14b8a6]",
 };
 
 function getLanguageColor(name: string) {

@@ -1,17 +1,18 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 
 export function useSocket(labId: string) {
-  const wsRef = useRef<WebSocket | null>(null);
+  const [ws, setWs] = useState<WebSocket | null>(null);
 
   useEffect(() => {
+    if (!labId) return;
     const ws = new WebSocket(`http://localhost:5000/ws?labId=${labId}`);
-    wsRef.current = ws;
+    setWs(ws);
 
     return () => {
       ws.close();
-      wsRef.current = null;
+      setWs(null);
     };
   }, [labId]);
 
-  return wsRef;
+  return ws;
 }

@@ -2,11 +2,12 @@ import { BatchUpdateShapes } from "@/lib/api/dto";
 import { batchUpdateShapes } from "@/lib/api/lab-api";
 import { scheduleFlush, shapeToOperation } from "@/lib/canvas/persistence";
 import useCanvasStore from "@/lib/store/canvas-store";
-import { Actions, State } from "@/lib/types/canvas-type";
+import { Actions, CanvasShape, State } from "@/lib/types/canvas-type";
 import { useCallback, useEffect, useRef } from "react";
 
 const selectCommitSignal = (state: State & Actions) => {
   return Object.values(state.shapes)
+    .filter((s): s is CanvasShape & { id: string } => typeof s.id === "string")
     .sort((a, b) => a.id.localeCompare(b.id))
     .map((s) => `${s.id}:${s.commitVersion}:${s.lastPersistedVersion}`)
     .join("|");

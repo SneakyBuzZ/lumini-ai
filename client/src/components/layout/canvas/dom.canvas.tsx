@@ -23,6 +23,7 @@ import { RemoteSelections } from "./remote-selection";
 import { useRemoteSelect } from "@/hooks/collaboration/use-remote-select";
 import useRemoteShapeCommits from "@/hooks/collaboration/use-remote-shape-commits";
 import { useGetLabBySlug } from "@/lib/api/queries/app-queries";
+import useRemoteShapePreview from "@/hooks/collaboration/use-remote-shape-preview";
 
 interface CanvasProps {
   snapshot: GetSnapshot;
@@ -39,8 +40,7 @@ export function Canvas({ snapshot }: CanvasProps) {
   const { data: labData } = useGetLabBySlug(labSlug);
   const labId = labData?.id || "";
 
-  const wsRef = useSocket(labId);
-  const ws = wsRef.current;
+  const ws = useSocket(labId);
 
   const {
     canvasRef,
@@ -56,7 +56,9 @@ export function Canvas({ snapshot }: CanvasProps) {
     onTextBlur,
   } = useCanvas(ws);
 
+  const presenceUsers = usePresence(ws);
   const remoteCursors = useRemoteCursors(ws);
+  const userProfiles = usePresenceProfiles(presenceUsers);
   const remoteSelections = useRemoteSelect(ws);
   useCursorBroadcast(editingText ? null : ws, canvasRef, {
     scale: store.scale,
@@ -64,12 +66,12 @@ export function Canvas({ snapshot }: CanvasProps) {
     offsetY: store.offsetY,
   });
   useRemoteShapeCommits(ws);
-  const presenceUsers = usePresence(wsRef);
-  const userProfiles = usePresenceProfiles(presenceUsers);
-  const { data: userProfile } = useGetUser();
+  useRemoteShapePreview(ws);
 
+  const { data: userProfile } = useGetUser();
   const { data } = snapshot;
-  const { shapes, scale, offsetX, offsetY, mode, cursor } = store;
+  const { shapes, previewShapes, scale, offsetX, offsetY, mode, cursor } =
+    store;
 
   const hydrateCanvas = useCanvasStore((s) => s.hydrateCanvas);
   const hydrateView = useCanvasStore((s) => s.view.hydrateView);
@@ -89,13 +91,12 @@ export function Canvas({ snapshot }: CanvasProps) {
     if (didAutoFitRef.current) return;
 
     let cancelled = false;
-    const activeLab = labId;
 
     (async () => {
       let view = null;
-      if (activeLab) {
-        view = await getView(activeLab);
-        if (activeLab !== labId || cancelled) return;
+      if (labSlug) {
+        view = await getView(labSlug);
+        if (cancelled) return;
       }
 
       //saved view wins
@@ -120,7 +121,18 @@ export function Canvas({ snapshot }: CanvasProps) {
     return () => {
       cancelled = true;
     };
-  }, [labId, hasHydrated, hydrateView, store.shapes, canvasRef]);
+  }, [labSlug, hasHydrated, hydrateView, store.shapes, canvasRef]);
+
+  const effectiveShapes = useMemo(() => {
+    const result: typeof shapes = {};
+
+    for (const [id, shape] of Object.entries(shapes)) {
+      const preview = previewShapes[id];
+      result[id] = preview ? { ...shape, ...preview } : shape;
+    }
+
+    return result;
+  }, [shapes, previewShapes]);
 
   // --- redraw with proper cursor ---
   const redraw = useCallback(() => {
@@ -132,7 +144,12 @@ export function Canvas({ snapshot }: CanvasProps) {
 
     initialiseCanvas(ctx, canvas);
 
-    renderShapes(shapes, ctx, { scale, offsetX, offsetY }, editingText);
+    renderShapes(
+      effectiveShapes,
+      ctx,
+      { scale, offsetX, offsetY },
+      editingText,
+    );
 
     if (mode === "select") {
       drawSelectionBox(ctx, scale, offsetX, offsetY);
@@ -149,7 +166,6 @@ export function Canvas({ snapshot }: CanvasProps) {
     }
   }, [
     canvasRef,
-    shapes,
     scale,
     offsetX,
     offsetY,
@@ -158,12 +174,13 @@ export function Canvas({ snapshot }: CanvasProps) {
     drawSelectionBox,
     drawResizeHandles,
     editingText,
+    effectiveShapes,
   ]);
 
   // --- redraw on relevant changes ---
   useEffect(() => {
     redraw();
-  }, [shapes, scale, offsetX, offsetY, redraw]);
+  }, [redraw]);
 
   // --- resize canvas ---
   useEffect(() => {
@@ -195,6 +212,7 @@ export function Canvas({ snapshot }: CanvasProps) {
     return () => observer.disconnect();
   }, [canvasRef, redraw]);
 
+  // --- focus textarea when editing text changes ---
   useEffect(() => {
     if (textareaRef.current) {
       const len = textareaRef.current.value.length;
@@ -300,7 +318,7 @@ export function Canvas({ snapshot }: CanvasProps) {
 
         <RemoteSelections
           selections={remoteSelections}
-          shapes={shapes}
+          shapes={effectiveShapes}
           userColorMap={userColorMap}
           transform={{ scale, offsetX, offsetY }}
         />

@@ -5,26 +5,22 @@ import {
 import { useEffect, useState } from "react";
 
 export default function useRemoteCursors(ws: WebSocket | null) {
-  const [, forceRender] = useState(0);
+  const [remoteCursors, setRemoteCursors] = useState(getCursorsSnapshot());
 
   useEffect(() => {
     if (!ws) return;
 
-    function onMessage(e: MessageEvent) {
+    async function onMessage(e: MessageEvent) {
       const data = JSON.parse(e.data);
-
       if (data.type === "cursor:move" || data.type === "cursor:leave") {
         handleCursorEvent(data);
-        forceRender((x) => x + 1);
+        setRemoteCursors(getCursorsSnapshot());
       }
     }
 
     ws.addEventListener("message", onMessage);
+    return () => ws.removeEventListener("message", onMessage);
+  }, [ws, remoteCursors]);
 
-    return () => {
-      ws.removeEventListener("message", onMessage);
-    };
-  }, [ws]);
-
-  return getCursorsSnapshot();
+  return remoteCursors;
 }

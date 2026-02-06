@@ -20,9 +20,22 @@ export function usePresenceProfiles(presence: PresenceUser[]) {
   const [profiles, setProfiles] = useState<UserProfile[]>([]);
 
   useEffect(() => {
-    const ids = presence.map((u) => u.id);
+    let cancelled = false;
 
+    const ids = presence.map((u) => u.id);
     const missingIds = ids.filter((id) => !cacheRef.current.has(id));
+
+    const updateProfiles = () => {
+      if (cancelled) return;
+      setProfiles(
+        presence
+          .map((u) => {
+            const profile = cacheRef.current.get(u.id);
+            return profile ? { ...profile, color: u.color } : null;
+          })
+          .filter(Boolean) as UserProfile[],
+      );
+    };
 
     if (missingIds.length > 0) {
       api
@@ -33,28 +46,18 @@ export function usePresenceProfiles(presence: PresenceUser[]) {
           for (const user of res.data.payload) {
             cacheRef.current.set(user.id, user);
           }
-
-          setProfiles(
-            presence
-              .map((u) => {
-                const profile = cacheRef.current.get(u.id);
-                return profile ? { ...profile, color: u.color } : null;
-              })
-              .filter(Boolean) as UserProfile[],
-          );
+          updateProfiles();
         });
 
-      return;
+      return () => {
+        cancelled = true;
+      };
     }
 
-    setProfiles(
-      presence
-        .map((u) => {
-          const profile = cacheRef.current.get(u.id);
-          return profile ? { ...profile, color: u.color } : null;
-        })
-        .filter(Boolean) as UserProfile[],
-    );
+    updateProfiles();
+    return () => {
+      cancelled = true;
+    };
   }, [presence]);
 
   return profiles;

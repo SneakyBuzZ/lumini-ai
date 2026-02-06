@@ -148,7 +148,6 @@ export const getSnapshot = async (labSlug: string): Promise<GetSnapshot> => {
 //* --- VIEW API CALLS ---
 
 export const getView = async (labSlug: string) => {
-  console.log(`/lab/${labSlug}/view`)
   const response = await api.get(`/lab/${labSlug}/view`);
   return response.data.payload;
 };
