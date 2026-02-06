@@ -12,8 +12,8 @@ export const useCanvas = (ws: WebSocket | null) => {
 
   const drawingHandlers = useDrawing(canvasRef);
   const selectHandlers = useSelect(canvasRef, ws);
+  const resizeHandlers = useResize(canvasRef, ws);
   const panZoomHandlers = usePanZoom(canvasRef);
-  const resizeHandlers = useResize(canvasRef);
   useUndoRedo();
 
   useEffect(() => {

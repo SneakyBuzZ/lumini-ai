@@ -27,7 +27,7 @@ export class WorkspaceService {
       const userWorkspaces = await this.workspaceRepository.findAll(ownerId);
 
       const hasFreePlan = userWorkspaces.some(
-        (workspace) => workspace.plan === "free"
+        (workspace) => workspace.plan === "free",
       );
 
       if (hasFreePlan && data.plan === "free") {
@@ -38,9 +38,17 @@ export class WorkspaceService {
     await this.workspaceRepository.save(data, ownerId);
   }
 
-  async findGeneralSettings(req: Request) {
-    const workspaceId = req.params.workspaceId;
-    if (!workspaceId) throw new AppError(400, "Workspace ID is required");
+  async findBySlug(slug: string) {
+    const workspace = await this.workspaceRepository.findBySlug(slug);
+    if (!workspace) throw new AppError(404, "Workspace not found");
+    return workspace;
+  }
+
+  async findGeneralSettings(slug: string | null) {
+    if (!slug) throw new AppError(400, "Workspace slug is required");
+    const workspace = await this.workspaceRepository.findBySlug(slug);
+    if (!workspace) throw new AppError(404, "Workspace not found");
+    const workspaceId = workspace.id;
     return await this.workspaceRepository.findGeneralSettings(workspaceId);
   }
 
@@ -48,45 +56,52 @@ export class WorkspaceService {
     return await this.workspaceRepository.findAllWithInvited(userId);
   }
 
-  async findAllMembers(workspaceId: string) {
-    return await this.workspaceRepository.findAllMembers(workspaceId);
+  async findAllMembers(slug: string | undefined) {
+    if (!slug) throw new AppError(400, "Workspace slug is required");
+    const workspace = await this.workspaceRepository.findBySlug(slug);
+    if (!workspace) throw new AppError(404, "Workspace not found");
+    const members = await this.workspaceRepository.findAllMembers(workspace.id);
+    const invitedMembers = await this.workspaceRepository.findAllInvitedMembers(
+      workspace.id,
+    );
+    return [...members, ...invitedMembers];
   }
 
   async updateDetails(
     data: UpdateWorkspaceDetailsDTOType,
-    workspaceId: string
+    workspaceId: string,
   ) {
     await this.workspaceRepository.updateDetails(data, workspaceId);
   }
 
   async updateVisibility(
     data: UpdateWorkspaceVisibilityDTOType,
-    workspaceId: string
+    workspaceId: string,
   ) {
     await this.workspaceRepository.updateVisibility(data, workspaceId);
   }
 
   async updateLanguage(
     data: UpdateWorkspaceLanguageDTOType,
-    workspaceId: string
+    workspaceId: string,
   ) {
     await this.workspaceRepository.updateLanguage(data, workspaceId);
   }
 
   async updateNotifications(
     data: UpdateWorkspaceNotificationsDTOType,
-    workspaceId: string
+    workspaceId: string,
   ) {
     await this.workspaceRepository.updateNotificationsEnabled(
       data,
-      workspaceId
+      workspaceId,
     );
   }
 
   async inviteMember(
     data: UpdateWorkspaceInviteDTOType,
     workspaceId: string,
-    inviterId: string
+    inviterId: string,
   ) {
     const workspace = await this.workspaceRepository.findById(workspaceId);
     if (!workspace) throw new AppError(404, "Workspace not found");
@@ -94,11 +109,10 @@ export class WorkspaceService {
     const { email, role } = data;
     const inviterRole = await this.workspaceRepository.findMemberRoleById(
       inviterId,
-      workspaceId
+      workspaceId,
     );
-    const recipientRole = await this.workspaceRepository.findMemberRoleByEmail(
-      email
-    );
+    const recipientRole =
+      await this.workspaceRepository.findMemberRoleByEmail(email);
 
     if (!inviterRole) throw new Error("Inviter role not found");
     if (recipientRole) throw new Error("User is already a workspace member");
@@ -108,7 +122,7 @@ export class WorkspaceService {
     const invite = await this.workspaceRepository.createInvite(
       data,
       workspaceId,
-      inviterId
+      inviterId,
     );
 
     await sendWorkspaceInviteEmail({
@@ -139,7 +153,7 @@ export class WorkspaceService {
       const existingMember = await this.workspaceRepository.findIfMember(
         invite.workspaceId,
         userId,
-        tx
+        tx,
       );
       if (existingMember)
         throw new AppError(400, "User is already a workspace member");
@@ -148,7 +162,7 @@ export class WorkspaceService {
         userId,
         invite.workspaceId,
         invite.role,
-        tx
+        tx,
       );
 
       return invite.workspaceId;

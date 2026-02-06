@@ -1,7 +1,9 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import useCanvasStore from "@/lib/store/canvas-store";
 import { getCursorCoords, isPointInsideShape } from "@/lib/canvas/utils";
 import { Actions, CanvasShape, State } from "@/lib/types/canvas-type";
+import { useGetUser } from "@/lib/api/queries/user-queries";
+import { throttle } from "lodash";
 
 export const useSelect = (
   canvasRef: React.RefObject<HTMLCanvasElement>,
@@ -53,6 +55,33 @@ export const useSelect = (
       }),
     );
   }, [ws, store.selectedShapeIds]);
+
+  const { data: user } = useGetUser();
+  const previewSenderRef = useRef<
+    ((shapeId: string, patch: Partial<CanvasShape>) => void) | null
+  >(null);
+
+  useEffect(() => {
+    if (!ws || !user) return;
+
+    const send = throttle((shapeId: string, patch: Partial<CanvasShape>) => {
+      if (ws.readyState !== WebSocket.OPEN) return;
+      const payload = JSON.stringify({
+        type: "shape:preview",
+        shapeId,
+        patch,
+        authorId: user.id,
+      });
+      ws.send(payload);
+    }, 30);
+
+    previewSenderRef.current = send;
+
+    return () => {
+      send.cancel();
+      previewSenderRef.current = null;
+    };
+  }, [ws, user]);
 
   //& ----- Mouse down ------
   const onMouseDown = (e: React.MouseEvent) => {
@@ -169,8 +198,16 @@ export const useSelect = (
           const shape = store.shapes[id];
           const initial = initialShapePositionsRef.current[id];
           if (!shape || !initial) return;
+
+          // Update shape position for current user
           store.shapesActions.update({
             ...shape,
+            x: initial.x + dx,
+            y: initial.y + dy,
+          });
+
+          // Set values in ref to be sent as preview over WebSocket
+          previewSenderRef.current?.(id, {
             x: initial.x + dx,
             y: initial.y + dy,
           });

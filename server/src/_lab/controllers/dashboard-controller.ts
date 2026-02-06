@@ -14,10 +14,10 @@ export class DashboardController {
   }
 
   getOverview = async (req: Request, res: Response) => {
-    const labId = req.params.labId;
-    if (!labId) throw new AppError(400, "Lab ID is required");
+    const slug = req.params.slug;
+    if (!slug) throw new AppError(400, "Slug is required");
 
-    const overview = await this.dashboardService.getOverview(labId);
+    const overview = await this.dashboardService.getOverview(slug);
     res.status(200).json(
       new DataResponse(
         200,

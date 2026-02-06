@@ -1,9 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useRef, useCallback } from "react";
+import { useRef, useCallback, useEffect } from "react";
 import useCanvasStore from "@/lib/store/canvas-store";
 import { getCursorCoords } from "@/lib/canvas/utils";
 import { CanvasCusor, CanvasShape } from "@/lib/types/canvas-type";
 import { CURSORS } from "@/lib/canvas/remote-cursor";
+import { useGetUser } from "@/lib/api/queries/user-queries";
+import { throttle } from "lodash";
 
 type HandleName =
   | "tl"
@@ -17,8 +19,39 @@ type HandleName =
   | "start"
   | "end";
 
-export const useResize = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
+export const useResize = (
+  canvasRef: React.RefObject<HTMLCanvasElement>,
+  ws: WebSocket | null,
+) => {
   const store = useCanvasStore();
+  const { data: user } = useGetUser();
+  const previewSenderRef = useRef<
+    ((shapeId: string, patch: Partial<CanvasShape>) => void) | null
+  >(null);
+
+  useEffect(() => {
+    if (!ws || !user) return;
+
+    const send = throttle((shapeId: string, patch: Partial<CanvasShape>) => {
+      if (ws.readyState !== WebSocket.OPEN) return;
+
+      ws.send(
+        JSON.stringify({
+          type: "shape:preview",
+          shapeId,
+          patch,
+          authorId: user.id,
+        }),
+      );
+    }, 30);
+
+    previewSenderRef.current = send;
+
+    return () => {
+      send.cancel();
+      previewSenderRef.current = null;
+    };
+  }, [ws, user]);
 
   const resizingRef = useRef<{
     handle: HandleName;
@@ -276,13 +309,21 @@ export const useResize = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
           newEndY = y;
         }
 
-        store.shapesActions.update({
-          ...shape,
+        const patch = {
           x: newStartX,
           y: newStartY,
           width: newEndX - newStartX,
           height: newEndY - newStartY,
+        };
+
+        // Update shape for current user
+        store.shapesActions.update({
+          ...shape,
+          ...patch,
         });
+
+        // Set values in ref to be sent as preview over WebSocket
+        previewSenderRef.current?.(id, patch);
         return;
       }
 
@@ -360,6 +401,11 @@ export const useResize = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
 
       if (Object.keys(updates).length > 0) {
         store.shapesActions.batchUpdate(updates);
+
+        // Set values in ref to be sent as preview over WebSocket for each shape
+        Object.entries(updates).forEach(([id, patch]) => {
+          previewSenderRef.current?.(id, patch);
+        });
       }
     },
     [canvasRef, store, getHandleAtPoint],

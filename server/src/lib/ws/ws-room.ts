@@ -48,7 +48,7 @@ export function broadcastToLab(labId: string, data: WSEvent, ws?: WebSocket) {
   }
 }
 
-export function broadcastPresenceUpdate(labId: string, ws: WebSocket) {
+export function sendPresenceSnapshot(labId: string, ws: WebSocket) {
   const snapshot = getSocketsArray(labId);
 
   const data: PresenceSnapshotEvent = {

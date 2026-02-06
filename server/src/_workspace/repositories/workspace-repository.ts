@@ -50,6 +50,15 @@ export class WorkspaceRepository {
     });
   }
 
+  async findBySlug(slug: string) {
+    const [workspace] = await db
+      .select()
+      .from(workspacesTable)
+      .where(eq(workspacesTable.slug, slug))
+      .limit(1);
+    return workspace;
+  }
+
   async findGeneralSettings(workspaceId: string) {
     const generalSettings = await db.query.workspacesTable.findFirst({
       where: eq(workspacesTable.id, workspaceId),
@@ -99,13 +108,13 @@ export class WorkspaceRepository {
       .from(workspacesTable)
       .innerJoin(
         workspaceMembersTable,
-        eq(workspaceMembersTable.workspaceId, workspacesTable.id)
+        eq(workspaceMembersTable.workspaceId, workspacesTable.id),
       )
       .where(
         and(
           eq(workspaceMembersTable.memberId, userId),
-          isNotNull(workspaceMembersTable.memberId)
-        )
+          isNotNull(workspaceMembersTable.memberId),
+        ),
       );
     return memberWorkspaces;
   }
@@ -129,30 +138,6 @@ export class WorkspaceRepository {
       },
     });
 
-    const invitedMembers = await db.query.workspaceInvitesTable.findMany({
-      where: (invite, { eq, isNull }) =>
-        and(
-          eq(invite.workspaceId, workspaceId),
-          isNull(invite.acceptedAt),
-          isNull(invite.declinedAt),
-          eq(invite.status, "pending")
-        ),
-      columns: {
-        role: true,
-        status: true,
-      },
-      with: {
-        invitedUser: {
-          columns: {
-            id: true,
-            image: true,
-            email: true,
-            name: true,
-          },
-        },
-      },
-    });
-
     const normalizedMembers = members.map((m) => ({
       id: m.member.id,
       name: m.member.name,
@@ -163,24 +148,42 @@ export class WorkspaceRepository {
       joinedAt: m.joinedAt,
     }));
 
-    const normalizedInvites = invitedMembers.map((im) => ({
-      id: im.invitedUser.id,
-      name: im.invitedUser.name,
-      email: im.invitedUser.email,
-      image: im.invitedUser.image,
+    return normalizedMembers;
+  }
+
+  async findAllInvitedMembers(workspaceId: string) {
+    const invitedMembers = await db
+      .select({
+        role: workspaceInvitesTable.role,
+        status: workspaceInvitesTable.status,
+        invitedUserEmail: workspaceInvitesTable.email,
+      })
+      .from(workspaceInvitesTable)
+      .where(
+        and(
+          eq(workspaceInvitesTable.workspaceId, workspaceId),
+          isNull(workspaceInvitesTable.acceptedAt),
+          isNull(workspaceInvitesTable.declinedAt),
+          eq(workspaceInvitesTable.status, "pending"),
+        ),
+      );
+
+    const normalizedInvitedMembers = invitedMembers.map((im) => ({
+      id: null,
+      email: im.invitedUserEmail,
+      image: null,
       role: im.role,
       status: im.status,
-      joinedAt: null,
     }));
 
-    return [...normalizedMembers, ...normalizedInvites];
+    return normalizedInvitedMembers;
   }
 
   async findIsWorkspaceMember(workspaceId: string, memberId: string) {
     const member = await db.query.workspaceMembersTable.findFirst({
       where: and(
         eq(workspaceMembersTable.workspaceId, workspaceId),
-        eq(workspaceMembersTable.memberId, memberId)
+        eq(workspaceMembersTable.memberId, memberId),
       ),
     });
     return !!member;
@@ -191,7 +194,7 @@ export class WorkspaceRepository {
       where: (workspace, { eq }) =>
         and(
           eq(workspace.memberId, memberId),
-          eq(workspace.workspaceId, workspaceId)
+          eq(workspace.workspaceId, workspaceId),
         ),
       columns: {
         role: true,
@@ -210,7 +213,7 @@ export class WorkspaceRepository {
 
   async updateDetails(
     data: UpdateWorkspaceDetailsDTOType,
-    workspaceId: string
+    workspaceId: string,
   ) {
     await db
       .update(workspacesTable)
@@ -220,7 +223,7 @@ export class WorkspaceRepository {
 
   async updateVisibility(
     data: UpdateWorkspaceVisibilityDTOType,
-    workspaceId: string
+    workspaceId: string,
   ) {
     await db
       .update(workspaceSettingsTable)
@@ -230,7 +233,7 @@ export class WorkspaceRepository {
 
   async updateLanguage(
     data: UpdateWorkspaceLanguageDTOType,
-    workspaceId: string
+    workspaceId: string,
   ) {
     await db
       .update(workspaceSettingsTable)
@@ -240,7 +243,7 @@ export class WorkspaceRepository {
 
   async updateNotificationsEnabled(
     data: UpdateWorkspaceNotificationsDTOType,
-    workspaceId: string
+    workspaceId: string,
   ) {
     await db
       .update(workspaceSettingsTable)
@@ -261,7 +264,7 @@ export class WorkspaceRepository {
   async createInvite(
     data: UpdateWorkspaceInviteDTOType,
     workspaceId: string,
-    inviterId: string
+    inviterId: string,
   ) {
     const { email, role } = data;
     const now = new Date();
@@ -271,7 +274,7 @@ export class WorkspaceRepository {
         eq(workspaceInvitesTable.workspaceId, workspaceId),
         eq(workspaceInvitesTable.email, email),
         isNull(workspaceInvitesTable.acceptedAt),
-        gt(workspaceInvitesTable.expiresAt, now)
+        gt(workspaceInvitesTable.expiresAt, now),
       ),
     });
     if (activeInvite) throw new Error("An active invite already exists");
@@ -281,7 +284,7 @@ export class WorkspaceRepository {
         eq(workspaceInvitesTable.workspaceId, workspaceId),
         eq(workspaceInvitesTable.email, email),
         isNull(workspaceInvitesTable.acceptedAt),
-        lt(workspaceInvitesTable.expiresAt, now)
+        lt(workspaceInvitesTable.expiresAt, now),
       ),
     });
 
@@ -328,7 +331,7 @@ export class WorkspaceRepository {
     memberId: string,
     workspaceId: string,
     recipientRole: "owner" | "administrator" | "developer",
-    tx?: DbExecutor
+    tx?: DbExecutor,
   ) {
     const queryBuilder = tx || db;
     await queryBuilder.insert(workspaceMembersTable).values({
@@ -348,8 +351,8 @@ export class WorkspaceRepository {
         and(
           eq(workspaceInvitesTable.workspaceId, workspaceId),
           eq(workspaceInvitesTable.email, memberId),
-          isNull(workspaceInvitesTable.acceptedAt)
-        )
+          isNull(workspaceInvitesTable.acceptedAt),
+        ),
       );
   }
 
@@ -361,8 +364,8 @@ export class WorkspaceRepository {
       .where(
         and(
           eq(workspaceMembersTable.workspaceId, workspaceId),
-          eq(workspaceMembersTable.memberId, memberId)
-        )
+          eq(workspaceMembersTable.memberId, memberId),
+        ),
       )
       .limit(1);
     return !!member;

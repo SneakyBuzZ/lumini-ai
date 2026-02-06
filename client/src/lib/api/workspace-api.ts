@@ -8,33 +8,41 @@ export const getAllWorkspaces = async (): Promise<Workspace[]> => {
 };
 
 export const createWorkspace = async (
-  data: CreateWorkspace
+  data: CreateWorkspace,
 ): Promise<number> => {
   const response = await api.post("/workspace", data);
   return response.status;
+};
+
+export const getWorkspaceBySlug = async (slug: string): Promise<Workspace> => {
+  const response = await api.get(`/workspace/${slug}`);
+  return response.data.payload;
+};
+
+export const getWorkspaceIdByLabSlug = async (labSlug: string) => {
+  const response = await api.get(`/lab/${labSlug}/workspace`);
+  return response.data.payload.workspaceId;
 };
 
 export const getWorkspaceSettings = async <
   T extends keyof WorkspaceSettingsMap,
 >(
   settingType: T,
-  workspaceId: string
+  slug: string,
 ): Promise<WorkspaceSettingsMap[T]> => {
-  const response = await api.get(
-    `/workspace/${workspaceId}/settings/${settingType}`
-  );
+  const response = await api.get(`/workspace/${slug}/settings/${settingType}`);
   return response.data.payload;
 };
 
-export const getWorkspaceMembers = async (workspaceId: string) => {
-  const response = await api.get(`/workspace/${workspaceId}/members`);
+export const getWorkspaceMembers = async (slug: string) => {
+  const response = await api.get(`/workspace/${slug}/members`);
   return response.data.payload;
 };
 
 export const createWorkspaceInvite = async (
   workspaceId: string,
   email: string,
-  role: string
+  role: string,
 ) => {
   const response = await api.post(`/workspace/${workspaceId}/invite`, {
     email,

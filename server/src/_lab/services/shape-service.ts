@@ -3,7 +3,7 @@ import {
   SnapshotRepository,
   ViewRepository,
 } from "@/_lab/repositories/shape-repository";
-import { ShapeDTO, UpdateBatchDTO, UpdateShapeDTO, ViewDTO } from "@/_lab/dto";
+import { ShapeDTO, UpdateBatchType, UpdateShapeDTO, ViewDTO } from "@/_lab/dto";
 import { WorkspaceRepository } from "@/_workspace/repositories/workspace-repository";
 import { LabRepository } from "../repositories/lab-repository";
 import { AppError } from "@/utils/error";
@@ -97,7 +97,7 @@ export class ShapeService {
     return await this.shapeRepository.findAll(labId);
   }
 
-  async batchUpdate(data: UpdateBatchDTO) {
+  async batchUpdate(data: UpdateBatchType) {
     return await this.shapeRepository.batchUpdate(data);
   }
 

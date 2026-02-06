@@ -8,13 +8,13 @@ import {
   Slash,
   Square,
 } from "lucide-react";
-import { useCanvas } from "@/hooks/use-canvas";
 import { cn } from "@/utils/cn.util";
 import { useEffect, useState, useCallback } from "react";
 import EdgeDropdown from "./edge-dropdown";
 import TextSizeDropdown from "./textsize-dropdown";
 import FillDropdown from "./fill-dropdown";
 import { ShapeKind } from "@/lib/types/lab-type";
+import useCanvasStore from "@/lib/store/canvas-store";
 
 const tools = [
   {
@@ -38,9 +38,22 @@ const tools = [
 ];
 
 export function Toolbar() {
-  const { store } = useCanvas();
+  const store = useCanvasStore();
   const [currentMode, setCurrentMode] = useState(store.mode);
   const [selectedShapes, setSelectedShapes] = useState<CanvasShape[]>([]);
+
+  type OpenDropdown = "edge" | "fill" | "text" | null;
+
+  const [openDropdown, setOpenDropdown] = useState<OpenDropdown>(null);
+
+  const handleDropdownChange = (type: OpenDropdown) => (open: boolean) => {
+    if (open) {
+      setOpenDropdown(type);
+    } else {
+      setOpenDropdown(null);
+      store.selection.clear();
+    }
+  };
 
   useEffect(() => {
     setCurrentMode(store.mode);
@@ -117,9 +130,23 @@ export function Toolbar() {
         )}
       >
         <div className="h-7 bg-neutral-800 p-[0.6px] mx-[6px]"></div>
-        <EdgeDropdown selectedShapes={selectedShapes} />
-        <FillDropdown selectedShapes={selectedShapes} />
-        <TextSizeDropdown selectedShapes={selectedShapes} />
+        <EdgeDropdown
+          selectedShapes={selectedShapes}
+          open={openDropdown === "edge"}
+          onOpenChange={handleDropdownChange("edge")}
+        />
+
+        <FillDropdown
+          selectedShapes={selectedShapes}
+          open={openDropdown === "fill"}
+          onOpenChange={handleDropdownChange("fill")}
+        />
+
+        <TextSizeDropdown
+          selectedShapes={selectedShapes}
+          open={openDropdown === "text"}
+          onOpenChange={handleDropdownChange("text")}
+        />
       </div>
     </div>
   );

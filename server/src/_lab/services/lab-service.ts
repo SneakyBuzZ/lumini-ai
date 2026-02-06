@@ -2,7 +2,7 @@ import { LabRepository } from "@/_lab/repositories/lab-repository";
 import { CreateLabDTO } from "@/_lab/dto";
 import { WorkspaceRepository } from "@/_workspace/repositories/workspace-repository";
 import { AppError } from "@/utils/error";
-import { getLanguages } from "@/lib/github/actions";
+import { slug } from "cuid";
 
 export class LabService {
   private labRepository: LabRepository;
@@ -37,17 +37,29 @@ export class LabService {
     return labId;
   }
 
-  async findAll(workspaceId: string) {
-    return await this.labRepository.findAll(workspaceId);
+  async findAll(workspaceSlug: string) {
+    const workspace = await this.workspaceRepository.findBySlug(workspaceSlug);
+    if (!workspace) throw new AppError(404, "Workspace not found");
+    return await this.labRepository.findAll(workspace.id);
   }
 
   async findById(labId: string) {
     return await this.labRepository.findById(labId);
   }
 
-  async getLabLanguages(labId: string) {
-    const lab = await this.labRepository.findById(labId);
+  async findBySlug(slug: string) {
+    return await this.labRepository.findBySlug(slug);
+  }
+
+  async findSettings(labId: string | null) {
+    if (!labId) throw new AppError(400, "Lab ID is required");
+    return await this.labRepository.findSettings(labId);
+  }
+
+  async findWorkspaceId(slug: string | null) {
+    if (!slug) throw new AppError(400, "Lab ID is required");
+    const lab = await this.labRepository.findBySlug(slug);
     if (!lab) throw new AppError(404, "Lab not found");
-    return getLanguages(lab.githubUrl);
+    return await this.labRepository.findWorkspaceId(lab.id);
   }
 }

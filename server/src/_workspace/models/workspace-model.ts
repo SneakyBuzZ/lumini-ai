@@ -11,7 +11,7 @@ import {
 import { usersTable } from "@/_user/models/user-model";
 import cuid from "cuid";
 import { relations } from "drizzle-orm";
-import { visibility } from "@/_lab/models/lab-table";
+import { visibilityEnum } from "@/_lab/models/lab-table";
 
 export const workspacesTable = pgTable(
   "workspaces",
@@ -37,7 +37,7 @@ export const workspacesTable = pgTable(
     index("workspace_owner_idx").on(workspacesTable.ownerId),
     index("workspace_plan_idx").on(workspacesTable.plan),
     index("workspace_created_idx").on(workspacesTable.createdAt),
-  ]
+  ],
 );
 
 export const workspaceSettingsTable = pgTable(
@@ -69,10 +69,10 @@ export const workspaceSettingsTable = pgTable(
   },
   (workspaceSettingsTable) => [
     index("workspace_settings_workspace_id_idx").on(
-      workspaceSettingsTable.workspaceId
+      workspaceSettingsTable.workspaceId,
     ),
     index("workspace_visibility_idx").on(workspaceSettingsTable.visibility),
-  ]
+  ],
 );
 
 export const memberRoleEnum = pgEnum("member_role", [
@@ -138,9 +138,9 @@ export const workspaceInvitesTable = pgTable(
   (workspaceInvitesTable) => ({
     uniqueInvite: uniqueIndex("unique_workspace_invite").on(
       workspaceInvitesTable.workspaceId,
-      workspaceInvitesTable.email
+      workspaceInvitesTable.email,
     ),
-  })
+  }),
 );
 
 export const workspaceApisTable = pgTable("workspace_apis", {
@@ -155,7 +155,7 @@ export const workspaceApisTable = pgTable("workspace_apis", {
   name: varchar("name", { length: 255 }).notNull(),
   embeddingModel: varchar("embedding_model", { length: 255 }),
   apiKey: varchar("api_key", { length: 255 }).unique(),
-  visibility: visibility("visibility").default("public"),
+  visibility: visibilityEnum("visibility").default("public"),
 
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
@@ -168,7 +168,7 @@ export const workspaceApisRelations = relations(
       fields: [workspaceApisTable.workspaceId],
       references: [workspacesTable.id],
     }),
-  })
+  }),
 );
 
 // ========== RELATIONS ==========
@@ -183,7 +183,7 @@ export const workspaceRelations = relations(
     members: many(workspaceMembersTable),
     apis: many(workspaceApisTable),
     invites: many(workspaceInvitesTable),
-  })
+  }),
 );
 
 export const workspaceMembersRelations = relations(
@@ -197,7 +197,7 @@ export const workspaceMembersRelations = relations(
       fields: [workspaceMembersTable.memberId],
       references: [usersTable.id],
     }),
-  })
+  }),
 );
 
 export const workspaceInvitesRelations = relations(
@@ -211,5 +211,5 @@ export const workspaceInvitesRelations = relations(
       fields: [workspaceInvitesTable.email],
       references: [usersTable.email],
     }),
-  })
+  }),
 );

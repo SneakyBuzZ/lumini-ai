@@ -52,6 +52,42 @@ export type LabChat = {
   updatedAt: string;
 };
 
+export type LabGeneralSettings = {
+  name: string;
+  githubUrl: string;
+  slug: string;
+  createdAt: string;
+  creatorImage: string | null;
+  creatorName: string;
+  creatorEmail: string;
+};
+
+export type LabVisibilityAndAccessSettings = {
+  visibility: "private" | "workspace" | "public";
+  allowPublicSharing: boolean;
+  maxLabUsers: number;
+};
+
+export type LabVectorDBSettings = {
+  vectorDbService: "postgres" | "qdrant";
+  vectorDbConnectionString: string;
+};
+
+export type LabAISettings = {
+  apiService: "openai" | "gemini" | "anthropic";
+  apiBaseUrl: string;
+  modelName: string;
+  apiKey: string;
+  temperature: number;
+};
+
+export type LabSettings = {
+  general: LabGeneralSettings;
+  visibilityAndAccess: LabVisibilityAndAccessSettings;
+  vectorDb: LabVectorDBSettings;
+  ai: LabAISettings;
+};
+
 export type DBShape = {
   id: string;
 

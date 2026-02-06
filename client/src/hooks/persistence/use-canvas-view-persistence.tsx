@@ -3,7 +3,7 @@ import useCanvasStore from "@/lib/store/canvas-store";
 import { upsertView } from "@/lib/api/lab-api";
 import { UpsertView } from "@/lib/api/dto";
 
-export function useCanvasViewPersistence(labId: string) {
+export function useCanvasViewPersistence(labSlug: string) {
   const timeoutRef = useRef<number | null>(null);
   const lastRef = useRef<UpsertView | null>(null);
 
@@ -30,7 +30,7 @@ export function useCanvasViewPersistence(labId: string) {
         }
 
         timeoutRef.current = window.setTimeout(() => {
-          upsertView(labId, { scale, offsetX, offsetY });
+          upsertView(labSlug, { scale, offsetX, offsetY });
         }, 300);
       },
     );
@@ -39,5 +39,5 @@ export function useCanvasViewPersistence(labId: string) {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
       unsubscribe();
     };
-  }, [labId]);
+  }, [labSlug]);
 }

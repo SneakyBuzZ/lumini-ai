@@ -213,3 +213,35 @@ canvas {
 img {
   @apply pointer-events-none select-none
 }
+
+
+.hero-gradient {
+  background:
+    /* Primary center-top radial gradient */
+    radial-gradient(ellipse 80% 50% at center top,
+      rgba(210, 247, 253, 0.1) 0%,
+      rgba(37, 186, 255, 0.005) 25%,
+      rgba(41, 41, 41, 0.25) 50%,
+      rgba(0, 0, 0, 0.15) 75%,
+      transparent 100%),
+    /* Secondary subtle glow layer */
+    radial-gradient(circle at center top,
+      rgba(133, 133, 133, 0.2) 0%,
+      rgba(39, 39, 39, 0.1) 50%,
+      transparent 80%);
+
+  filter: blur(100px);
+  animation: heroReveal 2.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes heroReveal {
+  from {
+    opacity: 0;
+    transform: scale(0.3) translateY(-20%);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}

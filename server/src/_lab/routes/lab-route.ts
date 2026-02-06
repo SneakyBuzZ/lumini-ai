@@ -1,12 +1,5 @@
-import { authenticateJwt } from "@/middlewares/authenticate-middleware";
 import { Router } from "express";
-import {
-  createLabDTO,
-  shapeDTO,
-  shapeType,
-  updateBatchDTo,
-  viewDTO,
-} from "@/_lab/dto";
+import { createLabDTO, updateBatchDTo, viewDTO } from "@/_lab/dto";
 import { LabController } from "@/_lab/controllers/lab-controller";
 import { validateData } from "@/middlewares/validate-middleware";
 import { DashboardController } from "../controllers/dashboard-controller";
@@ -18,42 +11,36 @@ const labController = new LabController();
 const dashboardController = new DashboardController();
 
 //^ --- Lab Routes ---
-labRouter.post("/", validateData(createLabDTO), labController.create);
-labRouter.get("/:workspaceId", labController.getAll);
+labRouter.post(
+  "/",
+  validateData(createLabDTO),
+  catchAsync(labController.create),
+);
+labRouter.get("/:slug", catchAsync(labController.getBySlug));
+labRouter.get("/:slug/workspace/all", catchAsync(labController.getAll));
+labRouter.get("/:slug/settings", catchAsync(labController.getSettings));
+labRouter.get("/:slug/workspace", catchAsync(labController.getWorkspaceId));
 
 //^ --- Shape Routes ---
+labRouter.get("/:slug/shapes", catchAsync(labController.getAllShapes));
+
 labRouter.post(
-  "/:labId/shapes",
-  validateData(shapeDTO),
-  catchAsync(labController.createShape),
-);
-labRouter.put(
-  "/:labId/shapes/:shapeId",
-  validateData(shapeDTO.partial()),
-  catchAsync(labController.updateShape),
-);
-labRouter.get("/:labId/shapes", catchAsync(labController.getAllShapes));
-labRouter.delete(
-  "/:labId/shapes/:shapeId",
-  catchAsync(labController.deleteShape),
-);
-labRouter.post(
-  "/:labId/shapes/batch",
+  "/:slug/shapes/batch",
   validateData(updateBatchDTo),
   catchAsync(labController.batchUpdateShapes),
 );
 
 //^ --- View Routes ---
-labRouter.get("/:labId/view", labController.getView);
+labRouter.get("/:slug/view", catchAsync(labController.getView));
 labRouter.post(
-  "/:labId/view",
+  "/:slug/view",
   validateData(viewDTO),
   catchAsync(labController.upsertView),
 );
 
 //^ --- Dashboard Routes ---
 labRouter.get(
-  "/:labId/dashboard/overview",
+  "/:slug/dashboard/overview",
   catchAsync(dashboardController.getOverview),
 );
 

@@ -10,23 +10,23 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { TriangleAlert } from "lucide-react";
 
-export const Route = createFileRoute("/dashboard/space/$id/general/")({
+export const Route = createFileRoute("/dashboard/space/$slug/general/")({
   loader: async ({ context, params }) => {
     await context.queryClient.ensureQueryData({
-      queryKey: ["workspace-settings", params.id, "general"],
-      queryFn: () => getWorkspaceSettings("general", params.id),
+      queryKey: ["workspace-settings", params.slug, "general"],
+      queryFn: () => getWorkspaceSettings("general", params.slug),
     });
   },
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const { id } = Route.useParams();
+  const { slug } = Route.useParams();
   const { pathname } = useLocation();
   const lastSegement = pathname.split("/").pop();
   const isActive = (to: string) => lastSegement === to;
 
-  const { data: general } = useGetWorkspaceSettings(id, "general");
+  const { data: general } = useGetWorkspaceSettings(slug, "general");
   return (
     <div className="w-full flex flex-col justify-start items-start bg-midnight-300/70 h-full space-y-10 p-10 overflow-y-auto">
       <div className="w-full flex flex-col space-y-5">
@@ -39,7 +39,7 @@ function RouteComponent() {
               className={cn(
                 "pb-2 font-medium text-neutral-500 hover:text-neutral-400 transition-colors",
                 isActive(setting.to) &&
-                  "border-b-2 border-neutral-400 text-neutral-300"
+                  "border-b-2 border-neutral-400 text-neutral-300",
               )}
             >
               {setting.name}

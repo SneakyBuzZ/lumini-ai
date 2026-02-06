@@ -9,19 +9,19 @@ import { WorkspaceMember } from "@/lib/types/workspace-type";
 import { createFileRoute } from "@tanstack/react-router";
 import { CirclePlus, Search } from "lucide-react";
 
-export const Route = createFileRoute("/dashboard/space/$id/team/")({
+export const Route = createFileRoute("/dashboard/space/$slug/team/")({
   loader: async ({ context, params }) => {
     await context.queryClient.ensureQueryData({
-      queryKey: ["workspace-members", params.id],
-      queryFn: () => getWorkspaceMembers(params.id),
+      queryKey: ["workspace-members", params.slug],
+      queryFn: () => getWorkspaceMembers(params.slug),
     });
   },
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const { id } = Route.useParams();
-  const { data: members } = useGetWorkspaceMembers(id);
+  const { slug } = Route.useParams();
+  const { data: members } = useGetWorkspaceMembers(slug);
   return (
     <div className="w-full flex flex-col justify-start items-start bg-midnight-300/70 h-full space-y-10 p-10 overflow-y-auto">
       <div className="w-full flex flex-col space-y-5">

@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useReducer } from "react";
 
-type PresenceUser = {
+export type PresenceUser = {
   id: string;
   color: string;
 };
@@ -10,46 +10,83 @@ type PresenceEvent =
   | { type: "presence:join"; user: PresenceUser }
   | { type: "presence:leave"; userId: string };
 
-export function usePresence(wsRef: React.RefObject<WebSocket | null>) {
-  const [users, setUsers] = useState<Map<string, PresenceUser>>(new Map());
+type PresenceState = {
+  hydrated: boolean;
+  users: Map<string, PresenceUser>;
+};
 
-  useEffect(() => {
-    if (!wsRef.current) return;
-    const ws = wsRef.current;
-    ws.addEventListener("message", (event) => onMessage(event, setUsers));
+type Action =
+  | { type: "SNAPSHOT"; users: PresenceUser[] }
+  | { type: "JOIN"; user: PresenceUser }
+  | { type: "LEAVE"; userId: string };
 
-    return () => {
-      ws.removeEventListener("message", (event) => onMessage(event, setUsers));
-    };
-  }, [wsRef]);
-
-  return useMemo(() => Array.from(users.values()), [users]);
-}
-
-function onMessage(
-  event: MessageEvent,
-  setUsers: React.Dispatch<React.SetStateAction<Map<string, PresenceUser>>>,
-) {
-  const data = JSON.parse(event.data) as PresenceEvent;
-
-  setUsers((prev) => {
-    const next = new Map(prev);
-
-    switch (data.type) {
-      case "presence:snapshot":
-        next.clear();
-        data.users.forEach((u) => next.set(u.id, u));
-        break;
-
-      case "presence:join":
-        next.set(data.user.id, data.user);
-        break;
-
-      case "presence:leave":
-        next.delete(data.userId);
-        break;
+function presenceReducer(state: PresenceState, action: Action): PresenceState {
+  switch (action.type) {
+    case "SNAPSHOT": {
+      const map = new Map<string, PresenceUser>();
+      for (const u of action.users) {
+        map.set(u.id, u);
+      }
+      return { hydrated: true, users: map };
     }
 
-    return next;
+    case "JOIN": {
+      if (!state.hydrated) return state;
+      if (state.users.has(action.user.id)) return state;
+
+      const next = new Map(state.users);
+      next.set(action.user.id, action.user);
+      return { ...state, users: next };
+    }
+
+    case "LEAVE": {
+      if (!state.users.has(action.userId)) return state;
+
+      const next = new Map(state.users);
+      next.delete(action.userId);
+      return { ...state, users: next };
+    }
+
+    default:
+      return state;
+  }
+}
+
+export function usePresence(ws: WebSocket | null) {
+  const [state, dispatch] = useReducer(presenceReducer, {
+    hydrated: false,
+    users: new Map(),
   });
+
+  useEffect(() => {
+    if (!ws) return;
+
+    const handler = (event: MessageEvent) => {
+      let data: PresenceEvent;
+      try {
+        data = JSON.parse(event.data);
+      } catch {
+        return;
+      }
+
+      switch (data.type) {
+        case "presence:snapshot":
+          dispatch({ type: "SNAPSHOT", users: data.users });
+          break;
+
+        case "presence:join":
+          dispatch({ type: "JOIN", user: data.user });
+          break;
+
+        case "presence:leave":
+          dispatch({ type: "LEAVE", userId: data.userId });
+          break;
+      }
+    };
+
+    ws.addEventListener("message", handler);
+    return () => ws.removeEventListener("message", handler);
+  }, [ws]);
+
+  return useMemo(() => Array.from(state.users.values()), [state.users]);
 }

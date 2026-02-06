@@ -45,6 +45,13 @@ export type ShapeCommit = {
   shape: Partial<CanvasShape>;
 };
 
+export type ShapePreviewEvent = {
+  type: "shape:preview";
+  shapeId: string;
+  patch: Partial<CanvasShape>;
+  authorId: string;
+};
+
 export type State = {
   //* --- Shapes ---
   shapeType: ShapeKind | null;
@@ -80,9 +87,19 @@ export type State = {
   selectionBoxStart: { x: number; y: number } | null;
   selectionBoxEnd: { x: number; y: number } | null;
 
+  //* --- Tool Preferences ---
+  toolPreferences: {
+    strokeColor: string;
+    strokeType: "solid" | "dashed" | "dotted";
+    strokeWidth: number;
+    fillColor: string;
+    fontSize: number;
+  };
+
   //* --- Server Sync ---
   hasHydrated: boolean;
   isRestoringFromHistory: boolean;
+  previewShapes: Record<string, Partial<CanvasShape>>;
 };
 
 export type Actions = {
@@ -152,6 +169,21 @@ export type Actions = {
     start: (x: number, y: number) => void;
     update: (x: number, y: number) => void;
     finish: () => void;
+  };
+
+  // --- Tool Preferences ---
+  toolPreferencesActions: {
+    set: <K extends keyof State["toolPreferences"]>(
+      key: K,
+      value: State["toolPreferences"][K],
+    ) => void;
+  };
+
+  // --- Remote Preview ---
+  preview: {
+    set: (shapeId: string, patch: Partial<CanvasShape>) => void;
+    clear: (shapeId: string) => void;
+    clearAll: () => void;
   };
 
   // --- Server Sync ---

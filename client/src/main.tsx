@@ -6,6 +6,7 @@ import ReactDOM from "react-dom/client";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 
 import { routeTree } from "./routeTree.gen";
+import { Toaster } from "./components/ui/sonner";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -35,7 +36,8 @@ if (!rootElement.innerHTML) {
     <ThemeProvider defaultTheme="dark" storageKey="lumini-theme">
       <QueryClientProvider client={queryClient}>
         <RouterProvider router={router} />
+        <Toaster richColors position="bottom-right" />
       </QueryClientProvider>
-    </ThemeProvider>
+    </ThemeProvider>,
   );
 }

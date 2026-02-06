@@ -2,7 +2,7 @@
 import Logo from "@/components/shared/logo";
 import OrElement from "@/components/shared/or-element";
 import { Button } from "@/components/ui/button";
-import useAuthStore from "@/lib/store/auth-store";
+import { getIsAuthenticated } from "@/lib/api/user-api";
 import {
   createFileRoute,
   Link,
@@ -15,7 +15,7 @@ import { ChevronLeft } from "lucide-react";
 import { SiGithub } from "react-icons/si";
 
 export const Route = createFileRoute("/auth")({
-  beforeLoad: ({ location }) => authBeforeLoad(location.pathname),
+  beforeLoad: async ({ location }) => authBeforeLoad(location.pathname),
   component: AuthComponent,
 });
 
@@ -62,10 +62,10 @@ function AuthComponent() {
   );
 }
 
-function authBeforeLoad(pathname: string) {
-  const { authenticated } = useAuthStore.getState();
+async function authBeforeLoad(pathname: string) {
+  const authenticated = await getIsAuthenticated();
   if (authenticated == true) {
-    throw redirect({ to: "/" });
+    throw redirect({ to: "/dashboard" });
   }
 
   if (pathname === "/auth" || pathname === "/auth/") {

@@ -7,9 +7,8 @@ import {
 import {
   ShapeDTO,
   ShapeType,
-  UpdateBatchDTO,
+  UpdateBatchType,
   UpdateShapeDTO,
-  ViewDTO,
   ViewStateDTO,
 } from "@/_lab/dto";
 import { and, eq, sql } from "drizzle-orm";
@@ -69,7 +68,7 @@ export class ShapeRepository {
 
   //* --- Upsert multiple shapes (only updates fields provided in DTO) ---
   // --- Batch upsert/update shapes ---
-  async batchUpdate(data: UpdateBatchDTO) {
+  async batchUpdate(data: UpdateBatchType) {
     const { labId, operations } = data;
 
     const applied: { shapeId: string; commitVersion: number }[] = [];

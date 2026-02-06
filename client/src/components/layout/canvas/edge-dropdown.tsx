@@ -57,12 +57,17 @@ const colors = [
 
 interface EdgeDropdownProps {
   selectedShapes: CanvasShape[];
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
-export default function EdgeDropdown({ selectedShapes }: EdgeDropdownProps) {
+export default function EdgeDropdown({
+  selectedShapes,
+  open,
+  onOpenChange,
+}: EdgeDropdownProps) {
   const store = useCanvasStore();
-  const [shapes, setShapes] = useState<Record<string, CanvasShape>>({});
-  const [isOpen, setIsOpen] = useState(false);
+
   const [currentColor, setCurrentColor] = useState<string | null>(null);
   const [currentStroke, setCurrentStroke] = useState<
     "solid" | "dashed" | "dotted" | null
@@ -71,73 +76,60 @@ export default function EdgeDropdown({ selectedShapes }: EdgeDropdownProps) {
     null,
   );
 
+  // Sync UI
   useEffect(() => {
-    if (selectedShapes.length === 0) return;
-    const firstShape = selectedShapes[0];
-    setCurrentColor(firstShape.strokeColor);
-    setCurrentStroke(firstShape.strokeType);
-    setCurrentStrokeWidth(firstShape.strokeWidth);
-  }, [selectedShapes, store.shapes]);
-
-  useEffect(() => {
-    const initialShapes = Object.fromEntries(
-      selectedShapes.map((shape) => [shape.id, shape]),
-    );
-    setShapes(initialShapes);
-  }, [selectedShapes]);
-
-  const handleOpenChange = (open: boolean) => {
-    setIsOpen(open);
-    if (!open) {
-      store.selection.clear();
+    if (selectedShapes.length > 0) {
+      const s = selectedShapes[0];
+      setCurrentColor(s.strokeColor);
+      setCurrentStroke(s.strokeType);
+      setCurrentStrokeWidth(s.strokeWidth);
+    } else {
+      const prefs = store.toolPreferences;
+      setCurrentColor(prefs.strokeColor);
+      setCurrentStroke(prefs.strokeType);
+      setCurrentStrokeWidth(prefs.strokeWidth);
     }
+  }, [selectedShapes, store.toolPreferences]);
+
+  const applyToSelection = (partial: Partial<CanvasShape>) => {
+    if (selectedShapes.length === 0) return;
+
+    const updates: Record<string, Partial<CanvasShape>> = {};
+    selectedShapes.forEach((shape) => {
+      updates[shape.id] = partial;
+    });
+
+    store.shapesActions.batchUpdate(updates);
+
+    selectedShapes.forEach((shape) => {
+      store.shapesActions.commitShape(shape.id, "updated");
+    });
   };
 
-  const handleSelectColor = (colorHash: string) => {
-    const updates: Record<string, Partial<CanvasShape>> = {};
-    Object.entries(shapes).forEach(([id, shape]) => {
-      updates[id] = {
-        ...shape,
-        strokeColor: colorHash,
-      };
-    });
-    store.shapesActions.batchUpdate(updates);
-    setCurrentColor(colorHash);
+  const setStrokeColor = (color: string) => {
+    store.toolPreferencesActions.set("strokeColor", color);
+    applyToSelection({ strokeColor: color });
   };
 
-  const handleSelectStroke = (strokeType: "solid" | "dashed" | "dotted") => {
-    const updates: Record<string, Partial<CanvasShape>> = {};
-    Object.entries(shapes).forEach(([id, shape]) => {
-      updates[id] = {
-        ...shape,
-        strokeType: strokeType,
-      };
-    });
-    store.shapesActions.batchUpdate(updates);
-    setCurrentStroke(strokeType);
+  const setStrokeType = (type: "solid" | "dashed" | "dotted") => {
+    store.toolPreferencesActions.set("strokeType", type);
+    applyToSelection({ strokeType: type });
   };
 
-  const handleSelectStrokeWidth = (width: number) => {
-    const updates: Record<string, Partial<CanvasShape>> = {};
-    Object.entries(shapes).forEach(([id, shape]) => {
-      updates[id] = {
-        ...shape,
-        strokeWidth: width,
-      };
-    });
-    store.shapesActions.batchUpdate(updates);
-    setCurrentStrokeWidth(width);
+  const setStrokeWidth = (width: number) => {
+    store.toolPreferencesActions.set("strokeWidth", width);
+    applyToSelection({ strokeWidth: width });
   };
 
   return (
-    <DropdownMenu onOpenChange={handleOpenChange} open={isOpen}>
+    <DropdownMenu open={open} onOpenChange={onOpenChange}>
       <DropdownMenuTrigger className="w-10 h-10 flex items-center justify-center hover:bg-midnight-100 border-0 rounded-lg">
         <img className="w-6 h-6" src={"/assets/icons/edges.svg"} />
       </DropdownMenuTrigger>
       <DropdownMenuContent className="-translate-y-4 bg-midnight-200/90 border-midnight-100 backdrop-blur-md">
         <DropdownMenuLabel className="grid grid-cols-4 items-center justify-start w-full gap-1 p-1">
           <button
-            onClick={() => handleSelectStroke("solid")}
+            onClick={() => setStrokeType("solid")}
             className={cn(
               "flex justify-center items-center h-8 w-8 cursor-pointer rounded-md bg-midnight-100",
               { "ring-[1px] ring-teal": currentStroke === "solid" },
@@ -146,7 +138,7 @@ export default function EdgeDropdown({ selectedShapes }: EdgeDropdownProps) {
             <Square className="h-5 w-5 opacity-90" />
           </button>
           <button
-            onClick={() => handleSelectStroke("dashed")}
+            onClick={() => setStrokeType("dashed")}
             className={cn(
               "flex justify-center items-center h-8 w-8 cursor-pointer rounded-md bg-midnight-100",
               { "ring-[1px] ring-teal": currentStroke === "dashed" },
@@ -155,7 +147,7 @@ export default function EdgeDropdown({ selectedShapes }: EdgeDropdownProps) {
             <Maximize className="h-5 w-5 opacity-80" />
           </button>
           <button
-            onClick={() => handleSelectStroke("dotted")}
+            onClick={() => setStrokeType("dotted")}
             className={cn(
               "flex justify-center items-center h-8 w-8 cursor-pointer rounded-md bg-midnight-100",
               { "ring-[1px] ring-teal": currentStroke === "dotted" },
@@ -170,7 +162,7 @@ export default function EdgeDropdown({ selectedShapes }: EdgeDropdownProps) {
             <button
               key={color.name}
               className={`h-8 w-full  border ${color.class} p-1 rounded-md cursor-pointer`}
-              onClick={() => handleSelectColor(color.hash)}
+              onClick={() => setStrokeColor(color.hash)}
             >
               {currentColor === color.hash && (
                 <Check
@@ -185,7 +177,7 @@ export default function EdgeDropdown({ selectedShapes }: EdgeDropdownProps) {
         <DropdownMenuSeparator className="bg-midnight-100" />
         <DropdownMenuItem
           onSelect={(e) => e.preventDefault()}
-          onClick={() => handleSelectStrokeWidth(0.2)}
+          onClick={() => setStrokeWidth(0.2)}
           className={cn(
             "flex items-center gap-5 hover:bg-midnight-100/80",
             currentStrokeWidth === 0.2 && "bg-teal hover:bg-teal",
@@ -196,7 +188,7 @@ export default function EdgeDropdown({ selectedShapes }: EdgeDropdownProps) {
         </DropdownMenuItem>
         <DropdownMenuItem
           onSelect={(e) => e.preventDefault()}
-          onClick={() => handleSelectStrokeWidth(0.5)}
+          onClick={() => setStrokeWidth(0.5)}
           className={cn(
             "flex items-center gap-5 hover:bg-midnight-100/80",
             currentStrokeWidth === 0.5 && "bg-teal hover:bg-teal",
@@ -207,7 +199,7 @@ export default function EdgeDropdown({ selectedShapes }: EdgeDropdownProps) {
         </DropdownMenuItem>
         <DropdownMenuItem
           onSelect={(e) => e.preventDefault()}
-          onClick={() => handleSelectStrokeWidth(1)}
+          onClick={() => setStrokeWidth(1)}
           className={cn(
             "flex items-center gap-5 hover:bg-midnight-100/80",
             currentStrokeWidth === 1 && "bg-teal hover:bg-teal",
@@ -218,7 +210,7 @@ export default function EdgeDropdown({ selectedShapes }: EdgeDropdownProps) {
         </DropdownMenuItem>
         <DropdownMenuItem
           onSelect={(e) => e.preventDefault()}
-          onClick={() => handleSelectStrokeWidth(2)}
+          onClick={() => setStrokeWidth(2)}
           className={cn(
             "flex items-center gap-5 hover:bg-midnight-100/80",
             currentStrokeWidth === 2 && "bg-teal hover:bg-teal",

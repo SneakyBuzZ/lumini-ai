@@ -1,6 +1,11 @@
 import { api } from "@/lib/config/axios-config";
 import axios from "axios";
-import { DBShape, Lab, LabWithMembers } from "@/lib/types/lab-type";
+import {
+  DBShape,
+  Lab,
+  LabSettings,
+  LabWithMembers,
+} from "@/lib/types/lab-type";
 import { Answer } from "@/lib/types/answer.type";
 import {
   BatchUpdateShapes,
@@ -27,9 +32,19 @@ export const create = async (data: CreateLab) => {
   }
 };
 
-export const getAllLabs = async (workspaceId: string): Promise<Lab[]> => {
-  const response = await api.get(`/lab/${workspaceId}`);
+export const getBySlug = async (slug: string): Promise<Lab> => {
+  const response = await api.get(`/lab/${slug}`);
   return response.data.payload;
+};
+
+export const getAllLabs = async (slug: string): Promise<Lab[]> => {
+  const response = await api.get(`/lab/${slug}/workspace/all`);
+  return response.data.payload;
+};
+
+export const getSettings = async (labSlug: string): Promise<LabSettings> => {
+  const response = await api.get(`/lab/${labSlug}/settings`);
+  return response.data.payload as LabSettings;
 };
 
 export const getLabsByWorkspaceId = async (
@@ -114,40 +129,39 @@ export const batchUpdateShapes = async (
     reason: string;
   }[];
 }> => {
-  const response = await api.post(`/lab/${data.labId}/shapes/batch`, data);
+  const response = await api.post(`/lab/${data.labSlug}/shapes/batch`, data);
   return response.data.payload;
 };
 
-export const deleteShape = async (labId: string, shapeId: string) => {
-  const response = await api.delete(`/lab/${labId}/shapes/${shapeId}`);
+export const deleteShape = async (labSlug: string, shapeId: string) => {
+  const response = await api.delete(`/lab/${labSlug}/shapes/${shapeId}`);
   return response.data.payload;
 };
 
 //* --- SNAPSHOT API CALLS ---
 
-export const getSnapshot = async (labId: string): Promise<GetSnapshot> => {
-  const response = await api.get(`/lab/${labId}/shapes`);
+export const getSnapshot = async (labSlug: string): Promise<GetSnapshot> => {
+  const response = await api.get(`/lab/${labSlug}/shapes`);
   return response.data.payload;
 };
 
 //* --- VIEW API CALLS ---
 
-export const getView = async (labId: string) => {
-  const response = await api.get(`/lab/${labId}/view`);
+export const getView = async (labSlug: string) => {
+  const response = await api.get(`/lab/${labSlug}/view`);
   return response.data.payload;
 };
 
-export const upsertView = async (labId: string, viewData: UpsertView) => {
-  const response = await api.post(`/lab/${labId}/view`, viewData);
+export const upsertView = async (labSlug: string, viewData: UpsertView) => {
+  const response = await api.post(`/lab/${labSlug}/view`, viewData);
   return response.data.payload;
 };
 
 //* --- DASHBOARD API CALLS ---
 
 export const getOverview = async (
-  labId: string,
+  slug: string,
 ): Promise<GetOverviewResponse> => {
-  const response = await api.get(`/lab/${labId}/dashboard/overview`);
-  console.log(response.data);
+  const response = await api.get(`/lab/${slug}/dashboard/overview`);
   return response.data.payload;
 };
