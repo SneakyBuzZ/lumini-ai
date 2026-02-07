@@ -93,12 +93,17 @@ export const viewStateDTO = viewDTO.extend({
   labId: z.string().cuid(),
 });
 
+export const UpdateGeneralDTO = z.object({
+  name: z.string().min(2).max(100),
+});
+
 export type CreateLabDTO = z.infer<typeof createLabDTO>;
 export type ShapeDTO = z.infer<typeof shapeDTO>;
 export type ShapeType = z.infer<typeof shapeType>;
 export type UpdateShapeDTO = Partial<ShapeDTO>;
 export type SnapshotDTO = z.infer<typeof snapshotDTO>;
 export type UpdateBatchDTO = z.infer<typeof updateBatchDTo>;
+export type UpdateGeneralType = z.infer<typeof UpdateGeneralDTO>;
 export type ViewDTO = z.infer<typeof viewDTO>;
 export type ViewStateDTO = z.infer<typeof viewStateDTO>;
 export type ShapeOperationDTO = z.infer<typeof shapeOperationDTO>;

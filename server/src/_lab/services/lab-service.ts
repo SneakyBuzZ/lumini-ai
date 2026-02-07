@@ -1,5 +1,5 @@
 import { LabRepository } from "@/_lab/repositories/lab-repository";
-import { CreateLabDTO } from "@/_lab/dto";
+import { CreateLabDTO, UpdateGeneralType } from "@/_lab/dto";
 import { WorkspaceRepository } from "@/_workspace/repositories/workspace-repository";
 import { AppError } from "@/utils/error";
 import { slug } from "cuid";
@@ -49,11 +49,6 @@ export class LabService {
 
   async findBySlug(slug: string) {
     return await this.labRepository.findBySlug(slug);
-  }
-
-  async findSettings(labId: string | null) {
-    if (!labId) throw new AppError(400, "Lab ID is required");
-    return await this.labRepository.findSettings(labId);
   }
 
   async findWorkspaceId(slug: string | null) {

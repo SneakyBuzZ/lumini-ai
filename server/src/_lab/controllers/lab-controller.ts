@@ -60,18 +60,6 @@ export class LabController {
       );
   };
 
-  getSettings = async (req: Request, res: Response) => {
-    const labSlug = req.params.slug;
-    const lab = await this.labService.findBySlug(labSlug);
-    if (!lab) throw new AppError(404, "Lab not found");
-    const result = await this.labService.findSettings(lab.id);
-    res
-      .status(200)
-      .json(
-        new DataResponse(200, result, "Lab settings retrieved successfully."),
-      );
-  };
-
   createShape = async (req: Request, res: Response) => {
     const labId = req.params.labId;
     if (!labId) throw new AppError(400, "Lab ID is required");

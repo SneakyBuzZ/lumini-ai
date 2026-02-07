@@ -1,5 +1,5 @@
 import { db } from "@/lib/config/db-config";
-import { CreateLabDTO } from "@/_lab/dto";
+import { CreateLabDTO, UpdateGeneralType } from "@/_lab/dto";
 import { labSettingsTable, labsTable } from "@/_lab/models/lab-table";
 import { and, count, eq } from "drizzle-orm";
 import { usersTable } from "@/_user/models/user-model";
@@ -77,42 +77,6 @@ export class LabRepository {
         },
       },
     });
-  }
-
-  async findSettings(labId: string) {
-    const result = await db
-      .select({
-        general: {
-          name: labsTable.name,
-          githubUrl: labsTable.githubUrl,
-          slug: labsTable.slug,
-          createdAt: labsTable.createdAt,
-          creatorImage: usersTable.image,
-          creatorName: usersTable.name,
-          creatorEmail: usersTable.email,
-        },
-        visibilityAndAccess: {
-          visibility: labSettingsTable.visibility,
-          allowPublicSharing: labSettingsTable.allowPublicSharing,
-          maxLabUsers: labSettingsTable.maxLabUsers,
-        },
-        vectorDb: {
-          vectorDbService: labSettingsTable.vectorDbService,
-          vectorDbConnectionString: labSettingsTable.vectorDbConnectionString,
-        },
-        ai: {
-          apiService: labSettingsTable.apiService,
-          apiBaseUrl: labSettingsTable.apiBaseUrl,
-          modelName: labSettingsTable.modelName,
-          apiKey: labSettingsTable.apiKey,
-          temperature: labSettingsTable.temperature,
-        },
-      })
-      .from(labSettingsTable)
-      .innerJoin(labsTable, eq(labsTable.id, labId))
-      .innerJoin(usersTable, eq(usersTable.id, labsTable.creatorId))
-      .where(eq(labSettingsTable.labId, labId));
-    return result[0];
   }
 }
 
