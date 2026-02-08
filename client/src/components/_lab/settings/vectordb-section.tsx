@@ -12,33 +12,45 @@ export function VectorDbSection({
   isDirty,
 }: SectionProps<LabVectorDBSettings> & { isDirty: boolean }) {
   return (
-    <SectionShell
-      isDirty={isDirty}
-      title="Vector Database"
-      description="Configure vector storage backend."
-      onCancel={onCancel}
-      onSave={onSave}
-    >
-      <SelectRow
-        label="Service"
-        value={value.vectorDbService}
-        options={["postgresql", "qdrant"]}
-        onChange={(v) =>
-          onChange({ ...value, vectorDbService: v as "postgres" | "qdrant" })
-        }
-      />
+    <div className="w-full flex flex-col space-y-3">
+      <div className="flex flex-col px-1 leading-none">
+        <h3 className="text-base font-semibold text-neutral-400 leading-tight">
+          Vector Database
+        </h3>
+        <p className="text-sm text-neutral-600">
+          Configure vector storage backend.
+        </p>
+      </div>
+      <SectionShell
+        isDirty={isDirty}
+        title="Vector Database"
+        onCancel={onCancel}
+        onSave={onSave}
+      >
+        <SelectRow
+          label="Service"
+          value={value.vectorDbService}
+          options={["postgresql", "qdrant"]}
+          onChange={(nextValue) =>
+            onChange({
+              ...value,
+              vectorDbService: nextValue as "postgres" | "qdrant",
+            })
+          }
+        />
 
-      <InputRow
-        label="Connection String"
-        placeholder="postgresql://user:password@host:port/dbname"
-        value={value.vectorDbConnectionString}
-        onChange={(e) =>
-          onChange({
-            ...value,
-            vectorDbConnectionString: e.target.value,
-          })
-        }
-      />
-    </SectionShell>
+        <InputRow
+          label="Connection String"
+          placeholder="postgresql://user:password@host:port/dbname"
+          value={value.vectorDbConnectionString}
+          onChange={(nextValue) =>
+            onChange({
+              ...value,
+              vectorDbConnectionString: nextValue,
+            })
+          }
+        />
+      </SectionShell>
+    </div>
   );
 }

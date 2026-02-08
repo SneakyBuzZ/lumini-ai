@@ -1,6 +1,15 @@
 import { useMutation } from "@tanstack/react-query";
-import { CreateInvite, CreateLab } from "@/lib/api/dto";
-import { create } from "@/lib/api/lab-api";
+import {
+  CreateInvite,
+  CreateLab,
+  UpdateLabAISettings,
+  UpdateLabGeneralSettings,
+} from "@/lib/api/dto";
+import {
+  create,
+  updateAISettings,
+  updateGeneralSettings,
+} from "@/lib/api/lab-api";
 import { AxiosError } from "axios";
 import {
   acceptWorkspaceInvite,
@@ -14,7 +23,7 @@ export const useCreateLab = (setError: (error: string | null) => void) => {
     onError: (error) => {
       if (error instanceof AxiosError) {
         setError(
-          error.response?.data.messages || "An unexpected error occurred"
+          error.response?.data.messages || "An unexpected error occurred",
         );
       }
     },
@@ -40,7 +49,7 @@ export const useCreateWorksace = (setError: (error: string) => void) => {
 
 export const useCreateInvite = (
   workspaceId: string,
-  setError: (error: string) => void
+  setError: (error: string) => void,
 ) => {
   return useMutation({
     mutationFn: (payload: CreateInvite) =>
@@ -50,6 +59,18 @@ export const useCreateInvite = (
         setError(error.response?.data.messages);
       }
     },
+  });
+};
+
+export const useUpdateLabGeneralSettings = () => {
+  return useMutation({
+    mutationFn: (data: UpdateLabGeneralSettings) => updateGeneralSettings(data),
+  });
+};
+
+export const useUpdateLabAISettings = () => {
+  return useMutation({
+    mutationFn: (data: UpdateLabAISettings) => updateAISettings(data),
   });
 };
 

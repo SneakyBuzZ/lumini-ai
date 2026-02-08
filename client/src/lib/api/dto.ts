@@ -83,3 +83,18 @@ export type GetOverviewResponse = {
   }[];
   repoCreatedAt: string;
 };
+
+export type UpdateLabGeneralSettings = {
+  labSlug: string;
+  name: string;
+};
+
+export type UpdateLabAISettings = {
+  labSlug: string;
+  apiService: "gemini" | "openai" | "anthropic";
+  modelName: string;
+  apiKey: string;
+  apiBaseUrl: string;
+  temperature: number;
+  apiKeyLastFour: string;
+};

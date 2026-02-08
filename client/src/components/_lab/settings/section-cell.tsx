@@ -1,35 +1,63 @@
+import Spinner from "@/components/shared/spinner";
 import { Button } from "@/components/ui/button";
+import { useLocation } from "@tanstack/react-router";
 
-export function SectionShell({
-  title,
-  description,
-  children,
-  onCancel,
-  onSave,
-  isDirty,
-}: {
+interface SectionCellProps {
   title: string;
-  description: string;
   children: React.ReactNode;
   onCancel: () => void;
   onSave: () => void;
   isDirty: boolean;
-}) {
+  isPending?: boolean;
+}
+
+export function SectionShell({
+  title,
+  children,
+  onCancel,
+  onSave,
+  isDirty,
+  isPending = false,
+}: SectionCellProps) {
+  const { hash } = useLocation();
+  const divId = title.toLowerCase().split(" ").join("-");
+  const isFocused = hash === divId;
+
   return (
-    <div className="rounded-xl border border-dashed border-midnight-100 bg-midnight-200/40">
-      <div className="p-4 border-b border-dashed border-midnight-100 bg-midnight-200/90 rounded-t-xl">
-        <h3 className="text-lg font-semibold text-neutral-300">{title}</h3>
-        <p className="text-sm text-neutral-500">{description}</p>
+    <div
+      id={divId}
+      className={`
+        w-full
+        border
+        border-dashed
+        rounded-xl
+        ${isFocused ? "border-neutral-700/70 bg-midnight-200/50" : "border-midnight-100 bg-midnight-200/40"}
+      `}
+    >
+      {/* Rows */}
+      <div className="divide-y divide-dashed divide-midnight-100">
+        {children}
       </div>
 
-      <div className="p-4 space-y-4">{children}</div>
-
-      <div className="flex justify-end gap-2 p-4 py-3 border-t border-dashed border-midnight-100">
+      {/* Actions (same placement as GeneralDetails) */}
+      <div
+        className={`flex justify-end items-center gap-2 p-4 py-3 bg-midnight-300/40 border-t border-dashed rounded-b-xl ${isFocused ? "border-neutral-700/70 bg-midnight-200/50" : "border-midnight-100 bg-midnight-200/40"}`}
+      >
         <Button variant="outline" onClick={onCancel}>
           Cancel
         </Button>
-        <Button disabled={!isDirty} variant={"primary"} onClick={onSave}>
-          Save
+        <Button
+          disabled={!isDirty || isPending}
+          variant="primary"
+          onClick={onSave}
+        >
+          {isPending ? (
+            <>
+              <Spinner /> Saving
+            </>
+          ) : (
+            "Save changes"
+          )}
         </Button>
       </div>
     </div>

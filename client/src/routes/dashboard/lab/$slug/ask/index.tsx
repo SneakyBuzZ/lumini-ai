@@ -2,33 +2,36 @@ import { useEffect, useRef, useState } from "react";
 import AssistantChat from "@/components/_lab/ask/assistant-chat";
 import UserChat from "@/components/_lab/ask/user-chat";
 import { LabChat } from "@/lib/types/lab-type";
-import { createFileRoute, useLoaderData } from "@tanstack/react-router";
-import { getLabChats, getSessionId } from "@/lib/api/lab-api";
+import { createFileRoute, Link, useLoaderData } from "@tanstack/react-router";
+import { getAIConfig, getLabChats, getSessionId } from "@/lib/api/lab-api";
 import AskForm from "@/components/layout/forms/ask-form";
 import { TextShimmer } from "@/components/ui/text-shimmer";
 import { Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/dashboard/lab/$slug/ask/")({
-  loader: async () => {
-    const labId = window.location.pathname.split("/").at(-2);
+  loader: async ({ params }) => {
+    const labSlug = params.slug;
 
-    if (!labId) {
+    const configData = await getAIConfig(labSlug);
+    if (!configData.isConfigured) {
       return {
         sessionId: null,
         initialChats: [],
-        loaderError: "Invalid lab ID",
+        loaderError: "AI features are not configured for this lab",
+        isConfigured: false,
       };
     }
 
     try {
-      const sessionId = await getSessionId(labId);
+      const sessionId = await getSessionId(labSlug);
       const chats = await getLabChats(sessionId);
 
       return {
         sessionId,
         initialChats: chats,
         loaderError: null,
+        isConfigured: true,
       };
     } catch (error) {
       console.error("Loader failed:", error);
@@ -37,6 +40,7 @@ export const Route = createFileRoute("/dashboard/lab/$slug/ask/")({
         sessionId: null,
         initialChats: [],
         loaderError: "AI service is currently unavailable",
+        isConfigured: true,
       };
     }
   },
@@ -44,7 +48,7 @@ export const Route = createFileRoute("/dashboard/lab/$slug/ask/")({
 });
 
 function RouteComponent() {
-  const { sessionId, initialChats, loaderError } = useLoaderData({
+  const { sessionId, initialChats, loaderError, isConfigured } = useLoaderData({
     from: Route.id,
   });
   const [chats, setChats] = useState<LabChat[]>(initialChats || []);
@@ -52,6 +56,7 @@ function RouteComponent() {
   const [isStreaming, setIsStreaming] = useState(false);
   const endRef = useRef<HTMLDivElement | null>(null);
   const hasShownError = useRef(false);
+  const { slug } = Route.useParams();
 
   useEffect(() => {
     if (loaderError && !hasShownError.current) {
@@ -71,17 +76,34 @@ function RouteComponent() {
   if (chats.length === 0) {
     return (
       <div className="w-full h-full flex flex-col justify-center items-center bg-midnight-300/70 px-5 lg:px-10 xl:px-[14rem]">
-        <h2 className="text-2xl font-semibold text-center mb-4 -translate-y-10">
+        <h2
+          className={`text-2xl font-semibold text-center mb-4 ${isConfigured && "-translate-y-10"}`}
+        >
           Ask anything to Lumini AI
         </h2>
         <AskForm
-          className="-translate-y-10"
+          className={`mb-2 ${isConfigured && "-translate-y-10"}`}
           setChats={setChats}
           setStreaming={setIsStreaming}
           sessionId={sessionId}
           isStreaming={isStreaming}
           isError={!!loaderError}
         />
+        {!isConfigured && (
+          <div
+            className={`w-full flex items-center justify-between bg-midnight-100/80 border border-neutral-800  rounded-xl px-4 py-2 `}
+          >
+            <span>AI features are not configured for this lab.</span>
+            <Link
+              to="/dashboard/lab/$slug/settings"
+              params={{ slug }}
+              hash="ai-configuration"
+              className="text-sm text-neutral-200 hover:underline underline-offset-2"
+            >
+              Configure AI
+            </Link>
+          </div>
+        )}
       </div>
     );
   }

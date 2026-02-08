@@ -4,9 +4,9 @@ export default function HeroImage() {
       <img
         src="/assets/images/hero.png"
         alt="Hero Image"
-        className="border border-neutral-800 rounded-md opacity-90 z-20"
+        className="border border-neutral-700/70 rounded-md opacity-90 z-20"
       />
-      <div className="absolute -top-10 left-24 right-0 w-[1200px] h-[1000px] blur-3xl rounded-full z-0 hero-gradient" />
+      {/* <div className="absolute -top-10 left-24 right-0 w-[1200px] h-[1000px] blur-3xl rounded-full z-0 hero-gradient" /> */}
     </div>
   );
 }

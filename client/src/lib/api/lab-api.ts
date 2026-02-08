@@ -12,6 +12,8 @@ import {
   CreateLab,
   GetOverviewResponse,
   GetSnapshot,
+  UpdateLabAISettings,
+  UpdateLabGeneralSettings,
   UpsertView,
 } from "@/lib/api/dto";
 
@@ -45,6 +47,21 @@ export const getAllLabs = async (slug: string): Promise<Lab[]> => {
 export const getSettings = async (labSlug: string): Promise<LabSettings> => {
   const response = await api.get(`/lab/${labSlug}/settings`);
   return response.data.payload as LabSettings;
+};
+
+export const updateGeneralSettings = async (data: UpdateLabGeneralSettings) => {
+  const response = await api.put(`/lab/${data.labSlug}/settings/general`, data);
+  return response.data.payload;
+};
+
+export const updateAISettings = async (data: UpdateLabAISettings) => {
+  const response = await api.put(`/lab/${data.labSlug}/settings/ai`, data);
+  return response.data.payload;
+};
+
+export const getAIConfig = async (labSlug: string) => {
+  const response = await api.get(`/lab/${labSlug}/ai/config`);
+  return response.data.payload;
 };
 
 export const getLabsByWorkspaceId = async (

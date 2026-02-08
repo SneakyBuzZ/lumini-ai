@@ -79,6 +79,7 @@ export type LabAISettings = {
   modelName: string;
   apiKey: string;
   temperature: number;
+  apiKeyLastFour: string;
 };
 
 export type LabSettings = {
