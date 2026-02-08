@@ -1,7 +1,7 @@
 import { AppError } from "@/utils/error";
-import { LabRepository } from "../repositories/lab-repository";
-import { LabSettingsRepository } from "../repositories/lab-settings-repository";
-import { UpdateGeneralType } from "../dto";
+import { LabRepository } from "@/_lab/repositories/lab-repository";
+import { LabSettingsRepository } from "@/_lab/repositories/lab-settings-repository";
+import { UpdateAISettingsType, UpdateGeneralType } from "../dto";
 
 export class LabSettingsService {
   private labSettingsRepository: LabSettingsRepository;
@@ -23,5 +23,17 @@ export class LabSettingsService {
     const lab = await this.labRepository.findBySlug(labSlug);
     if (!lab) throw new AppError(404, "Lab not found");
     await this.labSettingsRepository.updateGeneralSettings(lab.id, data);
+  }
+
+  async findAIConfig(labSlug: string) {
+    const lab = await this.labRepository.findBySlug(labSlug);
+    if (!lab) throw new AppError(404, "Lab not found");
+    return await this.labSettingsRepository.findAIConfig(lab.id);
+  }
+
+  async updateAISettings(labSlug: string, data: UpdateAISettingsType) {
+    const lab = await this.labRepository.findBySlug(labSlug);
+    if (!lab) throw new AppError(404, "Lab not found");
+    await this.labSettingsRepository.updateAIConfig(lab.id, data);
   }
 }

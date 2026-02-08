@@ -29,4 +29,22 @@ export class LabSettingsController {
         new DataResponse(200, "Lab general settings updated successfully."),
       );
   };
+
+  getAIConfig = async (req: Request, res: Response) => {
+    const labSlug = req.params.slug;
+    const result = await this.labSettingsService.findAIConfig(labSlug);
+    res
+      .status(200)
+      .json(
+        new DataResponse(200, result, "Lab AI config retrieved successfully."),
+      );
+  };
+
+  updateAISettings = async (req: Request, res: Response) => {
+    const labSlug = req.params.slug;
+    await this.labSettingsService.updateAISettings(labSlug, req.body);
+    res
+      .status(200)
+      .json(new DataResponse(200, "Lab AI settings updated successfully."));
+  };
 }

@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   createLabDTO,
+  UpdateAISettingsDTO,
   updateBatchDTo,
   UpdateGeneralDTO,
   viewDTO,
@@ -30,6 +31,15 @@ labRouter.put(
   "/:slug/settings/general",
   validateData(UpdateGeneralDTO),
   catchAsync(labSettingsController.updateGeneralSettings),
+);
+labRouter.put(
+  "/:slug/settings/ai",
+  validateData(UpdateAISettingsDTO),
+  catchAsync(labSettingsController.updateAISettings),
+);
+labRouter.get(
+  "/:slug/ai/config",
+  catchAsync(labSettingsController.getAIConfig),
 );
 labRouter.get("/:slug/workspace", catchAsync(labController.getWorkspaceId));
 

@@ -7,6 +7,7 @@ import {
   integer,
   pgEnum,
   index,
+  real,
 } from "drizzle-orm/pg-core";
 import { usersTable } from "@/_user/models/user-model";
 import { workspacesTable } from "@/_workspace/models/workspace-model";
@@ -87,11 +88,10 @@ export const labSettingsTable = pgTable(
     /* API Keys */
     apiKeyEncrypted: varchar("api_key_encrypted", { length: 1000 }),
     apiKeyLastFour: varchar("api_key_last_four", { length: 4 }),
+    apiKeyRotatedAt: timestamp("api_key_rotated_at"),
 
     /* Generation controls */
-    temperature: varchar("temperature", { length: 10 })
-      .default("0.5")
-      .notNull(),
+    temperature: real("temperature").default(0.5).notNull(),
 
     /* Usage & safety */
     maxRequestsPerMinute: integer("max_requests_per_minute")
