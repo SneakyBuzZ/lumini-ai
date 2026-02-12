@@ -6,14 +6,14 @@ import { getIsAuthenticated } from "@/lib/api/user-api";
 import { createFileRoute } from "@tanstack/react-router";
 import { ChevronLeft } from "lucide-react";
 
-export const Route = createFileRoute("/invite/")({
+export const Route = createFileRoute("/_pathlessLayout/invite")({
   loader: async () => {
     const isAuthenticated = await getIsAuthenticated();
     return isAuthenticated;
   },
   component: RouteComponent,
   validateSearch: (
-    search: Record<string, unknown>
+    search: Record<string, unknown>,
   ): { workspace: string; token: string } => ({
     workspace: (search.workspace as string) || "",
     token: (search.token as string) || "",

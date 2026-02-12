@@ -9,7 +9,7 @@ import { WorkspaceMember } from "@/lib/types/workspace-type";
 import { createFileRoute } from "@tanstack/react-router";
 import { CirclePlus, Search } from "lucide-react";
 
-export const Route = createFileRoute("/dashboard/space/$slug/team/")({
+export const Route = createFileRoute("/dashboard/space/$slug/team")({
   loader: async ({ context, params }) => {
     await context.queryClient.ensureQueryData({
       queryKey: ["workspace-members", params.slug],

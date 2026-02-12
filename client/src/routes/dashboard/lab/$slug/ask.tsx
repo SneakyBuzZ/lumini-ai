@@ -9,7 +9,7 @@ import { TextShimmer } from "@/components/ui/text-shimmer";
 import { Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/dashboard/lab/$slug/ask/")({
+export const Route = createFileRoute("/dashboard/lab/$slug/ask")({
   loader: async ({ params }) => {
     const labSlug = params.slug;
 

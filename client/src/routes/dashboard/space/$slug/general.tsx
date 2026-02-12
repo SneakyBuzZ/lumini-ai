@@ -10,7 +10,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { TriangleAlert } from "lucide-react";
 
-export const Route = createFileRoute("/dashboard/space/$slug/general/")({
+export const Route = createFileRoute("/dashboard/space/$slug/general")({
   loader: async ({ context, params }) => {
     await context.queryClient.ensureQueryData({
       queryKey: ["workspace-settings", params.slug, "general"],

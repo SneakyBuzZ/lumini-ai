@@ -3,6 +3,7 @@ import { GeneralSection } from "@/components/_lab/settings/general-section";
 import { VectorDbSection } from "@/components/_lab/settings/vectordb-section";
 import { VisibilityAccessSection } from "@/components/_lab/settings/visibility-access-section";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { BASE_URLS } from "@/utils/constant";
 
 import { getSettings } from "@/lib/api/lab-api";
 import {
@@ -10,12 +11,11 @@ import {
   useUpdateLabGeneralSettings,
 } from "@/lib/api/mutations/app-mutations";
 import { LabSettings } from "@/lib/types/lab-type";
-import { BASE_URLS } from "@/utils/constant";
 import { createFileRoute, useLocation } from "@tanstack/react-router";
 import { useEffect, useLayoutEffect, useState } from "react";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/dashboard/lab/$slug/settings/")({
+export const Route = createFileRoute("/dashboard/lab/$slug/settings")({
   loader: async ({ context, params }) => {
     const result = await context.queryClient.ensureQueryData({
       queryKey: ["lab-settings", params.slug],
@@ -54,7 +54,9 @@ function RouteComponent() {
         apiService: data.ai.apiService,
         modelName: data.ai.modelName,
         temperature: Number(data.ai.temperature ?? 0.5),
-        apiBaseUrl: data.ai.apiBaseUrl ?? BASE_URLS[data.ai.apiService],
+        apiBaseUrl:
+          data.ai.apiBaseUrl ??
+          BASE_URLS[data.ai.apiService as keyof typeof BASE_URLS],
         apiKeyLastFour: data.ai.apiKeyLastFour ?? "abcd",
         apiKey: `••••••••••••••${data.ai.apiKeyLastFour ?? "abcd"}`,
       },
