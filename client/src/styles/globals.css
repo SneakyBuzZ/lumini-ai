@@ -206,6 +206,24 @@ canvas {
   z-index: 1;
 }
 
+.bg-grid {
+  position: relative;
+  overflow: hidden;
+}
+
+.bg-grid::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("/assets/vectors/grid.svg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.3;
+  z-index: 0;
+  pointer-events: none;
+}
+
 .canvas-cursor {
   cursor: url("/assets/images/lumini-cursor.png") auto;
 }

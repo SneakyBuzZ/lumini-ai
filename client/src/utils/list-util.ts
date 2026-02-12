@@ -10,67 +10,6 @@ import {
 
 import { SiInstagram, SiLinkedin, SiX } from "react-icons/si";
 
-export const BillingList = [
-  {
-    plan: "free",
-    planLabel: "Free Plan",
-    planStatus: "Current",
-    price: "$0",
-    ctaLabel: null,
-    buttonType: "outline",
-    features: [
-      "1 Free Workspace Only",
-      "3 Free Labs Only",
-      "Limited whiteboard Features",
-      "Limited Lab Storage",
-      "Limited AI Querying",
-    ],
-    endingPara:
-      "Try our freemium plan to explore our application. Upgrade to Pro or Enterprise for more advanced features and support.",
-  },
-  {
-    plan: "pro",
-    planLabel: "Pro Plan",
-    planStatus: "Popular",
-    price: "$29",
-    ctaLabel: "Upgrade to Pro",
-    buttonType: "default",
-    features: [
-      "Up to 3 Workspaces",
-      "5 Labs per Workspace",
-      "All Whiteboard Features",
-      "Advanced Analytics",
-      "Collaborate with Others",
-      "Improve Lab Storage",
-      "Better AI Querying",
-    ],
-    endingPara:
-      "Try our Pro plan to explore all features. Upgrade to Enterprise for more advanced features and support.",
-  },
-  {
-    plan: "enterprise",
-    planLabel: "Enterprise Plan",
-    planStatus: "Beast",
-    price: "$99",
-    ctaLabel: "Upgrade to Enterprise",
-    buttonType: "secondary",
-    features: [
-      "Unlimited Workspaces",
-      "Unlimited Labs per Workspace",
-      "All Whiteboard Features",
-      "Advanced Analytics",
-      "Collaborate with Others",
-      "Unlimited Lab Storage",
-      "Unlimited AI Querying",
-      "Priority Support",
-      "External Integrations",
-      "Dedicated Account Manager",
-    ],
-    endingPara:
-      "Try our Enterprise plan to explore all features. Contact us for more information on custom solutions and support.",
-  },
-];
-
 export const FOOTER_LISTS = [
   {
     id: 1,
@@ -160,34 +99,74 @@ export const FOOTER_LISTS = [
 
 export const NAVBAR_LIST = [
   {
-    id: 1,
-    label: "Home",
-    href: "/",
-  },
-  {
     id: 2,
-    label: "Labs",
-    href: "/labs",
-  },
-  {
-    id: 3,
-    label: "Workspaces",
-    href: "/workspaces",
+    label: "Platform",
+    href: "/",
+    children: [
+      {
+        id: 10,
+        title: "Repo Whisperer",
+        href: "/repo-whisperer",
+        content:
+          "Ask questions about your codebase and get instant answers with our AI-powered assistant.",
+        icon: "/assets/icons/repo-whisperer.svg",
+      },
+      {
+        id: 11,
+        title: "Realtime Canvas",
+        href: "/realtime-canvas",
+        content:
+          "Collaborate in real-time with our interactive canvas, designed for brainstorming and project planning.",
+        icon: "/assets/icons/realtime-canvas.svg",
+      },
+      {
+        id: 12,
+        title: "Collaborative Workspace",
+        href: "/collab-space",
+        content:
+          "Work together seamlessly with your team in a shared virtual workspace.",
+        icon: "/assets/icons/collab-workspace.svg",
+      },
+      {
+        id: 13,
+        title: "Insightful Dashboard",
+        href: "/insightful-dashboard",
+        content:
+          "Gain valuable insights into your projects with our powerful analytics tools.",
+        icon: "/assets/icons/insightful-dashboard.svg",
+      },
+    ],
   },
   {
     id: 4,
-    label: "Settings",
-    href: "/settings",
-  },
-  {
-    id: 5,
-    label: "Profile",
-    href: "/profile",
-  },
-  {
-    id: 6,
-    label: "Billing",
-    href: "/billing",
+    label: "Contact",
+    href: "/",
+    children: [
+      {
+        id: 30,
+        title: "Linkedin",
+        href: "/",
+        content:
+          "Connect with me on LinkedIn to stay updated on the latest news and insights.",
+        icon: "/assets/icons/linkedin.svg",
+      },
+      {
+        id: 31,
+        title: "Github",
+        href: "/",
+        content:
+          "Check out my GitHub repositories to see my projects and contributions.",
+        icon: "/assets/icons/github.svg",
+      },
+      {
+        id: 32,
+        title: "X / Twitter",
+        href: "/",
+        content:
+          "Follow me on X (formerly Twitter) for quick updates and thoughts.",
+        icon: "/assets/icons/xtwitter.svg",
+      },
+    ],
   },
 ];
 

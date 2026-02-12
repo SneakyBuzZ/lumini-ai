@@ -1,4 +1,4 @@
-// import useAuthStore from "@/lib/store/auth-store";
+import Loading from "@/components/shared/loading";
 import Logo from "@/components/shared/logo";
 import OrElement from "@/components/shared/or-element";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,17 @@ import { ChevronLeft } from "lucide-react";
 import { SiGithub } from "react-icons/si";
 
 export const Route = createFileRoute("/auth")({
-  beforeLoad: async ({ location }) => authBeforeLoad(location.pathname),
+  loader: async ({ location }) => {
+    const authenticated = await getIsAuthenticated();
+    if (authenticated == true) {
+      throw redirect({ to: "/dashboard" });
+    }
+
+    if (location.pathname === "/auth" || location.pathname === "/auth/") {
+      throw redirect({ to: "/auth/login" });
+    }
+  },
+  pendingComponent: Loading,
   component: AuthComponent,
 });
 
@@ -26,10 +36,10 @@ function AuthComponent() {
   } = useRouterState();
   return (
     <div className="w-full h-screen flex justify-center items-center bg-midnight-400">
-      <div className="w-[45%] h-full relative flex flex-col justify-start items-center border-dashed border-x border-neutral-800">
-        <div className="absolute w-full top-0 flex h-20 justify-between items-center px-10 border-dashed border-b border-neutral-800 bg-midnight-400">
+      <div className="w-[45%] h-full relative flex flex-col justify-start items-center border-dashed border-x border-neutral-700">
+        <div className="absolute w-full top-0 flex h-20 justify-between items-center px-10 border-dashed border-b border-neutral-700 bg-midnight-400">
           <Logo withText imgClassName="size-6" />
-          <Button variant={"link"} onClick={() => navigate({ to: "." })}>
+          <Button variant={"link"} onClick={() => navigate({ to: "/" })}>
             <ChevronLeft />
             Back
           </Button>
@@ -60,15 +70,4 @@ function AuthComponent() {
       </div>
     </div>
   );
-}
-
-async function authBeforeLoad(pathname: string) {
-  const authenticated = await getIsAuthenticated();
-  if (authenticated == true) {
-    throw redirect({ to: "/dashboard" });
-  }
-
-  if (pathname === "/auth" || pathname === "/auth/") {
-    throw redirect({ to: "/auth/login" });
-  }
 }

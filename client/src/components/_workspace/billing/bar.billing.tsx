@@ -1,4 +1,3 @@
-import useWorkspacesStore from "@/lib/store/workspace-store";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { SelectSeparator } from "@/components/ui/select";
@@ -10,7 +9,7 @@ interface BarBillingProps {
   planStatus: string;
   price: string;
   ctaLabel: string | null;
-  buttonType: "outline" | "default" | "secondary";
+  buttonType: string;
   features: string[];
   endPara: string;
 }
@@ -25,15 +24,9 @@ const BarBilling = ({
   features,
   endPara,
 }: BarBillingProps) => {
-  const { currentWorkspace } = useWorkspacesStore();
-  const active = currentWorkspace?.plan === plan;
   return (
     <div
-      className={`flex flex-col items-start justify-start h-full p-4 border rounded-lg ${
-        active
-          ? "bg-gradient-to-br from-midnight-400 to-midnight-100 border-neutral-700/80"
-          : "bg-midnight-300"
-      } gap-4`}
+      className={`flex flex-col items-start justify-start h-full p-4 border rounded-lg border-neutral-700/80"} gap-4`}
     >
       <div className="w-full flex justify-start items-center gap-3">
         <span className="text-xl text-neutral-300">{planLabel}</span>
@@ -46,7 +39,7 @@ const BarBilling = ({
       </div>
       <Button
         disabled={ctaLabel === null}
-        variant={buttonType}
+        variant={buttonType as "outline" | "default" | "secondary" | "primary"}
         className="w-full"
       >
         {ctaLabel === null ? planStatus : ctaLabel}
