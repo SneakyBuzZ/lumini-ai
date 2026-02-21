@@ -3,14 +3,19 @@ import { db, DbExecutor } from "@/lib/config/db-config";
 import { eq, inArray } from "drizzle-orm";
 import { RegisterUserDTOType } from "../dto";
 
+type InsertUserData = typeof usersTable.$inferInsert;
+type UpdateUserData = Partial<typeof usersTable.$inferInsert>;
+
 export class UserRepository {
-  async save(data: RegisterUserDTOType) {
-    const [user] = await db.insert(usersTable).values(data).returning();
-    return user;
+  async save(data: InsertUserData, tx?: DbExecutor) {
+    tx = tx || db;
+    const [user] = await tx.insert(usersTable).values(data).returning();
+    return user.id;
   }
 
-  async findByEmail(email: string) {
-    const [user] = await db
+  async findByEmail(email: string, tx?: DbExecutor) {
+    tx = tx || db;
+    const [user] = await tx
       .select()
       .from(usersTable)
       .where(eq(usersTable.email, email));
@@ -26,6 +31,8 @@ export class UserRepository {
         email: usersTable.email,
         image: usersTable.image,
         createdAt: usersTable.createdAt,
+        isVerified: usersTable.emailVerified,
+        password: usersTable.password,
       })
       .from(usersTable)
       .where(eq(usersTable.id, id));
@@ -45,5 +52,9 @@ export class UserRepository {
       })
       .from(usersTable)
       .where(inArray(usersTable.id, ids));
+  }
+
+  async update(id: string, data: UpdateUserData) {
+    await db.update(usersTable).set(data).where(eq(usersTable.id, id));
   }
 }

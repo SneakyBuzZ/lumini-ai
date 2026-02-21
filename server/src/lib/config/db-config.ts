@@ -3,19 +3,25 @@ import { drizzle, NodePgDatabase } from "drizzle-orm/node-postgres";
 import pkg from "pg";
 const { Pool } = pkg;
 
-import * as accountModels from "@/_user/models/account-model";
+import * as authModels from "@/_user/models/auth-models";
 import * as userModels from "@/_user/models/user-model";
-import * as workspaceModels from "@/_workspace/models/workspace-model";
-import * as labModels from "@/_lab/models/lab-table";
-import * as shapeModels from "@/_lab/models/shape-table";
+import * as workspaceModel from "@/_workspace/models/workspace-model";
+import * as workspaceSettingsModel from "@/_workspace/models/workspace-settings-model";
+import * as workspaceMembersModel from "@/_workspace/models/workspace-members-model";
+import * as workspaceInvitesModel from "@/_workspace/models/workspace-invites-model";
+// import * as labModels from "@/_lab/models/lab-table";
+// import * as shapeModels from "@/_lab/models/shape-table";
 import { PgTransaction } from "drizzle-orm/pg-core";
 
 const schema = {
-  ...accountModels,
+  ...authModels,
   ...userModels,
-  ...workspaceModels,
-  ...labModels,
-  ...shapeModels,
+  ...workspaceModel,
+  ...workspaceSettingsModel,
+  ...workspaceMembersModel,
+  ...workspaceInvitesModel,
+  // ...labModels,
+  // ...shapeModels,
 };
 
 const pool = new Pool({

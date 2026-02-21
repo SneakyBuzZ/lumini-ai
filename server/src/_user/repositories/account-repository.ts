@@ -1,29 +1,22 @@
-import { db } from "@/lib/config/db-config";
-import { accountsTable } from "../models/account-model";
+import { db, DbExecutor } from "@/lib/config/db-config";
 import { and, eq } from "drizzle-orm";
+import { accountsTable } from "../models/auth-models";
+
+type InsertAccountData = Partial<typeof accountsTable.$inferInsert>;
 
 export class AccountRepository {
-  async save(email: string, id: string) {
-    await db.insert(accountsTable).values({
-      userId: id,
-      provider: "email",
-      providerAccountId: email,
-      refreshToken: "",
-      refreshTokenExpires: null,
+  async save(
+    userId: string,
+    provider: "email" | "google" | "github",
+    providerAccountId: string,
+    tx?: DbExecutor,
+  ) {
+    tx = tx || db;
+    await tx.insert(accountsTable).values({
+      userId: userId,
+      provider: provider,
+      providerAccountId: providerAccountId,
     });
-  }
-
-  async update(id: string, hashedRefresh: string) {
-    await db
-      .update(accountsTable)
-      .set({
-        refreshToken: hashedRefresh,
-        refreshTokenExpires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-        updatedAt: new Date(),
-      })
-      .where(
-        and(eq(accountsTable.userId, id), eq(accountsTable.provider, "email"))
-      );
   }
 
   async findByUserId(id: string) {
@@ -38,10 +31,18 @@ export class AccountRepository {
     await db
       .update(accountsTable)
       .set({
-        refreshToken: null,
-        refreshTokenExpires: null,
         updatedAt: new Date(),
       })
       .where(eq(accountsTable.userId, id));
+  }
+
+  async update(userId: string, data: InsertAccountData) {
+    await db
+      .update(accountsTable)
+      .set({
+        ...data,
+        updatedAt: new Date(),
+      })
+      .where(eq(accountsTable.userId, userId));
   }
 }

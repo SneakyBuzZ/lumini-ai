@@ -1,11 +1,11 @@
 import { labsTable } from "@/_lab/models/lab-table";
-import { workspaceMembersTable } from "@/_workspace/models/workspace-model";
 import { db } from "@/lib/config/db-config";
 import { authenticateWS } from "@/middlewares/authenticate-ws-middleware";
 import { and, eq } from "drizzle-orm";
 import { getUserColor } from "@/lib/ws/utils";
 import type { WebSocket } from "ws";
 import { IncomingMessage } from "http";
+import { workspaceMembersTable } from "@/_workspace/models/workspace-members-model";
 
 export async function assertLabAccess(userId: string, labId: string) {
   const [access] = await db

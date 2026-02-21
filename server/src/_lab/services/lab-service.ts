@@ -3,24 +3,27 @@ import { CreateLabDTO, UpdateGeneralType } from "@/_lab/dto";
 import { WorkspaceRepository } from "@/_workspace/repositories/workspace-repository";
 import { AppError } from "@/utils/error";
 import { slug } from "cuid";
+import { WorkspaceMembersRepository } from "@/_workspace/repositories/workspace-members-repository";
 
 export class LabService {
   private labRepository: LabRepository;
   private workspaceRepository: WorkspaceRepository;
+  private workspaceMembersRepository: WorkspaceMembersRepository;
 
   constructor() {
     this.labRepository = new LabRepository();
     this.workspaceRepository = new WorkspaceRepository();
+    this.workspaceMembersRepository = new WorkspaceMembersRepository();
   }
 
   async create(data: CreateLabDTO, creatorId: string) {
-    const role = await this.workspaceRepository.findMemberRoleById(
+    const role = await this.workspaceMembersRepository.findRoleById(
       creatorId,
       data.workspaceId,
     );
     if (!role) throw new AppError(403, "Unauthorized");
 
-    if (role !== "administrator" && role !== "owner") {
+    if (role !== "admin" && role !== "owner") {
       throw new AppError(
         403,
         "You are not allowed to create labs in this workspace",

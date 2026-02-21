@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { LoginUserDTO } from "../dto";
+import { LoginUserDTO, RegisterUserDTO, VerifyEmailDTO } from "../dto";
 import { validateData } from "@/middlewares/validate-middleware";
 import { catchAsync } from "@/utils/catch-async";
 import { AuthController } from "@/_user/controllers/auth-controller";
@@ -10,27 +10,42 @@ const authRouter = Router();
 const authController = new AuthController();
 
 authRouter.post(
-  "/login",
-  validateData(LoginUserDTO),
-  catchAsync(authController.login)
+  "/register",
+  validateData(RegisterUserDTO),
+  catchAsync(authController.register),
 );
 
 authRouter.post(
-  "/renew-token",
+  "/login",
+  validateData(LoginUserDTO),
+  catchAsync(authController.login),
+);
+
+authRouter.post(
+  "/verify/email",
   authenticateJwt(),
-  catchAsync(authController.renewToken)
+  validateData(VerifyEmailDTO),
+  catchAsync(authController.verifyEmail),
+);
+
+authRouter.post(
+  "/verify/email/resend",
+  authenticateJwt(),
+  catchAsync(authController.resendVerificationEmail),
 );
 
 authRouter.post(
   "/logout",
   authenticateJwt(),
-  catchAsync(authController.logout)
+  catchAsync(authController.logout),
 );
 
 authRouter.get(
   "/status",
   authenticateJwt(),
-  catchAsync(authController.getStatus)
+  catchAsync(authController.getStatus),
 );
+
+authRouter.post("/refresh", catchAsync(authController.refresh));
 
 export default authRouter;

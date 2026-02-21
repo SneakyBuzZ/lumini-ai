@@ -9,10 +9,11 @@ export const usersTable = pgTable(
       .$defaultFn(() => cuid()),
     name: varchar("name", { length: 255 }),
     email: varchar("email", { length: 255 }).notNull().unique(),
+    emailVerified: timestamp("email_verified"),
     image: varchar("image", { length: 255 }),
     password: varchar("password", { length: 255 }),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
-  (user) => [uniqueIndex("user_email_idx").on(user.email)]
+  (user) => [uniqueIndex("user_email_idx").on(user.email)],
 );

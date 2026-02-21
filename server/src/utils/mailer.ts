@@ -109,3 +109,100 @@ export async function sendWorkspaceInviteEmail({
     throw new Error(`Failed to send invite email to ${to}`);
   }
 }
+
+type SendVerificationEmailParams = {
+  to: string;
+  token: string;
+};
+
+export async function sendVerificationEmail({
+  to,
+  token,
+}: SendVerificationEmailParams) {
+  const verifyLink = `${process.env.CLIENT_URL}/auth/verify/?token=${token}`;
+
+  const html = `
+<div
+  style="
+    background-color: #cccccc;
+    padding: 32px;
+    font-family: Inter, Arial, sans-serif;
+  "
+>
+  <div
+    style="
+      max-width: 520px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 32px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+    "
+  >
+    <h2 style="margin: 0 0 12px 0; color: #111827">
+      Verify your email address
+    </h2>
+
+    <p
+      style="
+        margin: 0 0 20px 0;
+        color: #374151;
+        font-size: 15px;
+        line-height: 1.6;
+      "
+    >
+      Thanks for signing up for <strong>Lumini</strong>.
+      Please confirm your email address to activate your account.
+    </p>
+
+    <div style="text-align: center; margin: 32px 0">
+      <a
+        href="${verifyLink}"
+        style="
+          display: inline-block;
+          padding: 9px 24px;
+          background-color: #36abc9;
+          color: #ffffff;
+          text-decoration: none;
+          border-radius: 8px;
+          font-size: 15px;
+          font-weight: 600;
+        "
+      >
+        Verify Email
+      </a>
+    </div>
+
+    <p style="margin: 0 0 12px 0; color: #6b7280; font-size: 13px">
+      This link will expire in 30 minutes.
+    </p>
+
+    <p style="margin: 0; color: #9ca3af; font-size: 12px">
+      If you didn’t create an account, you can safely ignore this email.
+    </p>
+  </div>
+
+  <p
+    style="
+      text-align: center;
+      margin-top: 16px;
+      color: #9ca3af;
+      font-size: 11px;
+    "
+  >
+    © ${new Date().getFullYear()} Lumini
+  </p>
+</div>
+  `;
+
+  const res = await transporter.sendMail({
+    from: process.env.GOOGLE_EMAIL,
+    to,
+    subject: "Verify your Lumini account",
+    html,
+  });
+
+  if (res.rejected.length > 0) {
+    throw new Error(`Failed to send verification email to ${to}`);
+  }
+}

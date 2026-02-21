@@ -15,6 +15,7 @@ import { initWebSocketServer } from "./ws";
 
 const app = express();
 
+app.set("trust proxy", 1);
 app.use(cookieParser(COOKIE_SECRET));
 app.use(cors({ origin: CLIENT_URL, credentials: true }));
 app.use(express.json({ limit: "16kb" }));

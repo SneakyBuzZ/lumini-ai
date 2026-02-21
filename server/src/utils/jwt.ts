@@ -1,62 +1,40 @@
 import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "@/utils/constants";
 import { generateHash } from "@/utils/bcrypt";
-import { db } from "@/lib/config/db-config";
 import { Response } from "express";
+
+const baseCookieOptions = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  signed: true,
+  sameSite: "lax" as const,
+  path: "/",
+};
 
 export async function generateAndSetTokens(res: Response, id: string) {
   const accessToken = jwt.sign({ userId: id }, JWT_SECRET, {
-    expiresIn: "7d", // 7 days
+    expiresIn: "15m",
   });
   const refreshToken = jwt.sign({ userId: id }, JWT_SECRET, {
-    expiresIn: "30d", // 1 month
+    expiresIn: "30d",
   });
 
   const hashedRefresh = await generateHash(refreshToken);
 
   res.cookie("accessToken", accessToken, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    signed: true,
-    sameSite: "strict",
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    ...baseCookieOptions,
+    maxAge: 15 * 60 * 1000, // 15 minutes
   });
 
   res.cookie("refreshToken", refreshToken, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    signed: true,
-    sameSite: "strict",
+    ...baseCookieOptions,
     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
   });
 
-  return hashedRefresh;
-}
-
-export function refreshAndSetToken(res: Response, userId: string) {
-  const accessToken = jwt.sign({ userId }, JWT_SECRET, {
-    expiresIn: "7d", // 7 days
-  });
-
-  res.cookie("accessToken", accessToken, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    signed: true,
-    sameSite: "strict",
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-  });
+  return { hashedRefresh, refreshToken };
 }
 
 export function clearCookies(res: Response) {
-  res.clearCookie("refreshToken", {
-    httpOnly: true,
-    secure: true,
-    sameSite: "strict",
-  });
-
-  res.clearCookie("accessToken", {
-    httpOnly: true,
-    secure: true,
-    sameSite: "strict",
-  });
+  res.clearCookie("accessToken", baseCookieOptions);
+  res.clearCookie("refreshToken", baseCookieOptions);
 }

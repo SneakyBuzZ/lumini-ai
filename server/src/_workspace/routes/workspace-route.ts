@@ -1,63 +1,64 @@
-import { authenticateJwt } from "@/middlewares/authenticate-middleware";
 import { validateData } from "@/middlewares/validate-middleware";
 import { Router } from "express";
-import { AcceptWorkspaceInviteDTO, SaveWorkspaceDTO } from "@/_workspace/dto";
+import {
+  AcceptWorkspaceInviteDTO,
+  SaveWorkspaceDTO,
+  UpdateWorkspaceGeneralDTO,
+  UpdateWorkspacePreferencesDTO,
+} from "@/_workspace/dto";
 import { WorkspaceController } from "@/_workspace/controllers/workspace-controller";
 import { catchAsync } from "@/utils/catch-async";
+import { WorkspaceSettingsController } from "../controllers/workspace-settings-controller";
+import { WorkspaceMembersController } from "../controllers/workspace-members-controller";
+import { WorkspaceInvitesController } from "../controllers/workspace-invites-controller";
 
 const workspaceRouter = Router();
 
 const workspaceController = new WorkspaceController();
+const workspaceSettingsController = new WorkspaceSettingsController();
+const workspaceMembersController = new WorkspaceMembersController();
+const workspaceInvitesController = new WorkspaceInvitesController();
 
+//^---------------- WORKSPACE ROUTES ----------------^//
 workspaceRouter.post(
   "/",
   validateData(SaveWorkspaceDTO),
   catchAsync(workspaceController.create),
 );
-
+workspaceRouter.get("/:slug", catchAsync(workspaceController.getBySlug));
 workspaceRouter.get("/", catchAsync(workspaceController.findUserWorkspaces));
 
-workspaceRouter.get("/:slug", catchAsync(workspaceController.getBySlug));
-
+//^---------------- WORKSPACE SETTINGS ROUTES ----------------^//
 workspaceRouter.get(
   "/:slug/settings/general",
-  catchAsync(workspaceController.findGeneralSettings),
+  catchAsync(workspaceSettingsController.getGeneral),
+);
+workspaceRouter.put(
+  "/:slug/settings/general",
+  validateData(UpdateWorkspaceGeneralDTO),
+  catchAsync(workspaceSettingsController.updateGeneral),
+);
+workspaceRouter.put(
+  "/:slug/settings/preferences",
+  validateData(UpdateWorkspacePreferencesDTO),
+  catchAsync(workspaceSettingsController.updatePreferences),
 );
 
+//^---------------- WORKSPACE MEMBERS ROUTES ----------------^//
 workspaceRouter.get(
   "/:slug/members",
-  catchAsync(workspaceController.findAllMembers),
+  catchAsync(workspaceMembersController.findAll),
 );
 
-workspaceRouter.put(
-  "/:workspaceId/details",
-  catchAsync(workspaceController.updateDetails),
-);
-
-workspaceRouter.put(
-  "/:workspaceId/visibility",
-  catchAsync(workspaceController.updateVisibility),
-);
-
-workspaceRouter.put(
-  "/:workspaceId/language",
-  catchAsync(workspaceController.updateLanguage),
-);
-
-workspaceRouter.put(
-  "/:workspaceId/notifications",
-  catchAsync(workspaceController.updateNotifications),
-);
-
+//^---------------- WORKSPACE INVITES ROUTES ----------------^//
 workspaceRouter.post(
-  "/:workspaceId/invite",
-  catchAsync(workspaceController.inviteMember),
+  "/:slug/invite",
+  catchAsync(workspaceInvitesController.invite),
 );
-
 workspaceRouter.post(
   "/invite/accept",
   validateData(AcceptWorkspaceInviteDTO),
-  catchAsync(workspaceController.acceptMember),
+  catchAsync(workspaceInvitesController.accept),
 );
 
 export default workspaceRouter;

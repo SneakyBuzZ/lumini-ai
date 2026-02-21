@@ -10,11 +10,6 @@ export class UserController {
     this.userService = new UserService();
   }
 
-  register = async (req: Request, res: Response) => {
-    await this.userService.register(req.body);
-    res.status(201).json(new DataResponse(201, "User created successfully"));
-  };
-
   getUser = async (req: Request, res: Response) => {
     const id = req.user?.id;
     if (!id) {
@@ -39,5 +34,13 @@ export class UserController {
     res
       .status(200)
       .json(new DataResponse(200, users, "Users retrieved successfully"));
+  };
+
+  updateEmail = async (req: Request, res: Response) => {
+    const { email, newEmail } = req.body;
+    await this.userService.updateEmail(email, newEmail);
+    return res
+      .status(200)
+      .json(new DataResponse(200, "Email updated successfully"));
   };
 }
