@@ -35,10 +35,7 @@ export const useCreateLab = (setError: (error: string | null) => void) => {
 
 export const useCreateWorksace = (setError: (error: string) => void) => {
   return useMutation({
-    mutationFn: (payload: {
-      name: string;
-      plan: "free" | "pro" | "enterprise";
-    }) => createWorkspace(payload),
+    mutationFn: createWorkspace,
     onError: (error) => {
       if (error instanceof AxiosError) {
         setError(error.response?.data.messages);
@@ -48,12 +45,12 @@ export const useCreateWorksace = (setError: (error: string) => void) => {
 };
 
 export const useCreateInvite = (
-  workspaceId: string,
+  slug: string,
   setError: (error: string) => void,
 ) => {
   return useMutation({
     mutationFn: (payload: CreateInvite) =>
-      createWorkspaceInvite(workspaceId, payload.email, payload.role),
+      createWorkspaceInvite(payload.email, payload.role, slug),
     onError: (error) => {
       if (error instanceof AxiosError) {
         setError(error.response?.data.messages);

@@ -25,8 +25,6 @@ export type Workspace = {
 
 export type WorkspaceSettingsGeneral = {
   name: string;
-  description: string | null;
-  logoUrl: string | null;
   slug: string | null;
   settings: {
     defaultLanguage: string;

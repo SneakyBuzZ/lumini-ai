@@ -20,27 +20,32 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useCreateInvite } from "@/lib/api/mutations/app-mutations";
-import { useLocation } from "@tanstack/react-router";
+import { Route } from "@/routes/dashboard/space/$slug/route";
 import { useState } from "react";
 
-const InviteForm = () => {
-  const { pathname } = useLocation();
+interface InviteFormProps {
+  setOpen: (open: boolean) => void;
+}
+
+const InviteForm = ({ setOpen }: InviteFormProps) => {
+  const { slug } = Route.useParams();
   const [error, setError] = useState<string | null>(null);
-  const workspaceId = pathname.split("/")[3];
   const { mutateAsync: createInvite, isPending } = useCreateInvite(
-    workspaceId,
-    setError
+    slug,
+    setError,
   );
   const form = useForm<InviteFormValues>({
     resolver: zodResolver(inviteSchema),
     defaultValues: {
       email: "",
-      role: "developer",
+      role: "member",
     },
   });
 
   async function onSubmit(values: InviteFormValues) {
     await createInvite({ email: values.email, role: values.role });
+    setOpen(false);
+    window.location.reload();
   }
 
   return (
@@ -67,11 +72,9 @@ const InviteForm = () => {
                           <SelectValue placeholder="Select a role" />
                         </SelectTrigger>
                         <SelectContent className="p-1 w-[var(--radix-select-trigger-width)]">
-                          <SelectItem value="developer">Developer</SelectItem>
+                          <SelectItem value="member">Member</SelectItem>
+                          <SelectItem value="admin">Admin</SelectItem>
                           <SelectItem value="owner">Owner</SelectItem>
-                          <SelectItem value="administrator">
-                            Administrator
-                          </SelectItem>
                         </SelectContent>
                       </Select>
                     </FormControl>
@@ -94,22 +97,19 @@ const InviteForm = () => {
               )}
             />
             <div>
-              <p className="text-sm text-neutral-500 w-full">
-                An invitation email will be sent to the provided address.
-              </p>
-              {error && <div className="text-sm text-red-500">{error}</div>}
+              {error ? (
+                <span className="text-sm text-red-500">{error}</span>
+              ) : (
+                <span className="text-sm text-neutral-500 w-full">
+                  An invitation email will be sent to the provided address.
+                </span>
+              )}
             </div>
           </div>
-          <div className="border-t w-full p-4 py-3">
-            <Button disabled={isPending} type="submit" className="w-full">
-              {isPending ? (
-                <>
-                  <Spinner color="#ffff" />
-                  Loading
-                </>
-              ) : (
-                <>Send Invitation</>
-              )}
+          <div className="border-t w-full p-3 px-4 flex justify-end items-center">
+            <Button disabled={isPending} type="submit" variant={"primary"}>
+              Send Invite
+              {isPending && <Spinner />}
             </Button>
           </div>
         </form>
@@ -122,7 +122,7 @@ const inviteSchema = z.object({
   email: z.string().email({
     message: "Invalid email address",
   }),
-  role: z.enum(["developer", "owner", "adminstrator"], {
+  role: z.enum(["member", "admin", "owner"], {
     required_error: "Role is required",
   }),
 });

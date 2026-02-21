@@ -46,18 +46,9 @@ export function SectionShell({
         <Button variant="outline" onClick={onCancel}>
           Cancel
         </Button>
-        <Button
-          disabled={!isDirty || isPending}
-          variant="primary"
-          onClick={onSave}
-        >
-          {isPending ? (
-            <>
-              <Spinner /> Saving
-            </>
-          ) : (
-            "Save changes"
-          )}
+        <Button disabled={!isDirty || isPending} onClick={onSave}>
+          Save Changes
+          {isPending && <Spinner />}
         </Button>
       </div>
     </div>

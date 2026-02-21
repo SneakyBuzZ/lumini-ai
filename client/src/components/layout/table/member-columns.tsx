@@ -2,13 +2,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { WorkspaceMember } from "@/lib/types/workspace-type";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { X } from "lucide-react";
-
-const roleStyles: Record<string, string> = {
-  owner: "bg-teal text-neutral-300",
-  administrator: "bg-blue-600/20 text-blue-300",
-  developer: "bg-emerald-600/20 text-neutral-300",
-};
+import { User, X } from "lucide-react";
 
 export const memberColumns: ColumnDef<WorkspaceMember>[] = [
   {
@@ -19,11 +13,17 @@ export const memberColumns: ColumnDef<WorkspaceMember>[] = [
 
       return (
         <div className="flex items-center gap-4 py-2 min-h-[56px]">
-          <img
-            src={user.image ?? "/avatar-placeholder.png"}
-            alt={user.name ?? "User"}
-            className="w-8 h-8 rounded-full object-cover bg-neutral-700"
-          />
+          {user.image ? (
+            <img
+              src={user.image}
+              alt={user.name ?? "User"}
+              className="w-8 h-8 rounded-full object-cover bg-neutral-700"
+            />
+          ) : (
+            <div className="w-8 h-8 rounded-full bg-neutral-800 flex items-center justify-center text-xs text-neutral-300">
+              <User className="w-4 h-4" />
+            </div>
+          )}
 
           <div className="flex flex-col leading-tight">
             <span className="text-sm font-medium text-neutral-200">
@@ -43,12 +43,11 @@ export const memberColumns: ColumnDef<WorkspaceMember>[] = [
       const role = row.original.role;
 
       return (
-        <Badge
-          variant={"outline"}
-          className={"h-7 text-xs px-3 border-none " + roleStyles[role]}
+        <span
+          className={"text-sm text-neutral-300 font-semibold tracking-tight"}
         >
-          {role}
-        </Badge>
+          {role.toLocaleUpperCase()}
+        </span>
       );
     },
   },
@@ -83,7 +82,6 @@ export const memberColumns: ColumnDef<WorkspaceMember>[] = [
     header: "",
     cell: ({ row }) => {
       const user = row.original;
-
       return (
         <div className="flex justify-end w-full gap-2 opacity-80">
           {/* Pending invite → revoke */}
@@ -98,9 +96,9 @@ export const memberColumns: ColumnDef<WorkspaceMember>[] = [
           )}
 
           {/* Active member → manage */}
-          {user.joinedAt !== null && user.role !== "owner" && (
-            <Button variant="outline" size="sm">
-              Manage
+          {user.joinedAt !== null && (
+            <Button variant="default" size="sm" className="px-3">
+              Leave Workspace
             </Button>
           )}
         </div>

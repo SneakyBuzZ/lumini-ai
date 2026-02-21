@@ -9,7 +9,7 @@ import {
 type SelectRowProps = {
   label: string;
   value: string;
-  options: readonly string[];
+  options: readonly { label: string; value: string }[];
   description?: string;
   onChange: (value: string) => void;
 };
@@ -36,8 +36,8 @@ export function SelectRow({
         </SelectTrigger>
         <SelectContent>
           {options.map((opt) => (
-            <SelectItem key={opt} value={opt}>
-              {opt}
+            <SelectItem key={opt.value} value={opt.value}>
+              {opt.label}
             </SelectItem>
           ))}
         </SelectContent>

@@ -29,24 +29,24 @@ export function AppTable<TData>({ columns, data }: DataTableProps<TData>) {
   });
 
   return (
-    <div className="rounded-lg border border-neutral-800">
+    <div className="rounded-lg border border-neutral-800 overflow-hidden">
       <Table className="flex flex-col">
         <TableHeader className="flex justify-start items-center">
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow
               key={headerGroup.id}
-              className="w-full flex bg-midnight-200/50"
+              className="w-full flex bg-midnight-200/50 hover:bg-midnight-200/50"
             >
               {headerGroup.headers.map((header) => (
                 <TableHead
                   key={header.id}
                   className={cn(
-                    "w-full px-4 flex justify-start items-center h-10"
+                    "w-full px-4 flex justify-start items-center h-10",
                   )}
                 >
                   {flexRender(
                     header.column.columnDef.header,
-                    header.getContext()
+                    header.getContext(),
                   )}
                 </TableHead>
               ))}
@@ -54,25 +54,26 @@ export function AppTable<TData>({ columns, data }: DataTableProps<TData>) {
           ))}
         </TableHeader>
         <TableBody>
-          {table.getRowModel().rows.map((row, index) => (
+          {table.getRowModel().rows.map((row) => (
             <TableRow
               key={row.id}
-              className={cn("bg-midnight-200 w-full flex", {
-                " rounded-b-lg": index === table.getRowModel().rows.length - 1,
-              })}
+              className={cn("bg-midnight-200 w-full flex")}
             >
               {row.getVisibleCells().map((cell) => (
                 <TableCell
                   key={cell.id}
-                  className={cn(
-                    "w-full px-4 flex justify-start items-center cursor-pointer"
-                  )}
+                  className={cn("w-full px-4 flex justify-start items-center")}
                 >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </TableCell>
               ))}
             </TableRow>
           ))}
+          <TableRow className="bg-midnight-200 hover:bg-midnight-200 w-full flex justify-end px-2">
+            <TableCell colSpan={columns.length} className="text-center py-2">
+              {data.length} Member{data.length !== 1 ? "s" : ""}
+            </TableCell>
+          </TableRow>
         </TableBody>
       </Table>
     </div>

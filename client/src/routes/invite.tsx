@@ -6,7 +6,7 @@ import { getIsAuthenticated } from "@/lib/api/user-api";
 import { createFileRoute } from "@tanstack/react-router";
 import { ChevronLeft } from "lucide-react";
 
-export const Route = createFileRoute("/_pathlessLayout/invite")({
+export const Route = createFileRoute("/invite")({
   loader: async () => {
     const isAuthenticated = await getIsAuthenticated();
     return isAuthenticated;
@@ -27,12 +27,22 @@ function RouteComponent() {
 
   const handleRedirect = (isLogin: boolean) => {
     const path = isLogin ? "/auth/login" : "/auth/register";
-    navigate({
-      to: path,
-      search: {
-        redirect: window.location.pathname + window.location.search,
-      },
-    });
+    if (isLogin) {
+      navigate({
+        to: path,
+        search: {
+          redirect: window.location.pathname + window.location.search,
+        },
+      });
+    } else {
+      navigate({
+        to: path,
+        search: {
+          token: search.token,
+          workspace: search.workspace,
+        },
+      });
+    }
   };
 
   return (

@@ -2,57 +2,35 @@ import { AppTable } from "@/components/layout/table/app-table";
 import { labColumns } from "@/components/layout/table/lab-columns";
 import CreateButtonsBar from "@/components/shared/create-buttons-bar";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { getAllLabs } from "@/lib/api/lab-api";
-import { useGetLabs } from "@/lib/api/queries/app-queries";
 import { Lab } from "@/lib/types/lab-type";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/dashboard/space/$slug/")({
-  loader: async ({ params, context }) => {
-    await context.queryClient.ensureQueryData({
-      queryKey: ["labs", params.slug],
-      queryFn: () => getAllLabs(params.slug),
-    });
+  loader: async () => {
+    // const labs = await context.queryClient.ensureQueryData({
+    //   queryKey: ["labs", params.slug],
+    //   queryFn: () => getAllLabs(params.slug),
+    // });
+    return { data: [] };
   },
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const { slug } = Route.useParams();
-  const { data: labs, isPending } = useGetLabs(slug);
+  const { data: labs } = Route.useLoaderData();
   return (
-    <div className="w-full flex flex-col justify-start items-center bg-midnight-300/70 h-full space-y-8 p-10 overflow-y-auto">
-      <div className="space-y-5 w-full">
-        <div className="space-y-1 w-full">
-          <h3 className="text-xl font-space tracking-tight text-neutral-300  font-semibold">
-            Labs
-          </h3>
-          <p className="text-md text-neutral-500">Workspace Labs</p>
-        </div>
+    <div className="w-full flex flex-col justify-start items-start bg-midnight-300/70 h-full space-y-6 p-10 px-20 overflow-y-auto">
+      <h3 className="text-2xl font-space tracking-tight text-neutral-300 font-semibold">
+        Labs
+      </h3>
+      <div className="w-full space-y-4">
         <CreateButtonsBar />
-        {isPending ? (
-          <PendingLabs />
+        {labs && labs.length > 0 ? (
+          <AppTable<Lab> columns={labColumns} data={labs} />
         ) : (
-          <>
-            {labs && labs.length > 0 ? (
-              <AppTable<Lab> columns={labColumns} data={labs} />
-            ) : (
-              <EmptyLabs />
-            )}
-          </>
+          <EmptyLabs />
         )}
       </div>
-    </div>
-  );
-}
-
-function PendingLabs() {
-  return (
-    <div className="flex flex-col justify-center items-center w-full gap-3 rounded-lg">
-      <Skeleton className="w-full h-7 bg-midnight-100/80" />
-      <Skeleton className="w-full h-7 bg-midnight-100/80" />
-      <Skeleton className="w-full h-7 bg-midnight-100/80" />
     </div>
   );
 }

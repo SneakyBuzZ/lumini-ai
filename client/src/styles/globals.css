@@ -184,6 +184,19 @@ canvas {
   border-radius: 10px;
 }
 
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0px 1000px rgb(17, 17, 17) inset !important;
+  /* your bg color */
+  -webkit-text-fill-color: #cccccc !important;
+  /* your text color */
+  transition: background-color 9999s ease-in-out 0s;
+  background-clip: content-box !important;
+}
+
 .bg-canvas {
   position: relative;
 }

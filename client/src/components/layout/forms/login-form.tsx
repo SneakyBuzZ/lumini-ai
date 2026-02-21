@@ -14,11 +14,13 @@ import { Input } from "@/components/ui/input";
 import Spinner from "@/components/shared/spinner";
 import { useState } from "react";
 import { useLogin } from "@/lib/api/mutations/user-mutations";
-import { Route as LoginRoute } from "@/routes/auth/login";
+import { Route as LoginRoute } from "@/routes/auth/_pathlessLayout/login";
+import { Eye, EyeOff } from "lucide-react";
 
 const LoginForm = () => {
   const { redirect } = LoginRoute.useSearch();
   const navigate = LoginRoute.useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { mutateAsync: login, isPending } = useLogin(setError);
 
@@ -33,7 +35,7 @@ const LoginForm = () => {
   async function onSubmit(values: LoginFormValues) {
     await login(values);
     navigate({
-      to: redirect?.startsWith("/") ? redirect : "/",
+      to: redirect?.startsWith("/") ? redirect : "/dashboard",
       replace: true,
     });
   }
@@ -67,13 +69,34 @@ const LoginForm = () => {
                 <FormItem className="flex flex-col">
                   <FormLabel className="text-start">Password</FormLabel>
                   <FormControl>
-                    <Input placeholder="**********" {...field} />
+                    <div className="flex items-center">
+                      <Input
+                        placeholder="··················"
+                        {...field}
+                        type={showPassword ? "text" : "password"}
+                        autoComplete="new-password"
+                        className="rounded-r-none"
+                      />
+                      <div
+                        className="rounded-md rounded-l-none h-8 flex justify-center items-center px-3 bg-midnight-200 border border-midnight-100 cursor-pointer"
+                        onClick={() => setShowPassword((prev) => !prev)}
+                      >
+                        {showPassword ? (
+                          <Eye className="h-4 text-neutral-200" />
+                        ) : (
+                          <EyeOff className="h-4 text-neutral-400" />
+                        )}
+                      </div>
+                    </div>
                   </FormControl>
-                  <FormMessage>{error}</FormMessage>
+                  <FormMessage />
                 </FormItem>
               </>
             )}
           />
+          {error && (
+            <p className="text-red-400 text-start text-sm w-full">{error}</p>
+          )}
           <Button
             variant={"primary"}
             disabled={isPending}

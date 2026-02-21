@@ -4,6 +4,7 @@ export type RegisterType = {
   name: string;
   email: string;
   password: string;
+  inviteToken?: string;
 };
 
 export type LoginType = {
@@ -21,6 +22,7 @@ export type CreateLab = {
 export type CreateWorkspace = {
   name: string;
   plan: "free" | "pro" | "enterprise";
+  type: "personal" | "team";
 };
 
 export type CreateInvite = {
