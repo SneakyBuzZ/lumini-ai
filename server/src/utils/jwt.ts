@@ -13,7 +13,7 @@ const baseCookieOptions = {
 
 export async function generateAndSetTokens(res: Response, id: string) {
   const accessToken = jwt.sign({ userId: id }, JWT_SECRET, {
-    expiresIn: "15m",
+    expiresIn: "1d",
   });
   const refreshToken = jwt.sign({ userId: id }, JWT_SECRET, {
     expiresIn: "30d",
@@ -23,7 +23,7 @@ export async function generateAndSetTokens(res: Response, id: string) {
 
   res.cookie("accessToken", accessToken, {
     ...baseCookieOptions,
-    maxAge: 15 * 60 * 1000, // 15 minutes
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
   });
 
   res.cookie("refreshToken", refreshToken, {
