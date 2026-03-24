@@ -33,6 +33,7 @@ It helps developers understand complex codebases, reason visually, and collabora
 - Optimised, batched persistence with versioned updates
 
 Used for:
+
 - architecture diagrams
 - system flows
 - living documentation linked to real code
