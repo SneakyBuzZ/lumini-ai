@@ -1,6 +1,6 @@
 import { Slash } from "lucide-react";
 import { User } from "@/lib/types/user-type";
-import { useLocation } from "@tanstack/react-router";
+import { useMatch } from "@tanstack/react-router";
 
 import Logo from "@/components/shared/logo";
 import { UserProfile } from "./user-profile";
@@ -12,31 +12,47 @@ interface AppNavbarProps {
   workspaces: Workspace[];
 }
 
-const labelMap: Record<string, string> = {
-  new: "New Workspace",
-  space: "Workspace",
-};
-
 const AppNavbar = ({ user, workspaces }: AppNavbarProps) => {
-  const { pathname } = useLocation();
-  const last = pathname.split("/").filter(Boolean).slice(-1)[0];
-  const label =
-    labelMap[last] ||
-    last.slice(0, 1).toUpperCase() + last.slice(1).replace(/-/g, " ");
-  const isLabelValid = Object.keys(labelMap).includes(last);
+  const newMatch = useMatch({
+    from: "/dashboard/new/",
+    shouldThrow: false,
+  });
+  const isNewRoute = !!newMatch;
+
+  const spaceMatch = useMatch({
+    from: "/dashboard/space/$slug",
+    shouldThrow: false,
+  });
+  const isSpaceRoute = !!spaceMatch;
+
+  const newSlugMatch = useMatch({
+    from: "/dashboard/new/$slug/",
+    shouldThrow: false,
+  });
+  const isNewSlugRoute = !!newSlugMatch;
 
   return (
     <nav className="w-full h-[50px] flex justify-between items-center backdrop-blur-md px-7 border-b border-midnight-100 shrink-0">
       <div className="flex space-x-3 items-center">
         <Logo imgClassName="size-5" />
         <Seperator />
-
-        {isLabelValid ? (
+        {isNewRoute && (
           <span className="text-md text-neutral-100  tracking-tight">
-            {label}
+            New Workspace
           </span>
-        ) : (
-          <WorkspaceDropdown workspaces={workspaces} />
+        )}
+        {(isSpaceRoute || isNewSlugRoute) && (
+          <>
+            <WorkspaceDropdown workspaces={workspaces} />
+          </>
+        )}
+        {isNewSlugRoute && (
+          <>
+            <Seperator />
+            <span className="text-md text-neutral-100  tracking-tight">
+              New Laboratory
+            </span>
+          </>
         )}
       </div>
       <div className="flex justify-end items-center gap-2">

@@ -13,7 +13,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { DialogClose } from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
@@ -24,8 +23,7 @@ import {
 import Spinner from "@/components/shared/spinner";
 import { useState } from "react";
 import { useCreateLab } from "@/lib/api/mutations/app-mutations";
-import { useGetWorkspaces } from "@/lib/api/queries/app-queries";
-import { Route } from "@/routes/dashboard/space/$slug";
+import { Workspace } from "@/lib/types/workspace-type";
 
 const labSchema = z.object({
   name: z.string().min(2).max(100, {
@@ -39,20 +37,25 @@ const labSchema = z.object({
   }),
 });
 
-const LabForm = () => {
+interface LabFormProps {
+  slug: string;
+  workspaces: Workspace[];
+}
+
+const LabForm = ({ slug, workspaces }: LabFormProps) => {
   const [error, setError] = useState<string | null>(null);
-  const { data: workspaces } = useGetWorkspaces();
 
   const { mutateAsync: createLab, isPending } = useCreateLab(setError);
-  const { id: currentWorkspaceId } = Route.useParams();
-  const currentWorkspace = workspaces?.find((w) => w.id === currentWorkspaceId);
+  const currentWorkspace = workspaces.find((w) => w.slug === slug);
+
+  console.log("Current workspace:", currentWorkspace);
 
   const form = useForm<z.infer<typeof labSchema>>({
     resolver: zodResolver(labSchema),
     defaultValues: {
       name: "",
       githubUrl: "",
-      workspaceId: currentWorkspaceId || "",
+      workspaceId: currentWorkspace?.id || "",
     },
   });
 
@@ -147,15 +150,16 @@ const LabForm = () => {
           />
         </div>
         <div className="flex w-full px-4 p-3 justify-between items-center gap-4 border-t">
-          <DialogClose className="p-3 h-8 bg-neutral-900 text-sm flex justify-center items-center rounded-md border border-neutral-800 text-neutral-400 hover:bg-neutral-800 transition-colors">
+          <Button className="p-3 h-8 bg-neutral-900 text-sm flex justify-center items-center rounded-md border border-neutral-800 text-neutral-400 hover:bg-neutral-800 transition-colors">
             Cancel
-          </DialogClose>
+          </Button>
           <div className="flex flex-1 items-center justify-end gap-2">
             <span className="text-xs text-neutral-400">
               You can change the rename later
             </span>
-            <Button type="submit" className="h-8">
-              {isPending ? <Spinner /> : "Submit"}
+            <Button variant={"secondary"} type="submit" className="h-8">
+              Create Lab
+              {isPending && <Spinner />}
             </Button>
           </div>
         </div>

@@ -13,6 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useMatch } from "@tanstack/react-router";
 
 interface WorkspaceDropdownProps {
   workspaces: Workspace[];
@@ -21,7 +22,17 @@ interface WorkspaceDropdownProps {
 export default function WorkspaceDropdown({
   workspaces,
 }: WorkspaceDropdownProps) {
-  const { slug } = Route.useParams();
+  const newMatch = useMatch({
+    from: "/dashboard/new/$slug/",
+    shouldThrow: false,
+  });
+
+  const spaceMatch = useMatch({
+    from: "/dashboard/space/$slug",
+    shouldThrow: false,
+  });
+
+  const slug = spaceMatch?.params.slug ?? newMatch?.params.slug;
   const currentWorkspace = workspaces.find((ws) => ws.slug === slug);
   const navigate = Route.useNavigate();
 

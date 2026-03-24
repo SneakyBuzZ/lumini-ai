@@ -1,7 +1,7 @@
 import WorkspaceForm from "@/components/layout/forms/workspace-form";
 import { createFileRoute } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/dashboard/new")({
+export const Route = createFileRoute("/dashboard/new/")({
   component: RouteComponent,
 });
 

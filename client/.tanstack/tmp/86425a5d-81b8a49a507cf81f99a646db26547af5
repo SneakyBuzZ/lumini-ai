@@ -21,15 +21,15 @@ import { Route as PathlessLayoutRealtimeCanvasRouteImport } from './routes/_path
 import { Route as PathlessLayoutPricingRouteImport } from './routes/_pathlessLayout/pricing'
 import { Route as PathlessLayoutInsightfulDashboardRouteImport } from './routes/_pathlessLayout/insightful-dashboard'
 import { Route as PathlessLayoutCollabSpaceRouteImport } from './routes/_pathlessLayout/collab-space'
+import { Route as DashboardNewRouteRouteImport } from './routes/dashboard/new/route'
 import { Route as AuthPathlessLayoutRouteRouteImport } from './routes/auth/_pathlessLayout/route'
 import { Route as DashboardSpaceIndexRouteImport } from './routes/dashboard/space/index'
-import { Route as DashboardNewIndexRouteImport } from './routes/dashboard/new/index'
+import { Route as DashboardNewOkRouteImport } from './routes/dashboard/new/ok'
 import { Route as AuthPathlessLayoutRegisterRouteImport } from './routes/auth/_pathlessLayout/register'
 import { Route as AuthPathlessLayoutLoginRouteImport } from './routes/auth/_pathlessLayout/login'
 import { Route as DashboardSpaceSlugRouteRouteImport } from './routes/dashboard/space/$slug/route'
 import { Route as DashboardLabSlugRouteRouteImport } from './routes/dashboard/lab/$slug/route'
 import { Route as DashboardSpaceSlugIndexRouteImport } from './routes/dashboard/space/$slug/index'
-import { Route as DashboardNewSlugIndexRouteImport } from './routes/dashboard/new/$slug/index'
 import { Route as DashboardLabSlugIndexRouteImport } from './routes/dashboard/lab/$slug/index'
 import { Route as DashboardSpaceSlugTeamRouteImport } from './routes/dashboard/space/$slug/team'
 import { Route as DashboardSpaceSlugGeneralRouteImport } from './routes/dashboard/space/$slug/general'
@@ -100,6 +100,11 @@ const PathlessLayoutCollabSpaceRoute =
     path: '/collab-space',
     getParentRoute: () => PathlessLayoutRouteRoute,
   } as any)
+const DashboardNewRouteRoute = DashboardNewRouteRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
 const AuthPathlessLayoutRouteRoute = AuthPathlessLayoutRouteRouteImport.update({
   id: '/_pathlessLayout',
   getParentRoute: () => AuthRouteRoute,
@@ -109,10 +114,10 @@ const DashboardSpaceIndexRoute = DashboardSpaceIndexRouteImport.update({
   path: '/space/',
   getParentRoute: () => DashboardRouteRoute,
 } as any)
-const DashboardNewIndexRoute = DashboardNewIndexRouteImport.update({
-  id: '/new/',
-  path: '/new/',
-  getParentRoute: () => DashboardRouteRoute,
+const DashboardNewOkRoute = DashboardNewOkRouteImport.update({
+  id: '/ok',
+  path: '/ok',
+  getParentRoute: () => DashboardNewRouteRoute,
 } as any)
 const AuthPathlessLayoutRegisterRoute =
   AuthPathlessLayoutRegisterRouteImport.update({
@@ -139,11 +144,6 @@ const DashboardSpaceSlugIndexRoute = DashboardSpaceSlugIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => DashboardSpaceSlugRouteRoute,
-} as any)
-const DashboardNewSlugIndexRoute = DashboardNewSlugIndexRouteImport.update({
-  id: '/new/$slug/',
-  path: '/new/$slug/',
-  getParentRoute: () => DashboardRouteRoute,
 } as any)
 const DashboardLabSlugIndexRoute = DashboardLabSlugIndexRouteImport.update({
   id: '/',
@@ -183,6 +183,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthPathlessLayoutRouteRouteWithChildren
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/invite': typeof InviteRoute
+  '/dashboard/new': typeof DashboardNewRouteRouteWithChildren
   '/collab-space': typeof PathlessLayoutCollabSpaceRoute
   '/insightful-dashboard': typeof PathlessLayoutInsightfulDashboardRoute
   '/pricing': typeof PathlessLayoutPricingRoute
@@ -194,7 +195,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/space/$slug': typeof DashboardSpaceSlugRouteRouteWithChildren
   '/auth/login': typeof AuthPathlessLayoutLoginRoute
   '/auth/register': typeof AuthPathlessLayoutRegisterRoute
-  '/dashboard/new': typeof DashboardNewIndexRoute
+  '/dashboard/new/ok': typeof DashboardNewOkRoute
   '/dashboard/space': typeof DashboardSpaceIndexRoute
   '/dashboard/lab/$slug/ask': typeof DashboardLabSlugAskRoute
   '/dashboard/lab/$slug/canvas': typeof DashboardLabSlugCanvasRoute
@@ -202,13 +203,13 @@ export interface FileRoutesByFullPath {
   '/dashboard/space/$slug/general': typeof DashboardSpaceSlugGeneralRoute
   '/dashboard/space/$slug/team': typeof DashboardSpaceSlugTeamRoute
   '/dashboard/lab/$slug/': typeof DashboardLabSlugIndexRoute
-  '/dashboard/new/$slug': typeof DashboardNewSlugIndexRoute
   '/dashboard/space/$slug/': typeof DashboardSpaceSlugIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthPathlessLayoutRouteRouteWithChildren
   '/invite': typeof InviteRoute
+  '/dashboard/new': typeof DashboardNewRouteRouteWithChildren
   '/collab-space': typeof PathlessLayoutCollabSpaceRoute
   '/insightful-dashboard': typeof PathlessLayoutInsightfulDashboardRoute
   '/pricing': typeof PathlessLayoutPricingRoute
@@ -218,7 +219,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardIndexRoute
   '/auth/login': typeof AuthPathlessLayoutLoginRoute
   '/auth/register': typeof AuthPathlessLayoutRegisterRoute
-  '/dashboard/new': typeof DashboardNewIndexRoute
+  '/dashboard/new/ok': typeof DashboardNewOkRoute
   '/dashboard/space': typeof DashboardSpaceIndexRoute
   '/dashboard/lab/$slug/ask': typeof DashboardLabSlugAskRoute
   '/dashboard/lab/$slug/canvas': typeof DashboardLabSlugCanvasRoute
@@ -226,7 +227,6 @@ export interface FileRoutesByTo {
   '/dashboard/space/$slug/general': typeof DashboardSpaceSlugGeneralRoute
   '/dashboard/space/$slug/team': typeof DashboardSpaceSlugTeamRoute
   '/dashboard/lab/$slug': typeof DashboardLabSlugIndexRoute
-  '/dashboard/new/$slug': typeof DashboardNewSlugIndexRoute
   '/dashboard/space/$slug': typeof DashboardSpaceSlugIndexRoute
 }
 export interface FileRoutesById {
@@ -237,6 +237,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/invite': typeof InviteRoute
   '/auth/_pathlessLayout': typeof AuthPathlessLayoutRouteRouteWithChildren
+  '/dashboard/new': typeof DashboardNewRouteRouteWithChildren
   '/_pathlessLayout/collab-space': typeof PathlessLayoutCollabSpaceRoute
   '/_pathlessLayout/insightful-dashboard': typeof PathlessLayoutInsightfulDashboardRoute
   '/_pathlessLayout/pricing': typeof PathlessLayoutPricingRoute
@@ -248,7 +249,7 @@ export interface FileRoutesById {
   '/dashboard/space/$slug': typeof DashboardSpaceSlugRouteRouteWithChildren
   '/auth/_pathlessLayout/login': typeof AuthPathlessLayoutLoginRoute
   '/auth/_pathlessLayout/register': typeof AuthPathlessLayoutRegisterRoute
-  '/dashboard/new/': typeof DashboardNewIndexRoute
+  '/dashboard/new/ok': typeof DashboardNewOkRoute
   '/dashboard/space/': typeof DashboardSpaceIndexRoute
   '/dashboard/lab/$slug/ask': typeof DashboardLabSlugAskRoute
   '/dashboard/lab/$slug/canvas': typeof DashboardLabSlugCanvasRoute
@@ -256,7 +257,6 @@ export interface FileRoutesById {
   '/dashboard/space/$slug/general': typeof DashboardSpaceSlugGeneralRoute
   '/dashboard/space/$slug/team': typeof DashboardSpaceSlugTeamRoute
   '/dashboard/lab/$slug/': typeof DashboardLabSlugIndexRoute
-  '/dashboard/new/$slug/': typeof DashboardNewSlugIndexRoute
   '/dashboard/space/$slug/': typeof DashboardSpaceSlugIndexRoute
 }
 export interface FileRouteTypes {
@@ -266,6 +266,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/dashboard'
     | '/invite'
+    | '/dashboard/new'
     | '/collab-space'
     | '/insightful-dashboard'
     | '/pricing'
@@ -277,7 +278,7 @@ export interface FileRouteTypes {
     | '/dashboard/space/$slug'
     | '/auth/login'
     | '/auth/register'
-    | '/dashboard/new'
+    | '/dashboard/new/ok'
     | '/dashboard/space'
     | '/dashboard/lab/$slug/ask'
     | '/dashboard/lab/$slug/canvas'
@@ -285,13 +286,13 @@ export interface FileRouteTypes {
     | '/dashboard/space/$slug/general'
     | '/dashboard/space/$slug/team'
     | '/dashboard/lab/$slug/'
-    | '/dashboard/new/$slug'
     | '/dashboard/space/$slug/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
     | '/invite'
+    | '/dashboard/new'
     | '/collab-space'
     | '/insightful-dashboard'
     | '/pricing'
@@ -301,7 +302,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/auth/login'
     | '/auth/register'
-    | '/dashboard/new'
+    | '/dashboard/new/ok'
     | '/dashboard/space'
     | '/dashboard/lab/$slug/ask'
     | '/dashboard/lab/$slug/canvas'
@@ -309,7 +310,6 @@ export interface FileRouteTypes {
     | '/dashboard/space/$slug/general'
     | '/dashboard/space/$slug/team'
     | '/dashboard/lab/$slug'
-    | '/dashboard/new/$slug'
     | '/dashboard/space/$slug'
   id:
     | '__root__'
@@ -319,6 +319,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/invite'
     | '/auth/_pathlessLayout'
+    | '/dashboard/new'
     | '/_pathlessLayout/collab-space'
     | '/_pathlessLayout/insightful-dashboard'
     | '/_pathlessLayout/pricing'
@@ -330,7 +331,7 @@ export interface FileRouteTypes {
     | '/dashboard/space/$slug'
     | '/auth/_pathlessLayout/login'
     | '/auth/_pathlessLayout/register'
-    | '/dashboard/new/'
+    | '/dashboard/new/ok'
     | '/dashboard/space/'
     | '/dashboard/lab/$slug/ask'
     | '/dashboard/lab/$slug/canvas'
@@ -338,7 +339,6 @@ export interface FileRouteTypes {
     | '/dashboard/space/$slug/general'
     | '/dashboard/space/$slug/team'
     | '/dashboard/lab/$slug/'
-    | '/dashboard/new/$slug/'
     | '/dashboard/space/$slug/'
   fileRoutesById: FileRoutesById
 }
@@ -436,6 +436,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PathlessLayoutCollabSpaceRouteImport
       parentRoute: typeof PathlessLayoutRouteRoute
     }
+    '/dashboard/new': {
+      id: '/dashboard/new'
+      path: '/new'
+      fullPath: '/dashboard/new'
+      preLoaderRoute: typeof DashboardNewRouteRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
     '/auth/_pathlessLayout': {
       id: '/auth/_pathlessLayout'
       path: ''
@@ -450,12 +457,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardSpaceIndexRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
-    '/dashboard/new/': {
-      id: '/dashboard/new/'
-      path: '/new'
-      fullPath: '/dashboard/new'
-      preLoaderRoute: typeof DashboardNewIndexRouteImport
-      parentRoute: typeof DashboardRouteRoute
+    '/dashboard/new/ok': {
+      id: '/dashboard/new/ok'
+      path: '/ok'
+      fullPath: '/dashboard/new/ok'
+      preLoaderRoute: typeof DashboardNewOkRouteImport
+      parentRoute: typeof DashboardNewRouteRoute
     }
     '/auth/_pathlessLayout/register': {
       id: '/auth/_pathlessLayout/register'
@@ -491,13 +498,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard/space/$slug/'
       preLoaderRoute: typeof DashboardSpaceSlugIndexRouteImport
       parentRoute: typeof DashboardSpaceSlugRouteRoute
-    }
-    '/dashboard/new/$slug/': {
-      id: '/dashboard/new/$slug/'
-      path: '/new/$slug'
-      fullPath: '/dashboard/new/$slug'
-      preLoaderRoute: typeof DashboardNewSlugIndexRouteImport
-      parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/lab/$slug/': {
       id: '/dashboard/lab/$slug/'
@@ -594,6 +594,17 @@ const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
   AuthRouteRouteChildren,
 )
 
+interface DashboardNewRouteRouteChildren {
+  DashboardNewOkRoute: typeof DashboardNewOkRoute
+}
+
+const DashboardNewRouteRouteChildren: DashboardNewRouteRouteChildren = {
+  DashboardNewOkRoute: DashboardNewOkRoute,
+}
+
+const DashboardNewRouteRouteWithChildren =
+  DashboardNewRouteRoute._addFileChildren(DashboardNewRouteRouteChildren)
+
 interface DashboardLabSlugRouteRouteChildren {
   DashboardLabSlugAskRoute: typeof DashboardLabSlugAskRoute
   DashboardLabSlugCanvasRoute: typeof DashboardLabSlugCanvasRoute
@@ -632,21 +643,19 @@ const DashboardSpaceSlugRouteRouteWithChildren =
   )
 
 interface DashboardRouteRouteChildren {
+  DashboardNewRouteRoute: typeof DashboardNewRouteRouteWithChildren
   DashboardIndexRoute: typeof DashboardIndexRoute
   DashboardLabSlugRouteRoute: typeof DashboardLabSlugRouteRouteWithChildren
   DashboardSpaceSlugRouteRoute: typeof DashboardSpaceSlugRouteRouteWithChildren
-  DashboardNewIndexRoute: typeof DashboardNewIndexRoute
   DashboardSpaceIndexRoute: typeof DashboardSpaceIndexRoute
-  DashboardNewSlugIndexRoute: typeof DashboardNewSlugIndexRoute
 }
 
 const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
+  DashboardNewRouteRoute: DashboardNewRouteRouteWithChildren,
   DashboardIndexRoute: DashboardIndexRoute,
   DashboardLabSlugRouteRoute: DashboardLabSlugRouteRouteWithChildren,
   DashboardSpaceSlugRouteRoute: DashboardSpaceSlugRouteRouteWithChildren,
-  DashboardNewIndexRoute: DashboardNewIndexRoute,
   DashboardSpaceIndexRoute: DashboardSpaceIndexRoute,
-  DashboardNewSlugIndexRoute: DashboardNewSlugIndexRoute,
 }
 
 const DashboardRouteRouteWithChildren = DashboardRouteRoute._addFileChildren(

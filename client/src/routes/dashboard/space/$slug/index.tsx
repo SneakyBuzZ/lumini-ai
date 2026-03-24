@@ -18,13 +18,14 @@ export const Route = createFileRoute("/dashboard/space/$slug/")({
 
 function RouteComponent() {
   const { data: labs } = Route.useLoaderData();
+  const { slug } = Route.useParams();
   return (
     <div className="w-full flex flex-col justify-start items-start bg-midnight-300/70 h-full space-y-6 p-10 px-20 overflow-y-auto">
       <h3 className="text-2xl font-space tracking-tight text-neutral-300 font-semibold">
         Labs
       </h3>
       <div className="w-full space-y-4">
-        <CreateButtonsBar />
+        <CreateButtonsBar slug={slug} />
         {labs && labs.length > 0 ? (
           <AppTable<Lab> columns={labColumns} data={labs} />
         ) : (

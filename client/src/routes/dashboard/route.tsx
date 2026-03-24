@@ -4,7 +4,7 @@ import {
   createFileRoute,
   Outlet,
   redirect,
-  useLocation,
+  useMatch,
 } from "@tanstack/react-router";
 import Loading from "@/components/shared/loading";
 import AppNavbar from "@/components/layout/app-navbar/index";
@@ -37,14 +37,25 @@ export const Route = createFileRoute("/dashboard")({
 
 function DashboardLayout() {
   const { data } = Route.useLoaderData();
-  const { pathname } = useLocation();
+  const newMatch = useMatch({
+    from: "/dashboard/new/",
+    shouldThrow: false,
+  });
+
+  const newSlugMatch = useMatch({
+    from: "/dashboard/new/$slug/",
+    shouldThrow: false,
+  });
+  const isNew = !!newMatch;
+  const isNewSlug = !!newSlugMatch;
+  const showSidebar = !isNew && !isNewSlug;
 
   return (
     <section className="w-full h-screen flex flex-col overflow-hidden bg-midnight-400">
       <AppNavbar user={data.user} workspaces={data.workspaces} />
 
       <main className="flex flex-1 overflow-hidden">
-        {pathname !== "/dashboard/new" && <AppSidebar />}
+        {showSidebar && <AppSidebar />}
 
         <div className="flex-1 overflow-y-auto">
           <Outlet />
